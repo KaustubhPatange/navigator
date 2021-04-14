@@ -1,0 +1,7 @@
+include ':samples:bottom-navigation-sample'
+include ':samples:backpress-sample'
+include ':samples:basic-sample'
+include ':navigator-bottom-navigation'
+include ':navigator-extensions'
+include ':navigator'
+rootProject.name = "Navigator"
