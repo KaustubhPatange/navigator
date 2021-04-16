@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
+import com.kpstv.navigation.AnimationDefinition
 import com.kpstv.navigation.BaseArgs
 import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.ValueFragment
@@ -31,7 +32,7 @@ class MainFragment : ValueFragment() {
                     setOnClickListener {
                         viewModel.navigate(
                             screen = MainActivity.Screens.FIRST,
-                            transition = Navigator.TransitionType.FADE,
+                            animation = AnimationDefinition.Fade(),
                             args = AbstractArgs("Second Fragment"),
                             addToBackStack = true
                         )
@@ -44,7 +45,7 @@ class MainFragment : ValueFragment() {
                     setOnClickListener {
                         viewModel.navigate(
                             screen = MainActivity.Screens.SECOND,
-                            transition = Navigator.TransitionType.SLIDE,
+                            animation = AnimationDefinition.SlideInRight(),
                             args = AbstractArgs("Third Fragment"),
                             addToBackStack = true
                         )

@@ -8,10 +8,7 @@ import android.os.Parcelable
 import android.view.View
 import androidx.annotation.ColorRes
 import androidx.fragment.app.Fragment
-import com.kpstv.navigation.BaseArgs
-import com.kpstv.navigation.CircularPayload
-import com.kpstv.navigation.Navigator
-import com.kpstv.navigation.ValueFragment
+import com.kpstv.navigation.*
 import com.kpstv.navigator_backpress_sample.databinding.FragmentDisclaimerBinding
 import kotlinx.parcelize.Parcelize
 import kotlin.reflect.KClass
@@ -41,21 +38,19 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
                     Navigator.NavOptions(
                         clazz = nextFragment,
                         args = getNextArgs(),
-                        transition = Navigator.TransitionType.CIRCULAR,
+                        animation = AnimationDefinition.CircularReveal(),
                         popUpToThis = true
                     )
                 )
             } else {
                 val rect = Rect()
                 binding.btnNext.getGlobalVisibleRect(rect)
-                val payload = CircularPayload(getNextFragment(), rect)
 
                 getParentNavigator().navigateTo(
                     Navigator.NavOptions(
                         clazz = nextFragment,
                         args = getNextArgs(),
-                        transition = Navigator.TransitionType.CIRCULAR,
-                        transitionPayload = payload,
+                        animation = AnimationDefinition.CircularReveal(getNextFragment(), rect),
                         addToBackStack = true
                     )
                 )

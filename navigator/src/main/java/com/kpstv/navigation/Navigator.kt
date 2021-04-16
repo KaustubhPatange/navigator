@@ -1,10 +1,8 @@
 package com.kpstv.navigation
 
-import android.os.Build
 import android.os.Bundle
 import android.widget.FrameLayout
 import androidx.annotation.IdRes
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -21,8 +19,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         val clazz: FragClazz,
         val args: BaseArgs? = null,
         val type: TransactionType = TransactionType.REPLACE,
-        val transition: TransitionType = TransitionType.NONE,
-        val transitionPayload: TransitionPayload? = null,
+        val animation: NavAnimation = AnimationDefinition.None,
         val addToBackStack: Boolean = false,
         val popUpToThis: Boolean = false
     )
@@ -56,9 +53,9 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             newFragment.backStackName
         } else getFragmentTagName(clazz)
 
-        if (transition == TransitionType.CIRCULAR) {
-            val oldPayload = transitionPayload as? CircularPayload
-            val payload = CircularPayload(
+        if (animation is AnimationDefinition.CircularReveal) {
+            val oldPayload = animation as? AnimationDefinition.CircularReveal
+            val payload = AnimationDefinition.CircularReveal(
                 forFragment = oldPayload?.forFragment ?: clazz,
                 fromTarget = oldPayload?.fromTarget
             )
@@ -83,17 +80,20 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             }
         }
         fm.commit {
+            val currentFragment = fm.findFragmentByTag(tagName)
+
             if (popUpToThis) {
                 fm.fragments.forEach { remove(it) }
             }
-            if (transition == TransitionType.FADE)
-                setCustomAnimations(R.anim.navigator_fade_in, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_fade_out                )
-            if (transition == TransitionType.SLIDE)
+            if (animation is AnimationDefinition.Fade)
+                setCustomAnimations(R.anim.navigator_fade_in, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_fade_out)
+            if (animation is AnimationDefinition.SlideInRight)
                 setCustomAnimations(R.anim.navigator_slide_in, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out)
-            if (transition == TransitionType.SHARED)
+            if (animation is AnimationDefinition.SlideInLeft)
+                setCustomAnimations(R.anim.navigator_slide_out, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_in)
+            if (animation is AnimationDefinition.Shared)
                 prepareForSharedTransition(fm, this@options)
 
-            val currentFragment = fm.findFragmentByTag(tagName)
             if (currentFragment != null && currentFragment::class != clazz) {
                 // (maybe) should popUp it's childFragmentManager in this case.
                 show(currentFragment)
@@ -152,7 +152,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         }
         if (!canGoBack() && clazz != null && !hasPrimaryFragment) {
             // Create primary fragment
-            navigateTo(NavOptions(clazz, transition = TransitionType.FADE))
+            navigateTo(NavOptions(clazz, animation = AnimationDefinition.Fade()))
             return false
         }
         val currentFragment = getCurrentFragment()
@@ -190,16 +190,6 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     enum class TransactionType {
         REPLACE,
         ADD
-    }
-
-    enum class TransitionType {
-        NONE,
-        FADE,
-        SLIDE,
-        CIRCULAR,
-
-        @RequiresApi(21)
-        SHARED
     }
 
     abstract class BottomNavigation {

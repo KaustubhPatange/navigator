@@ -16,7 +16,7 @@ any time.
 // root's build.gradle
 allprojects {
     repositories {
-        mavenLocal()
+        mavenCentral()
     }
 }
 ```

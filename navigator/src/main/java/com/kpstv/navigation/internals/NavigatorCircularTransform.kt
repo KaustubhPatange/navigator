@@ -5,12 +5,11 @@ import android.os.Bundle
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.annotation.RequiresApi
 import androidx.core.animation.addListener
 import androidx.core.view.drawToBitmap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.kpstv.navigation.CircularPayload
+import com.kpstv.navigation.AnimationDefinition
 import com.kpstv.navigation.R
 import kotlin.math.hypot
 
@@ -20,7 +19,7 @@ internal class NavigatorCircularTransform(
 ) {
     private val containerView = fragmentContainer.rootView as FrameLayout
 
-    fun circularTransform(payload: CircularPayload, popUpTo: Boolean = false) {
+    fun circularTransform(payload: AnimationDefinition.CircularReveal, popUpTo: Boolean = false) {
         if (fragmentContainer.childCount <= 0) return
 
         val viewBitmap = containerView.drawToBitmap()

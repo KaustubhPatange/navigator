@@ -6,9 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.kpstv.navigation.BaseArgs
-import com.kpstv.navigation.Navigator
-import com.kpstv.navigation.NavigatorTransmitter
+import com.kpstv.navigation.*
 import kotlin.reflect.KClass
 
 class MainActivity : AppCompatActivity(), NavigatorTransmitter {
@@ -42,13 +40,13 @@ class MainViewModel : ViewModel() {
     fun navigate(
         screen: MainActivity.Screens,
         args: BaseArgs? = null,
-        transition: Navigator.TransitionType = Navigator.TransitionType.NONE,
+        animation: NavAnimation = AnimationDefinition.None,
         addToBackStack: Boolean = false
     ) {
         navigation.value = Navigator.NavOptions(
             clazz = screen.clazz,
             args = args,
-            transition = transition,
+            animation = animation,
             addToBackStack = addToBackStack
         )
     }
