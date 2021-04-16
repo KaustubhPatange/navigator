@@ -38,7 +38,7 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
                     Navigator.NavOptions(
                         clazz = nextFragment,
                         args = getNextArgs(),
-                        animation = AnimationDefinition.CircularReveal(),
+                        animation = AnimationDefinition.Fade(),
                         popUpToThis = true
                     )
                 )

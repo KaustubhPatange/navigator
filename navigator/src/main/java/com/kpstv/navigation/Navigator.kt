@@ -65,8 +65,10 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             if (args != null)
                 putParcelable(ValueFragment.ARGUMENTS, args)
         }
-        if (popUpToThis && getBackStackCount() > 0) {
-            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        // Enqueue a popUpTo operation
+        if (popUpToThis && fm.backStackEntryCount > 1) {
+            val to = fm.getBackStackEntryAt(fm.backStackEntryCount - 2).name
+            fm.popBackStack(to, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         }
         // Remove duplicate backStack entry name & add it again if exist.
         // Useful when fragment is navigating to self.
@@ -80,11 +82,6 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             }
         }
         fm.commit {
-            val currentFragment = fm.findFragmentByTag(tagName)
-
-            if (popUpToThis) {
-                fm.fragments.forEach { remove(it) }
-            }
             if (animation is AnimationDefinition.Fade)
                 setCustomAnimations(R.anim.navigator_fade_in, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_fade_out)
             if (animation is AnimationDefinition.SlideInRight)
@@ -94,9 +91,10 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             if (animation is AnimationDefinition.Shared)
                 prepareForSharedTransition(fm, this@options)
 
-            if (currentFragment != null && currentFragment::class != clazz) {
+            val sameFragment = fm.findFragmentByTag(tagName)
+            if (sameFragment != null && sameFragment::class != clazz) {
                 // (maybe) should popUp it's childFragmentManager in this case.
-                show(currentFragment)
+                show(sameFragment)
             } else {
                 newFragment.arguments = bundle
                 when (type) {
@@ -104,7 +102,8 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
                     TransactionType.ADD -> add(containerView.id, newFragment, tagName)
                 }
             }
-            if (addToBackStack || innerAddToBackStack) addToBackStack(tagName)
+            // Cannot add to back stack when popUpTo is true
+            if (!popUpToThis && (addToBackStack || innerAddToBackStack)) addToBackStack(tagName)
         }
     }
 
