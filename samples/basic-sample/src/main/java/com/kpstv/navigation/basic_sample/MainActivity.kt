@@ -41,13 +41,13 @@ class MainViewModel : ViewModel() {
         screen: MainActivity.Screens,
         args: BaseArgs? = null,
         animation: NavAnimation = AnimationDefinition.None,
-        addToBackStack: Boolean = false
+        remember: Boolean = false
     ) {
         navigation.value = Navigator.NavOptions(
             clazz = screen.clazz,
             args = args,
             animation = animation,
-            addToBackStack = addToBackStack
+            remember = remember
         )
     }
 }

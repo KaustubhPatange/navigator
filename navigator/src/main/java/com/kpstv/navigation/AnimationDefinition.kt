@@ -3,6 +3,10 @@ package com.kpstv.navigation
 import android.graphics.Rect
 import android.view.View
 
+/**
+ * A generic base animation class which will be used for animating fragment transaction.
+ * Use [AnimationDefinition] to specify a animation.
+ */
 open class NavAnimation
 
 class AnimationDefinition {

@@ -10,13 +10,8 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
 import com.kpstv.navigation.AnimationDefinition
 import com.kpstv.navigation.BaseArgs
-import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.ValueFragment
 import kotlinx.parcelize.Parcelize
 
@@ -34,7 +29,7 @@ class MainFragment : ValueFragment() {
                             screen = MainActivity.Screens.FIRST,
                             animation = AnimationDefinition.Fade(),
                             args = AbstractArgs("Second Fragment"),
-                            addToBackStack = true
+                            remember = true
                         )
                     }
                 }
@@ -47,7 +42,7 @@ class MainFragment : ValueFragment() {
                             screen = MainActivity.Screens.SECOND,
                             animation = AnimationDefinition.SlideInRight(),
                             args = AbstractArgs("Third Fragment"),
-                            addToBackStack = true
+                            remember = true
                         )
                     }
                 }

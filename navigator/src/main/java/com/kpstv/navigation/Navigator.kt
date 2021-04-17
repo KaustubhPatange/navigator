@@ -15,13 +15,21 @@ internal typealias FragClazz = KClass<out Fragment>
 
 class Navigator(private val fm: FragmentManager, private val containerView: FrameLayout) {
 
+    /**
+     * @param clazz Pass the Fragment::class as the parameter.
+     * @param args Pass arguments extended from [BaseArgs].
+     * @param transaction See [TransactionType].
+     * @param animation See [NavAnimation].
+     * @param remember Remembers the fragment transaction so that [goBack] can navigate to this fragment again on back press or by calling manually. Equivalent to addToBackStack in fragment transaction.
+     * @param clearAllHistory Clear all previous remembered fragment transaction. Equivalent to clearing all backstack record or popUpThisInclusive call.
+     */
     data class NavOptions(
         val clazz: FragClazz,
         val args: BaseArgs? = null,
-        val type: TransactionType = TransactionType.REPLACE,
+        val transaction: TransactionType = TransactionType.REPLACE,
         val animation: NavAnimation = AnimationDefinition.None,
-        val addToBackStack: Boolean = false,
-        val popUpToThis: Boolean = false
+        val remember: Boolean = false,
+        val clearAllHistory: Boolean = false,
     )
 
     private var primaryFragClass: FragClazz? = null
@@ -59,15 +67,15 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
                 forFragment = oldPayload?.forFragment ?: clazz,
                 fromTarget = oldPayload?.fromTarget
             )
-            navigatorTransitionManager.circularTransform(payload, popUpToThis)
+            navigatorTransitionManager.circularTransform(payload, clearAllHistory)
         }
         val bundle = Bundle().apply {
             if (args != null)
                 putParcelable(ValueFragment.ARGUMENTS, args)
         }
         // Enqueue a popUpTo operation
-        if (popUpToThis && fm.backStackEntryCount > 1) {
-            val to = fm.getBackStackEntryAt(fm.backStackEntryCount - 2).name
+        if (clearAllHistory && fm.backStackEntryCount > 0) {
+            val to = fm.getBackStackEntryAt(0).name
             fm.popBackStack(to, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         }
         // Remove duplicate backStack entry name & add it again if exist.
@@ -85,9 +93,9 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             if (animation is AnimationDefinition.Fade)
                 setCustomAnimations(R.anim.navigator_fade_in, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_fade_out)
             if (animation is AnimationDefinition.SlideInRight)
-                setCustomAnimations(R.anim.navigator_slide_in, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out)
+                setCustomAnimations(R.anim.navigator_slide_in_right, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out_right)
             if (animation is AnimationDefinition.SlideInLeft)
-                setCustomAnimations(R.anim.navigator_slide_out, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_in)
+                setCustomAnimations(R.anim.navigator_slide_in_left, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out_left)
             if (animation is AnimationDefinition.Shared)
                 prepareForSharedTransition(fm, this@options)
 
@@ -97,13 +105,13 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
                 show(sameFragment)
             } else {
                 newFragment.arguments = bundle
-                when (type) {
+                when (transaction) {
                     TransactionType.REPLACE -> replace(containerView.id, newFragment, tagName)
                     TransactionType.ADD -> add(containerView.id, newFragment, tagName)
                 }
             }
             // Cannot add to back stack when popUpTo is true
-            if (!popUpToThis && (addToBackStack || innerAddToBackStack)) addToBackStack(tagName)
+            if (!clearAllHistory && (remember || innerAddToBackStack)) addToBackStack(tagName)
         }
     }
 
@@ -186,6 +194,9 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     private fun getFragmentTagName(clazz: FragClazz): String =
         clazz.java.simpleName + FRAGMENT_SUFFIX
 
+    /**
+     * Transactions like Add, Replace can be specified.
+     */
     enum class TransactionType {
         REPLACE,
         ADD

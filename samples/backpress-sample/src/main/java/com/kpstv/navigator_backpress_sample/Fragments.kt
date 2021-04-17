@@ -8,6 +8,7 @@ import android.os.Parcelable
 import android.view.View
 import androidx.annotation.ColorRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.kpstv.navigation.*
 import com.kpstv.navigator_backpress_sample.databinding.FragmentDisclaimerBinding
 import kotlinx.parcelize.Parcelize
@@ -39,7 +40,7 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
                         clazz = nextFragment,
                         args = getNextArgs(),
                         animation = AnimationDefinition.Fade(),
-                        popUpToThis = true
+                        clearAllHistory = true
                     )
                 )
             } else {
@@ -51,7 +52,7 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
                         clazz = nextFragment,
                         args = getNextArgs(),
                         animation = AnimationDefinition.CircularReveal(getNextFragment(), rect),
-                        addToBackStack = true
+                        remember = true
                     )
                 )
             }
@@ -84,16 +85,43 @@ class SecondFragment : AbstractWelcomeFragment() {
         title = "Third Fragment",
         background = R.color.palette3,
         nextColor = R.color.palette4,
-        hasNext = false
     )
     override fun getNextFragment(): KClass<out Fragment> = ThirdFragment::class
 }
 
 class ThirdFragment : AbstractWelcomeFragment() {
     override fun getNextArgs(): Args = Args(
-        title = "Last Fragment",
+        title = "Fourth Fragment",
         background = R.color.palette4,
         nextColor = R.color.palette5,
+    )
+    override fun getNextFragment(): KClass<out Fragment> = FourthFragment::class
+}
+
+class FourthFragment : AbstractWelcomeFragment() {
+    override fun getNextArgs(): Args = Args(
+        title = "Fifth Fragment",
+        background = R.color.palette5,
+        nextColor = R.color.palette6,
+    )
+    override fun getNextFragment(): KClass<out Fragment> = FifthFragment::class
+}
+
+class FifthFragment : AbstractWelcomeFragment() {
+    override fun getNextArgs(): Args = Args(
+        title = "Sixth Fragment",
+        background = R.color.palette6,
+        nextColor = R.color.palette7,
+        hasNext = false
+    )
+    override fun getNextFragment(): KClass<out Fragment> = SixthFragment::class
+}
+
+class SixthFragment : AbstractWelcomeFragment() {
+    override fun getNextArgs(): Args = Args(
+        title = "Seventh Fragment",
+        background = R.color.palette8,
+        nextColor = R.color.palette9,
         hasNext = false
     )
     override fun getNextFragment(): KClass<out Fragment> = LastFragment::class

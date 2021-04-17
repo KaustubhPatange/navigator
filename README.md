@@ -4,11 +4,13 @@ A small navigation library for Android to ease the use of fragment transactions 
 call (rest is handled for you) & navigating back is as simple as `navigator.goBack()`.
 
 The library provides some custom transitions like `CircularTransform` (on top of existing animations), see its
-use in the sample app [here](/samples).
+use in the sample app [here](/samples/backpress-sample).
 
-The library builds up on the existing Fragment APIs so it is easy to introduce this library into existing project. The
+The library is build on the existing Fragment APIs so it is easy to introduce this library into existing project. The
 developer has complete control over navigation & can choose between `FragmentTransaction` or `Navigator` at
 any time.
+
+If you have any implementation details to cover let me know by creating an issue.
 
 ## Implementation
 
