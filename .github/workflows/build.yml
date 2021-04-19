@@ -23,7 +23,7 @@ jobs:
         uses: timheuer/base64-to-file@v1.0.3
         with:
           fileName: "key.gpg"
-          encodedString: ${{ secrets.SIGNING_KEKEY_GPGY_GPG }}
+          encodedString: ${{ secrets.KEY_GPG }}
       - run: echo ${{ steps.write_file.outputs.filePath }}
       - run: echo signing.secretKeyRingFile=${{ steps.write_file.outputs.filePath }} >> local.properties
 
