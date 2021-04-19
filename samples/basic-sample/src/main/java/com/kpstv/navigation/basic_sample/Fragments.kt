@@ -27,8 +27,11 @@ class MainFragment : ValueFragment() {
                     setOnClickListener {
                         viewModel.navigate(
                             screen = MainActivity.Screens.FIRST,
-                            animation = AnimationDefinition.Fade(),
-                            args = AbstractArgs("Second Fragment"),
+                            animation = AnimationDefinition.Custom(
+                                enter = R.transition.myfade,
+                                exit = R.transition.myfade
+                            ),
+                            args = AbstractArgs("First Fragment"),
                             remember = true
                         )
                     }
@@ -40,8 +43,8 @@ class MainFragment : ValueFragment() {
                     setOnClickListener {
                         viewModel.navigate(
                             screen = MainActivity.Screens.SECOND,
-                            animation = AnimationDefinition.SlideInRight(),
-                            args = AbstractArgs("Third Fragment"),
+                            animation = AnimationDefinition.SlideInRight,
+                            args = AbstractArgs("Second Fragment"),
                             remember = true
                         )
                     }

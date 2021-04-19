@@ -15,6 +15,11 @@
             android:layout_height="wrap_content"
             app:navigationIcon="@drawable/ic_baseline_menu_24" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="?colorControlNormal" />
+
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/container"
             android:layout_width="match_parent"

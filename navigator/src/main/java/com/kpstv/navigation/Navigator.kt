@@ -7,8 +7,11 @@ import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
+import androidx.transition.TransitionInflater
+import com.kpstv.navigation.internals.CustomAnimation
 import com.kpstv.navigation.internals.NavigatorCircularTransform
 import com.kpstv.navigation.internals.prepareForSharedTransition
+import org.xmlpull.v1.XmlPullParser
 import kotlin.reflect.KClass
 
 internal typealias FragClazz = KClass<out Fragment>
@@ -90,12 +93,8 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             }
         }
         fm.commit {
-            if (animation is AnimationDefinition.Fade)
-                setCustomAnimations(R.anim.navigator_fade_in, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_fade_out)
-            if (animation is AnimationDefinition.SlideInRight)
-                setCustomAnimations(R.anim.navigator_slide_in_right, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out_right)
-            if (animation is AnimationDefinition.SlideInLeft)
-                setCustomAnimations(R.anim.navigator_slide_in_left, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out_left)
+            if (animation is AnimationDefinition.Custom)
+                CustomAnimation(fm, containerView).set(this, animation, clazz)
             if (animation is AnimationDefinition.Shared)
                 prepareForSharedTransition(fm, this@options)
 
@@ -159,7 +158,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         }
         if (!canGoBack() && clazz != null && !hasPrimaryFragment) {
             // Create primary fragment
-            navigateTo(NavOptions(clazz, animation = AnimationDefinition.Fade()))
+            navigateTo(NavOptions(clazz, animation = AnimationDefinition.Fade))
             return false
         }
         val currentFragment = getCurrentFragment()

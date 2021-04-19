@@ -1,5 +1,7 @@
 # navigator
 
+![build](https://github.com/KaustubhPatange/navigator/workflows/build/badge.svg)
+
 A small navigation library for Android to ease the use of fragment transactions with a `navigator.navigateTo`
 call (rest is handled for you) & navigating back is as simple as `navigator.goBack()`.
 
@@ -10,7 +12,7 @@ The library is build on the existing Fragment APIs so it is easy to introduce th
 developer has complete control over navigation & can choose between `FragmentTransaction` or `Navigator` at
 any time.
 
-If you have any implementation details to cover let me know by creating an issue.
+If you have any implementation details to cover let me know.
 
 ## Implementation
 

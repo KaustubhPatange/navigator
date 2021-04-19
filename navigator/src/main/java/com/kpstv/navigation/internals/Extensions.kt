@@ -2,6 +2,8 @@ package com.kpstv.navigation.internals
 
 import android.view.View
 import android.view.ViewTreeObserver
+import androidx.fragment.app.Fragment
+import com.kpstv.navigation.ValueFragment
 
 internal fun View.doOnLaidOut(block: (View) -> Unit) {
     if (isLaidOut) {
@@ -33,4 +35,11 @@ internal fun<T> Iterable<T>.secondLast(): T? {
         return this.elementAt(c - 2)
     }
     return null
+}
+
+internal fun Fragment.clearTransitions() {
+    enterTransition = null
+    exitTransition = null
+    returnTransition = null
+    reenterTransition = null
 }

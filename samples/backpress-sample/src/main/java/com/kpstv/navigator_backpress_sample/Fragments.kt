@@ -39,7 +39,7 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
                     Navigator.NavOptions(
                         clazz = nextFragment,
                         args = getNextArgs(),
-                        animation = AnimationDefinition.Fade(),
+                        animation = AnimationDefinition.Fade,
                         clearAllHistory = true
                     )
                 )
