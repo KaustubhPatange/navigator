@@ -33,7 +33,8 @@ fun Navigator.install(fragment: Fragment, obj: Navigator.BottomNavigation) {
         navView = view.findViewById(obj.bottomNavigationViewId),
         navFragments = obj.bottomNavigationFragments,
         selectedNavId = obj.selectedBottomNavigationId,
-        onNavSelectionChange = obj::onBottomNavigationSelectionChanged
+        onNavSelectionChange = obj::onBottomNavigationSelectionChanged,
+        transition = obj.fragmentNavigationTransition
     )
 
     impl.onCreate(fragmentSavedState)
@@ -63,7 +64,8 @@ fun Navigator.install(
         navView = activity.findViewById(obj.bottomNavigationViewId),
         navFragments = obj.bottomNavigationFragments,
         selectedNavId = obj.selectedBottomNavigationId,
-        onNavSelectionChange = obj::onBottomNavigationSelectionChanged
+        onNavSelectionChange = obj::onBottomNavigationSelectionChanged,
+        transition = obj.fragmentNavigationTransition
     )
 
     impl.onCreate(savedStateInstance)

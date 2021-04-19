@@ -11,6 +11,22 @@ jobs:
           java-version: 1.8
       - run: chmod +x gradlew
 
+      # Set all the properties
+      - name: Setting properties
+        run: |
+          echo signing.keyId=${{ secrets.KEY_ID }} >> local.properties
+          echo signing.password=${{ secrets.PASSWORD }} >> local.properties
+          echo ossrhUsername=${{ secrets.OSSRH_USERNAME }} >> local.properties
+          echo ossrhPassword=${{ secrets.OSSRH_PASSWORD }} >> local.properties
+      - name: Creating key.gpg
+        id: write_file
+        uses: timheuer/base64-to-file@v1.0.3
+        with:
+          fileName: "key.gpg"
+          encodedString: ${{ secrets.SIGNING_KEKEY_GPGY_GPG }}
+      - run: echo ${{ steps.write_file.outputs.filePath }}
+      - run: echo signing.secretKeyRingFile=${{ steps.write_file.outputs.filePath }} >> local.properties
+
       # Publish libraries to local maven
       - name: Publishing libraries to local maven
         run: |

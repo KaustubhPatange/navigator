@@ -6,7 +6,7 @@ buildscript {
     ext.versions = [
             "navigator": '0.1-alpha07',
             "navigator_extensions": "0.1", // published
-            "navigator_bottom_navigation": "0.1-alpha04" // published
+            "navigator_bottom_navigation": "0.1-alpha05"
     ]
 
     repositories {

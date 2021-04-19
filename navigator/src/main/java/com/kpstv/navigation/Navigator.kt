@@ -2,6 +2,8 @@ package com.kpstv.navigation
 
 import android.os.Bundle
 import android.widget.FrameLayout
+import androidx.annotation.AnimRes
+import androidx.annotation.AnimatorRes
 import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
@@ -209,6 +211,12 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
          * Default selection will be the first Id of [bottomNavigationFragments].
          */
         open val selectedBottomNavigationId: Int = -1
+
+        /**
+         * Specifies the animation to run when bottom navigation selection is changed.
+         * @see Animation
+         */
+        open val fragmentNavigationTransition: Animation = Animation.None
         open fun onBottomNavigationSelectionChanged(@IdRes selectedId: Int) {}
 
         /**
@@ -218,6 +226,20 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         interface Callbacks {
             fun onSelected() {}
             fun onReselected() {}
+        }
+
+        /**
+         * The class has predefined set of animations or you can create a new one by instantiating.
+         */
+        open class Animation(@AnimRes @AnimatorRes val enter: Int, @AnimRes @AnimatorRes val exit: Int) {
+            object None : Animation(-1,-1)
+            object Fade : Animation(R.anim.navigator_fade_in, R.anim.navigator_fade_out)
+            object Slide : Animation(-1,-1) // we will use a custom one
+        }
+        enum class Transition {
+            NONE,
+            FADE,
+            SLIDE
         }
     }
 

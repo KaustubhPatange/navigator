@@ -34,6 +34,7 @@ class MainFragment : ValueFragment(R.layout.fragment_main), NavigatorTransmitter
                     R.id.fragment_backup to BackupFragment::class,
                     R.id.fragment_settings to SettingFragment::class,
                 )
+            override val fragmentNavigationTransition = Animation.Slide
         })
 
         binding.toolbar.setNavigationOnClickListener {

@@ -1,6 +1,7 @@
 package com.kpstv.bottom_navigation_sample
 
 import android.os.Bundle
+import android.transition.TransitionInflater
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -18,6 +19,16 @@ open class AbstractFragment : ValueFragment(R.layout.fragment_abstract), Navigat
     }
 }
 
-class HomeFragment : AbstractFragment()
-class BackupFragment : AbstractFragment()
+class HomeFragment : AbstractFragment() {
+   /* override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        exitTransition = TransitionInflater.from(requireContext()).inflateTransition(R.transition.slide_in_left)
+    }*/
+}
+class BackupFragment : AbstractFragment() {
+   /* override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enterTransition = TransitionInflater.from(requireContext()).inflateTransition(R.transition.slide_in_right)
+    }*/
+}
 class SettingFragment : AbstractFragment()

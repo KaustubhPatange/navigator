@@ -7,9 +7,11 @@ import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commitNow
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.kpstv.navigation.Navigator
+import com.kpstv.navigation.bottom.R
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction1
 
@@ -20,7 +22,8 @@ internal class BottomNavigationImpl(
     private val navView: BottomNavigationView,
     private val navFragments: Map<Int, KClass<out Fragment>>,
     private val selectedNavId: Int,
-    private val onNavSelectionChange: KFunction1<Int, Unit>
+    private val onNavSelectionChange: KFunction1<Int, Unit>,
+    private val transition: Navigator.BottomNavigation.Animation,
 ) : CommonLifecycleCallbacks {
 
     private var fragments = arrayListOf<Fragment>()
@@ -71,13 +74,17 @@ internal class BottomNavigationImpl(
                 fragment.onReselected()
             }
         } else {
-            setFragment(fragment)
+            setFragment(fragment, true)
         }
         return true
     }
 
-    private fun setFragment(whichFragment: Fragment) {
+    private fun setFragment(whichFragment: Fragment, runIfHasAnimations: Boolean = false) {
         var transaction = fm.beginTransaction()
+        val current = fm.findFragmentById(containerView.id)
+        if (runIfHasAnimations && current != null) {
+            setAnimations(transaction, fromIndex = fragments.indexOf(current), toIndex = fragments.indexOf(whichFragment))
+        }
         fragments.forEachIndexed { index, fragment ->
             if (fragment == whichFragment) {
                 transaction = transaction.attach(fragment)
@@ -93,6 +100,19 @@ internal class BottomNavigationImpl(
         transaction.commit()
 
         onNavSelectionChange.invoke(getSelectedNavFragmentId())
+    }
+
+    private fun setAnimations(ft: FragmentTransaction, fromIndex: Int, toIndex: Int) {
+        when (transition) {
+            is Navigator.BottomNavigation.Animation.None -> {}
+            is Navigator.BottomNavigation.Animation.Slide -> {
+                if (fromIndex < toIndex)
+                    ft.setCustomAnimations(R.anim.navigator_slide_in_right, R.anim.navigator_slide_out_left)
+                if (fromIndex > toIndex)
+                    ft.setCustomAnimations(R.anim.navigator_slide_in_left, R.anim.navigator_slide_out_right)
+            }
+            else -> ft.setCustomAnimations(transition.enter, transition.exit)
+        }
     }
 
     private fun getSelectedNavFragmentId(): Int {
