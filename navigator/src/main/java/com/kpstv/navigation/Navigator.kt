@@ -29,7 +29,6 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
      * @param clearAllHistory Clear all previous remembered fragment transaction. Equivalent to clearing all backstack record or popUpThisInclusive call.
      */
     data class NavOptions(
-        val clazz: FragClazz,
         val args: BaseArgs? = null,
         val transaction: TransactionType = TransactionType.REPLACE,
         val animation: NavAnimation = AnimationDefinition.None,
@@ -58,9 +57,10 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     /**
      * A fragment transaction.
      *
-     * See: [NavOptions]
+     * @param clazz Fragment class to which it should navigate.
+     * @param navOptions Optional navigation options you can specify.
      */
-    fun navigateTo(navOptions: NavOptions) = with(navOptions) options@{
+    fun navigateTo(clazz: FragClazz, navOptions: NavOptions = NavOptions()) = with(navOptions) options@{
         val newFragment = clazz.java.getConstructor().newInstance()
         val tagName = if (newFragment is ValueFragment && newFragment.backStackName != null) {
             newFragment.backStackName
@@ -98,7 +98,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             if (animation is AnimationDefinition.Custom)
                 CustomAnimation(fm, containerView).set(this, animation, clazz)
             if (animation is AnimationDefinition.Shared)
-                prepareForSharedTransition(fm, this@options)
+                prepareForSharedTransition(fm, clazz, animation)
 
             val sameFragment = fm.findFragmentByTag(tagName)
             if (sameFragment != null && sameFragment::class != clazz) {
@@ -156,11 +156,11 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         val clazz = primaryFragClass
         if (clazz != null && !hasPrimaryFragment) {
             hasPrimaryFragment =
-                fm.fragments.any { it::class.simpleName == primaryFragClass?.simpleName }
+                fm.fragments.any { it::class.qualifiedName == primaryFragClass?.qualifiedName }
         }
         if (!canGoBack() && clazz != null && !hasPrimaryFragment) {
             // Create primary fragment
-            navigateTo(NavOptions(clazz, animation = AnimationDefinition.Fade))
+            navigateTo(clazz, NavOptions(animation = AnimationDefinition.Fade))
             return false
         }
         val currentFragment = getCurrentFragment()

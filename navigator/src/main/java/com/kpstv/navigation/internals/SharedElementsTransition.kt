@@ -8,15 +8,14 @@ import androidx.transition.TransitionInflater
 import com.kpstv.navigation.*
 import com.kpstv.navigation.FragClazz
 
-internal fun FragmentTransaction.prepareForSharedTransition(fm: FragmentManager, navOptions: Navigator.NavOptions) {
-    val payload = (navOptions.animation as AnimationDefinition.Shared)
+internal fun FragmentTransaction.prepareForSharedTransition(fm: FragmentManager, clazz: FragClazz, payload: AnimationDefinition.Shared) {
     payload.elements.keys.forEachIndexed { index, view ->
         addSharedElement(view, payload.elements.values.elementAt(index))
     }
 
     fm.registerFragmentLifecycleCallbacks(
         SharedElementCallback(
-            clazz = navOptions.clazz,
+            clazz = clazz,
         ), false)
 }
 

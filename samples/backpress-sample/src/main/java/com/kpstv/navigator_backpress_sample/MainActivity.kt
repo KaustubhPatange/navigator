@@ -15,16 +15,15 @@ class MainActivity : AppCompatActivity(), NavigatorTransmitter {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         navigator = Navigator(supportFragmentManager, findViewById(R.id.container))
-        navigator.navigateTo(
-            Navigator.NavOptions(
-                clazz = FirstFragment::class,
-                args = AbstractWelcomeFragment.Args(
-                    title = "First Fragment",
-                    background = R.color.palette1,
-                    nextColor = R.color.palette2,
-                )
+
+        val options = Navigator.NavOptions(
+            args = AbstractWelcomeFragment.Args(
+                title = "First Fragment",
+                background = R.color.palette1,
+                nextColor = R.color.palette2,
             )
         )
+        navigator.navigateTo(FirstFragment::class, options)
     }
     override fun onBackPressed() {
         if (navigator.canFinish())

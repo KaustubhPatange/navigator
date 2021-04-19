@@ -2,7 +2,7 @@
 
 ![build](https://github.com/KaustubhPatange/navigator/workflows/build/badge.svg)
 
-A small navigation library for Android to ease the use of fragment transactions with a `navigator.navigateTo`
+A small (Kotlin first) navigation library for Android to ease the use of fragment transactions with a `navigator.navigateTo`
 call (rest is handled for you) & navigating back is as simple as `navigator.goBack()`.
 
 The library provides some custom transitions like `CircularTransform` (on top of existing animations), see its
@@ -32,6 +32,11 @@ allprojects {
 - [Basic sample](/samples/basic-sample) - Hands on with the introduction to some library features.
 - [Backpress sample](/samples/backpress-sample) - A sample focused on handling back press events effectively.
 - [Bottom Navigation Sample](/samples/bottom-navigation-sample) - A bottom navigation implementation using `navigator`.
+
+## Tutorials
+
+- [Quick Setup & usage](<https://github.com/KaustubhPatange/navigator/wiki/(Sample-1)-Quick-setup-&-usage>)
+- [Bottom navigation setup](<https://github.com/KaustubhPatange/navigator/wiki/(Sample-2)-Bottom-navigation-setup>)
 
 ## License
 

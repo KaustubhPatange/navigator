@@ -15,9 +15,7 @@ class MainActivity : AppCompatActivity(), NavigatorTransmitter {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         navigator = Navigator(supportFragmentManager, findViewById(R.id.container))
-        navigator.navigateTo(
-            Navigator.NavOptions(MainFragment::class)
-        )
+        navigator.navigateTo(MainFragment::class)
     }
 
     override fun onBackPressed() {

@@ -35,26 +35,22 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
             val nextFragment = getNextFragment() ?: return@click
 
             if (!args.hasNext) {
-                getParentNavigator().navigateTo(
-                    Navigator.NavOptions(
-                        clazz = nextFragment,
-                        args = getNextArgs(),
-                        animation = AnimationDefinition.Fade,
-                        clearAllHistory = true
-                    )
+                val options =  Navigator.NavOptions(
+                    args = getNextArgs(),
+                    animation = AnimationDefinition.Fade,
+                    clearAllHistory = true
                 )
+                getParentNavigator().navigateTo(nextFragment, options)
             } else {
                 val rect = Rect()
                 binding.btnNext.getGlobalVisibleRect(rect)
 
-                getParentNavigator().navigateTo(
-                    Navigator.NavOptions(
-                        clazz = nextFragment,
-                        args = getNextArgs(),
-                        animation = AnimationDefinition.CircularReveal(getNextFragment(), rect),
-                        remember = true
-                    )
+                val options = Navigator.NavOptions(
+                    args = getNextArgs(),
+                    animation = AnimationDefinition.CircularReveal(getNextFragment(), rect),
+                    remember = true
                 )
+                getParentNavigator().navigateTo(nextFragment, options)
             }
         }
     }
