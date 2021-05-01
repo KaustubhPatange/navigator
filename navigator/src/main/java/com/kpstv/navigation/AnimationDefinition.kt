@@ -39,9 +39,13 @@ class AnimationDefinition {
      * return shared transition works perfectly.
      *
      * @param elements A map of "from [View]" of Fragment A to the "Transition name of [View]" of Fragment B.
+     * @param enter A transition to be applied on Fragment B. Set -1 to omit.
+     * @param exit A transition to be applied on Fragment A. Set -1 to omit.
      */
     data class Shared(
-        val elements: Map<View, String>
+        val elements: Map<View, String>,
+        @TransitionRes val enter: Int = R.transition.navigator_transition_fade,
+        @TransitionRes val exit: Int = R.transition.navigator_transition_fade
     ) : NavAnimation()
 
     /**

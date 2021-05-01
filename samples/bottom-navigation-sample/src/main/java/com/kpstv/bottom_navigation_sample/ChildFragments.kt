@@ -19,16 +19,6 @@ open class AbstractFragment : ValueFragment(R.layout.fragment_abstract), Navigat
     }
 }
 
-class HomeFragment : AbstractFragment() {
-   /* override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        exitTransition = TransitionInflater.from(requireContext()).inflateTransition(R.transition.slide_in_left)
-    }*/
-}
-class BackupFragment : AbstractFragment() {
-   /* override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enterTransition = TransitionInflater.from(requireContext()).inflateTransition(R.transition.slide_in_right)
-    }*/
-}
+class HomeFragment : AbstractFragment()
+class BackupFragment : AbstractFragment()
 class SettingFragment : AbstractFragment()

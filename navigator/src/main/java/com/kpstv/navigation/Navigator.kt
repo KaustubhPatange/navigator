@@ -98,7 +98,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             if (animation is AnimationDefinition.Custom)
                 CustomAnimation(fm, containerView).set(this, animation, clazz)
             if (animation is AnimationDefinition.Shared)
-                prepareForSharedTransition(fm, clazz, animation)
+                prepareForSharedTransition(fm, containerView, clazz, animation)
 
             val sameFragment = fm.findFragmentByTag(tagName)
             if (sameFragment != null && sameFragment::class != clazz) {

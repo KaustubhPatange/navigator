@@ -1,8 +1,11 @@
 package com.kpstv.navigation.internals
 
+import android.content.Context
 import android.view.View
 import android.view.ViewTreeObserver
+import androidx.annotation.TransitionRes
 import androidx.fragment.app.Fragment
+import androidx.transition.TransitionInflater
 import com.kpstv.navigation.ValueFragment
 
 internal fun View.doOnLaidOut(block: (View) -> Unit) {
@@ -43,3 +46,5 @@ internal fun Fragment.clearTransitions() {
     returnTransition = null
     reenterTransition = null
 }
+
+internal fun Context.inflateTransition(@TransitionRes id: Int) = TransitionInflater.from(this).inflateTransition(id)
