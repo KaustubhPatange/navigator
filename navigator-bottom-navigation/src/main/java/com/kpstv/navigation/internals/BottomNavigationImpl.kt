@@ -10,7 +10,9 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commitNow
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.kpstv.navigation.BaseArgs
 import com.kpstv.navigation.Navigator
+import com.kpstv.navigation.ValueFragment
 import com.kpstv.navigation.bottom.R
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction1
@@ -19,7 +21,7 @@ import kotlin.reflect.KFunction1
 internal class BottomNavigationImpl(
     private val fm: FragmentManager,
     private val containerView: FrameLayout,
-    private val navView: BottomNavigationView,
+    internal val navView: BottomNavigationView,
     private val navFragments: Map<Int, KClass<out Fragment>>,
     private val selectedNavId: Int,
     private val onNavSelectionChange: KFunction1<Int, Unit>,
@@ -60,15 +62,26 @@ internal class BottomNavigationImpl(
         }
 
         navView.selectedItemId = topSelectionId
-        navView.setOnNavigationItemSelectedListener call@{ item ->
-            return@call onSelectNavItem(item)
-        }
+        navView.setOnNavigationItemSelectedListener(navigationListener)
 
         setFragment(selectedFragment)
     }
 
-    private fun onSelectNavItem(item: MenuItem) : Boolean {
-        val fragment = getFragmentFromId(item.itemId)!!
+    private val navigationListener = BottomNavigationView.OnNavigationItemSelectedListener call@{ item ->
+        return@call onSelectNavItem(item.itemId)
+    }
+
+    internal fun onSelectNavItem(id: Int, args: BaseArgs? = null) : Boolean {
+        val fragment = getFragmentFromId(id)!!
+        if (fragment is ValueFragment) {
+            if (args == null) {
+                fragment.arguments?.remove(ValueFragment.ARGUMENTS)
+            } else {
+                fragment.arguments = Bundle().apply {
+                    putParcelable(ValueFragment.ARGUMENTS, args)
+                }
+            }
+        }
         if (selectedFragment === fragment) {
             if (fragment is Navigator.BottomNavigation.Callbacks && fragment.isVisible) {
                 fragment.onReselected()
@@ -130,6 +143,12 @@ internal class BottomNavigationImpl(
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt(KEY_SELECTION_INDEX, selectedIndex)
+    }
+
+    internal fun ignoreNavigationListeners(block: () -> Unit) {
+        navView.setOnNavigationItemSelectedListener(null)
+        block.invoke()
+        navView.setOnNavigationItemSelectedListener(navigationListener)
     }
 
     companion object {

@@ -5,14 +5,12 @@ import android.view.View
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.kpstv.bottom_navigation_sample.databinding.FragmentMainBinding
-import com.kpstv.navigation.Navigator
-import com.kpstv.navigation.NavigatorTransmitter
-import com.kpstv.navigation.ValueFragment
-import com.kpstv.navigation.install
+import com.kpstv.navigation.*
 import kotlin.reflect.KClass
 
 class MainFragment : ValueFragment(R.layout.fragment_main), NavigatorTransmitter {
     private lateinit var navigator: Navigator
+    private lateinit var bottomController: BottomNavigationController
     private var viewBinding: FragmentMainBinding? = null
 
     override fun getNavigator(): Navigator = navigator
@@ -26,7 +24,7 @@ class MainFragment : ValueFragment(R.layout.fragment_main), NavigatorTransmitter
         val binding = FragmentMainBinding.bind(view).also { viewBinding = it }
         navigator = Navigator(childFragmentManager, binding.container)
 
-        navigator.install(this, object : Navigator.BottomNavigation(){
+        bottomController = navigator.install(this, object : Navigator.BottomNavigation(){
             override val bottomNavigationViewId: Int = R.id.bottom_nav
             override val bottomNavigationFragments: Map<Int, KClass<out Fragment>> =
                 mapOf(
@@ -49,7 +47,7 @@ class MainFragment : ValueFragment(R.layout.fragment_main), NavigatorTransmitter
             return true
         }
         if (binding.bottomNav.selectedItemId != R.id.fragment_home) {
-            binding.bottomNav.selectedItemId = R.id.fragment_home
+            bottomController.select(R.id.fragment_home)
             return true
         }
         return super.onBackPressed()

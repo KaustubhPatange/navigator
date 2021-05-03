@@ -21,7 +21,7 @@ import com.kpstv.navigation.internals.getSaveInstanceState
  * Child fragments can implement [Navigator.BottomNavigation.Callbacks] to get notified
  * when they are selected & re-selected again.
  */
-fun Navigator.install(fragment: Fragment, obj: Navigator.BottomNavigation) {
+fun Navigator.install(fragment: Fragment, obj: Navigator.BottomNavigation): BottomNavigationController {
     val fragmentSavedState = fragment.getSaveInstanceState() ?:
     if (fragment is ValueFragment) fragment.getBottomNavigationState() else null
 
@@ -42,6 +42,8 @@ fun Navigator.install(fragment: Fragment, obj: Navigator.BottomNavigation) {
     fragment.parentFragmentManager.registerFragmentLifecycleCallbacks(
         FragmentBottomNavigationLifecycle(fragment, impl), false
     )
+
+    return BottomNavigationController(impl)
 }
 
 /**
@@ -57,7 +59,7 @@ fun Navigator.install(
     activity: FragmentActivity,
     savedStateInstance: Bundle? = null,
     obj: Navigator.BottomNavigation
-) {
+): BottomNavigationController {
     val impl = BottomNavigationImpl(
         fm = getFragmentManager(),
         containerView = getContainerView(),
@@ -73,4 +75,6 @@ fun Navigator.install(
     activity.application.registerActivityLifecycleCallbacks(
         ActivityBottomNavigationLifecycle(activity, impl)
     )
+
+    return BottomNavigationController(impl)
 }
