@@ -12,6 +12,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/navigator" />
+            <option value="$PROJECT_DIR$/navigator-base-navigation" />
             <option value="$PROJECT_DIR$/navigator-bottom-navigation" />
             <option value="$PROJECT_DIR$/navigator-extensions" />
             <option value="$PROJECT_DIR$/samples" />

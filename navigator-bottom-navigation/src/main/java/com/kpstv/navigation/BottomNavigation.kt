@@ -4,13 +4,11 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.kpstv.navigation.Navigator
-import com.kpstv.navigation.ValueFragment
 import com.kpstv.navigation.internals.*
-import com.kpstv.navigation.internals.ActivityBottomNavigationLifecycle
 import com.kpstv.navigation.internals.BottomNavigationImpl
-import com.kpstv.navigation.internals.FragmentBottomNavigationLifecycle
 import com.kpstv.navigation.internals.getSaveInstanceState
+import com.kpstv.navigator.base.navigation.internals.ActivityBottomNavigationLifecycle
+import com.kpstv.navigator.base.navigation.internals.FragmentBottomNavigationLifecycle
 
 /**
  * Set up navigation for [BottomNavigationView] in [Fragment].
@@ -18,7 +16,7 @@ import com.kpstv.navigation.internals.getSaveInstanceState
  * This will automatically handle navigation & its state that can also
  * survive process death as well.
  *
- * Child fragments can implement [Navigator.BottomNavigation.Callbacks] to get notified
+ * Child fragments can implement [Navigator.Navigation.Callbacks] to get notified
  * when they are selected & re-selected again.
  */
 fun Navigator.install(fragment: Fragment, obj: Navigator.BottomNavigation): BottomNavigationController {
@@ -30,11 +28,10 @@ fun Navigator.install(fragment: Fragment, obj: Navigator.BottomNavigation): Bott
     val impl = BottomNavigationImpl(
         fm = getFragmentManager(),
         containerView = getContainerView(),
+        fragments = obj.bottomNavigationFragments,
         navView = view.findViewById(obj.bottomNavigationViewId),
-        navFragments = obj.bottomNavigationFragments,
-        selectedNavId = obj.selectedBottomNavigationId,
         onNavSelectionChange = obj::onBottomNavigationSelectionChanged,
-        transition = obj.fragmentNavigationTransition
+        navigation = obj
     )
 
     impl.onCreate(fragmentSavedState)
@@ -64,10 +61,9 @@ fun Navigator.install(
         fm = getFragmentManager(),
         containerView = getContainerView(),
         navView = activity.findViewById(obj.bottomNavigationViewId),
-        navFragments = obj.bottomNavigationFragments,
-        selectedNavId = obj.selectedBottomNavigationId,
+        fragments = obj.bottomNavigationFragments,
         onNavSelectionChange = obj::onBottomNavigationSelectionChanged,
-        transition = obj.fragmentNavigationTransition
+        navigation = obj
     )
 
     impl.onCreate(savedStateInstance)

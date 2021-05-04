@@ -1,4 +1,4 @@
-package com.kpstv.navigation.internals
+package com.kpstv.navigator.base.navigation.internals
 
 import android.app.Activity
 import android.app.Application
@@ -8,12 +8,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.kpstv.navigation.ValueFragment
-import com.kpstv.navigation.internals.BottomNavigationImpl
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class FragmentBottomNavigationLifecycle(
+class FragmentBottomNavigationLifecycle(
     private val fragment: Fragment,
-    private val impl: BottomNavigationImpl
+    private val impl: CommonNavigationImpl
 ) : FragmentManager.FragmentLifecycleCallbacks() {
 
     override fun onFragmentSaveInstanceState(fm: FragmentManager, f: Fragment, outState: Bundle) {
@@ -39,9 +38,9 @@ internal class FragmentBottomNavigationLifecycle(
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class ActivityBottomNavigationLifecycle(
+class ActivityBottomNavigationLifecycle(
     private val activity: FragmentActivity,
-    private val impl: BottomNavigationImpl
+    private val impl: CommonNavigationImpl
 ) : Application.ActivityLifecycleCallbacks {
     override fun onActivitySaveInstanceState(a: Activity, outState: Bundle) {
         if (activity::class == a::class) {

@@ -1,3 +1,4 @@
+include ':navigator-base-navigation'
 include ':samples:bottom-navigation-sample'
 include ':samples:backpress-sample'
 include ':samples:basic-sample'

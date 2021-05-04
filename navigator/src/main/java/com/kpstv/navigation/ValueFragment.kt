@@ -8,8 +8,6 @@ import androidx.fragment.app.Fragment
 import com.kpstv.navigation.internals.ViewStateFragment
 
 /**
- * A [Fragment] that adds "value" to the [Navigator].
- *
  * A base fragment to extend from in order to use [Navigator] effectively.
  * Child fragments of the host should extend from this class, this way
  * the fragment backStack can be effectively managed & going back is as

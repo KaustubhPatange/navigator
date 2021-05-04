@@ -9,11 +9,10 @@ import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
-import androidx.transition.TransitionInflater
+import com.kpstv.navigation.internals.ViewStateFragment
 import com.kpstv.navigation.internals.CustomAnimation
 import com.kpstv.navigation.internals.NavigatorCircularTransform
 import com.kpstv.navigation.internals.prepareForSharedTransition
-import org.xmlpull.v1.XmlPullParser
 import kotlin.reflect.KClass
 
 internal typealias FragClazz = KClass<out Fragment>
@@ -179,8 +178,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     /**
      * Returns the current fragment class.
      */
-    fun getCurrentFragmentClass(): FragClazz? =
-        fm.findFragmentById(containerView.id)?.let { it::class }
+    fun getCurrentFragmentClass(): FragClazz? = getCurrentFragment()?.let { it::class }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun getFragmentManager(): FragmentManager = fm
@@ -190,7 +188,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
 
     private fun getBackStackCount(): Int = fm.backStackEntryCount
 
-    private fun getCurrentFragment() = fm.findFragmentById(containerView.id)
+    private fun getCurrentFragment() = getCurrentVisibleFragment(fm, containerView)
 
     private fun getFragmentTagName(clazz: FragClazz): String =
         clazz.java.simpleName + FRAGMENT_SUFFIX
@@ -203,21 +201,48 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         ADD
     }
 
-    abstract class BottomNavigation {
-        abstract val bottomNavigationViewId: Int
-        abstract val bottomNavigationFragments: Map<Int, KClass<out Fragment>>
+    /**
+     * Determines the fragment's view retention mode.
+     * @see RECREATE
+     * @see RETAIN
+     */
+    enum class ViewRetention {
+        /**
+         * The fragment view will be destroyed once the current selection fragment has be changed in the container.
+         *
+         * The fragment will through all of the necessary lifecycle it has to.
+         */
+        RECREATE,
 
         /**
-         * Default selection will be the first Id of [bottomNavigationFragments].
+         * The fragment view will not be destroyed once the current selection fragment is changed.
+         *
+         * This is done via hiding the fragment in the container. Since it does not replace the underlying fragment
+         * the old fragment will not go through the lifecycle changes. Hence no [onPause], [onStop], [onDestroyView]
+         * & so on will be called.
+         *
+         * The only way to rely on view state change is to listen [ViewStateFragment.onViewStateChanged].
          */
-        open val selectedBottomNavigationId: Int = -1
+        RETAIN
+    }
+
+    abstract class Navigation {
+        /**
+         * Set the first selected fragment. Defaults to the first Id from the navigation fragments.
+         *
+         */
+        open val selectedFragmentId: Int = -1
 
         /**
          * Specifies the animation to run when bottom navigation selection is changed.
          * @see Animation
          */
         open val fragmentNavigationTransition: Animation = Animation.None
-        open fun onBottomNavigationSelectionChanged(@IdRes selectedId: Int) {}
+
+        /**
+         * @see ViewRetention
+         */
+        open val fragmentViewRetentionType: ViewRetention = ViewRetention.RECREATE
 
         /**
          * Implement this interface on child fragments to get notified
@@ -236,6 +261,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             object Fade : Animation(R.anim.navigator_fade_in, R.anim.navigator_fade_out)
             object Slide : Animation(-1,-1) // we will use a custom one
         }
+
         enum class Transition {
             NONE,
             FADE,
@@ -243,7 +269,46 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         }
     }
 
+    abstract class TabNavigation : Navigation() {
+        /**
+         * A map of the Id of TabItem to [Fragment] class.
+         */
+        abstract val tabNavigationFragments: Map<Int, KClass<out Fragment>>
+
+        /**
+         * The TabLayout View Id.
+         */
+        abstract val tabLayoutId: Int
+
+        open fun onTabNavigationSelectionChanged(@IdRes selectedId: Int) {}
+    }
+
+    abstract class BottomNavigation : Navigation() {
+        /**
+         * A map of the Id of bottom navigation menu resource to [Fragment] class.
+         */
+        abstract val bottomNavigationFragments: Map<Int, KClass<out Fragment>>
+
+        /**
+         * The Navigation View Id.
+         */
+        abstract val bottomNavigationViewId: Int
+
+        open fun onBottomNavigationSelectionChanged(@IdRes selectedId: Int) {}
+    }
+
     companion object {
+        fun getCurrentVisibleFragment(fm: FragmentManager, containerView: FrameLayout): Fragment? {
+            val fragment = fm.findFragmentById(containerView.id)
+            if (fragment != null) {
+                if (fragment.isVisible) return fragment
+                // Reverse because if there are two visible fragments then the last
+                // one in container will be the one visible to user.
+                fm.fragments.reversed().forEach { frag -> if (frag.isVisible) return frag }
+            }
+            return null
+        }
+
         private const val FRAGMENT_SUFFIX = "_navigator"
     }
 }

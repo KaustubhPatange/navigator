@@ -8,11 +8,12 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.kpstv.navigation.AnimationDefinition
 import com.kpstv.navigation.FragClazz
+import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.ValueFragment
 
 internal class CustomAnimation(private val manager: FragmentManager, private val containerView: FrameLayout) {
     fun set(ft: FragmentTransaction, custom: AnimationDefinition.Custom, to: FragClazz) {
-        val currentFragment = manager.findFragmentById(containerView.id) ?: return /* no-op */
+        val currentFragment = Navigator.getCurrentVisibleFragment(manager, containerView) ?: return /* no-op */
         val type = containerView.context.resources.getResourceTypeName(custom.enter)
         if (type == "anim" || type == "animator") {
             // If enter & exit transition are set on Fragment then we must reset it to avoid
