@@ -30,10 +30,11 @@ allprojects {
 ```groovy
 // modules's build.gradle
 dependencies {
-    // Check the above link for the versions.
+    // Check the above link for the individual library versions.
     implementation "io.github.kaustubhpatange:navigator:<version>" // Core library (Required)
     implementation "io.github.kaustubhpatange:navigator-extensions:<version>" // Optional but recommended
     implementation "io.github.kaustubhpatange:navigator-bottom-navigation:<version>" // For setting up Bottom Navigation.
+    implementation "io.github.kaustubhpatange:navigator-tab-navigation:<version>" // For setting up Tab Layout Navigation.
 }
 ```
 
@@ -41,12 +42,13 @@ dependencies {
 
 - [Basic sample](/samples/basic-sample) - Hands on with the introduction to some library features.
 - [Backpress sample](/samples/backpress-sample) - A sample focused on handling back press events effectively.
-- [Bottom Navigation Sample](/samples/bottom-navigation-sample) - A bottom navigation implementation using `navigator`.
+- [Navigation Sample](/samples/navigation-sample) - A sample which demonstrates use of Bottom & TabLayout navigation through `navigator`.
 
 ## Tutorials
 
 - [Quick Setup & usage](<https://github.com/KaustubhPatange/navigator/wiki/(Sample-1)-Quick-setup-&-usage>)
 - [Bottom navigation setup](<https://github.com/KaustubhPatange/navigator/wiki/(Sample-2)-Bottom-navigation-setup>)
+- [TabLayout navigation setup](<https://github.com/KaustubhPatange/navigator/wiki/(Sample-3)-Tab-Navigation>)
 
 ## License
 
