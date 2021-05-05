@@ -31,6 +31,8 @@ jobs:
       - name: Publishing libraries to local maven
         run: |
           ./gradlew navigator-extensions:publishReleasePublicationToMavenLocal
+          ./gradlew navigator-base-navigation:publishReleasePublicationToMavenLocal
+          ./gradlew navigator-tab-navigation:publishReleasePublicationToMavenLocal
           ./gradlew navigator-bottom-navigation:publishReleasePublicationToMavenLocal
           ./gradlew navigator:publishReleasePublicationToMavenLocal
 
