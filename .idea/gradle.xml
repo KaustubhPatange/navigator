@@ -15,14 +15,14 @@
             <option value="$PROJECT_DIR$/navigator-base-navigation" />
             <option value="$PROJECT_DIR$/navigator-bottom-navigation" />
             <option value="$PROJECT_DIR$/navigator-extensions" />
+            <option value="$PROJECT_DIR$/navigator-tab-navigation" />
             <option value="$PROJECT_DIR$/samples" />
             <option value="$PROJECT_DIR$/samples/backpress-sample" />
             <option value="$PROJECT_DIR$/samples/basic-sample" />
-            <option value="$PROJECT_DIR$/samples/bottom-navigation-sample" />
+            <option value="$PROJECT_DIR$/samples/navigation-sample" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
-        <option name="useQualifiedModuleNames" value="true" />
       </GradleProjectSettings>
     </option>
   </component>

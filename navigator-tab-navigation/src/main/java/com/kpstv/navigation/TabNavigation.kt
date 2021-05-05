@@ -4,11 +4,13 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.kpstv.navigation.internals.*
-import com.kpstv.navigation.internals.BottomNavigationImpl
 import com.kpstv.navigation.base.navigation.internals.ActivityNavigationLifecycle
 import com.kpstv.navigation.base.navigation.internals.FragmentNavigationLifecycle
 import com.kpstv.navigation.base.navigation.internals.getSaveInstanceState
+import com.kpstv.navigation.tab.TabNavigationImpl
+import com.kpstv.navigation.tab.getTabNavigationState
+import com.kpstv.navigation.tab.setTabNavigationState
+import kotlin.reflect.KClass
 
 /**
  * Set up navigation for [BottomNavigationView] in [Fragment].
@@ -19,18 +21,18 @@ import com.kpstv.navigation.base.navigation.internals.getSaveInstanceState
  * Child fragments can implement [Navigator.Navigation.Callbacks] to get notified
  * when they are selected & re-selected again.
  */
-fun Navigator.install(fragment: Fragment, obj: Navigator.BottomNavigation): BottomNavigationController {
+fun Navigator.install(fragment: Fragment, obj: Navigator.TabNavigation): TabNavigationController {
     val fragmentSavedState = fragment.getSaveInstanceState() ?:
-    if (fragment is ValueFragment) fragment.getBottomNavigationState() else null
+    if (fragment is ValueFragment) fragment.getTabNavigationState() else null
 
     val view = fragment.requireView()
 
-    val impl = BottomNavigationImpl(
+    val impl = TabNavigationImpl(
         fm = getFragmentManager(),
         containerView = getContainerView(),
-        fragments = obj.bottomNavigationFragments,
-        navView = view.findViewById(obj.bottomNavigationViewId),
-        onNavSelectionChange = obj::onBottomNavigationSelectionChanged,
+        fragments = listToMapOfFragments(obj.tabNavigationFragments),
+        navView = view.findViewById(obj.tabLayoutId),
+        onNavSelectionChange = obj::onTabNavigationSelectionChanged,
         navigation = obj
     )
 
@@ -38,11 +40,11 @@ fun Navigator.install(fragment: Fragment, obj: Navigator.BottomNavigation): Bott
 
     fragment.parentFragmentManager.registerFragmentLifecycleCallbacks(
         FragmentNavigationLifecycle(fragment, impl) { f, bundle ->
-            f.setBottomNavigationState(bundle)
+            f.setTabNavigationState(bundle)
         }, false
     )
 
-    return BottomNavigationController(impl)
+    return TabNavigationController(impl)
 }
 
 /**
@@ -57,22 +59,25 @@ fun Navigator.install(fragment: Fragment, obj: Navigator.BottomNavigation): Bott
 fun Navigator.install(
     activity: FragmentActivity,
     savedStateInstance: Bundle? = null,
-    obj: Navigator.BottomNavigation
-): BottomNavigationController {
-    val impl = BottomNavigationImpl(
+    obj: Navigator.TabNavigation
+): TabNavigationController {
+    val impl = TabNavigationImpl(
         fm = getFragmentManager(),
         containerView = getContainerView(),
-        navView = activity.findViewById(obj.bottomNavigationViewId),
-        fragments = obj.bottomNavigationFragments,
-        onNavSelectionChange = obj::onBottomNavigationSelectionChanged,
+        fragments = listToMapOfFragments(obj.tabNavigationFragments),
+        navView = activity.findViewById(obj.tabLayoutId),
+        onNavSelectionChange = obj::onTabNavigationSelectionChanged,
         navigation = obj
     )
-
     impl.onCreate(savedStateInstance)
 
     activity.application.registerActivityLifecycleCallbacks(
         ActivityNavigationLifecycle(activity, impl)
     )
 
-    return BottomNavigationController(impl)
+    return TabNavigationController(impl)
+}
+
+private fun listToMapOfFragments(list: List<KClass<out Fragment>>) : Map<Int, KClass<out Fragment>> {
+    return list.associateBy { list.indexOf(it) }
 }

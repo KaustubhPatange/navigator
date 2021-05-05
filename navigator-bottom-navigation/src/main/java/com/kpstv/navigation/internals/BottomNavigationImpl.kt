@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.kpstv.navigation.Navigator
-import com.kpstv.navigator.base.navigation.internals.CommonNavigationImpl
+import com.kpstv.navigation.base.navigation.internals.CommonNavigationImpl
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction1
 

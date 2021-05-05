@@ -102,11 +102,14 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      * this method to know the result. Upon True, the event has been consumed by the
      * [ValueFragment] & [Navigator] will not pop this fragment.
      *
-     * It is necessary that at one point (in future) you should return False from this method
-     * so that it can safely be popped out from the backStack.
-     *
+     * It also handles the backpress of the child fragments as well. So it is necessary that
+     * once all your conditions are satisfied you should call the super method.
      */
     open fun onBackPressed(): Boolean {
+        val current = this as? NavigatorTransmitter
+        if (current != null && current.getNavigator().canGoBack()) {
+            return !current.getNavigator().goBack()
+        }
         return false
     }
 
@@ -116,6 +119,7 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      * @hide
      */
     private var bottomNavigationState: Bundle? = null
+    private var tabNavigationState: Bundle? = null
 
     private fun clearArgs() {
         arguments?.remove(ARGUMENTS)

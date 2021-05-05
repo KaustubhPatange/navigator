@@ -201,31 +201,6 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         ADD
     }
 
-    /**
-     * Determines the fragment's view retention mode.
-     * @see RECREATE
-     * @see RETAIN
-     */
-    enum class ViewRetention {
-        /**
-         * The fragment view will be destroyed once the current selection fragment has be changed in the container.
-         *
-         * The fragment will through all of the necessary lifecycle it has to.
-         */
-        RECREATE,
-
-        /**
-         * The fragment view will not be destroyed once the current selection fragment is changed.
-         *
-         * This is done via hiding the fragment in the container. Since it does not replace the underlying fragment
-         * the old fragment will not go through the lifecycle changes. Hence no [onPause], [onStop], [onDestroyView]
-         * & so on will be called.
-         *
-         * The only way to rely on view state change is to listen [ViewStateFragment.onViewStateChanged].
-         */
-        RETAIN
-    }
-
     abstract class Navigation {
         /**
          * Set the first selected fragment. Defaults to the first Id from the navigation fragments.
@@ -267,20 +242,46 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             FADE,
             SLIDE
         }
+
+        /**
+         * Determines the fragment's view retention mode.
+         * @see RECREATE
+         * @see RETAIN
+         */
+        enum class ViewRetention {
+            /**
+             * The fragment view will be destroyed once the current selection fragment has be changed in the container.
+             *
+             * The fragment will through all of the necessary lifecycle it has to.
+             */
+            RECREATE,
+
+            /**
+             * The fragment view will not be destroyed once the current selection fragment is changed.
+             *
+             * This is done via hiding the fragment in the container. Since it does not replace the underlying fragment
+             * the old fragment will not go through the lifecycle changes. Hence no [onPause], [onStop], [onDestroyView]
+             * & so on will be called.
+             *
+             * The only way to rely on view state change is to listen [ViewStateFragment.onViewStateChanged].
+             */
+            RETAIN
+        }
     }
 
     abstract class TabNavigation : Navigation() {
         /**
-         * A map of the Id of TabItem to [Fragment] class.
+         * A list of [Fragment] class. The list order correspond to the order of
+         * [TabItem] in the [TabLayout].
          */
-        abstract val tabNavigationFragments: Map<Int, KClass<out Fragment>>
+        abstract val tabNavigationFragments: List<KClass<out Fragment>>
 
         /**
          * The TabLayout View Id.
          */
         abstract val tabLayoutId: Int
 
-        open fun onTabNavigationSelectionChanged(@IdRes selectedId: Int) {}
+        open fun onTabNavigationSelectionChanged(position: Int) {}
     }
 
     abstract class BottomNavigation : Navigation() {
