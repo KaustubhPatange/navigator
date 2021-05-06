@@ -54,25 +54,13 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     }
 
     /**
-     * Parse the typed arguments from the bundle & consumes it. It is best practice to check [hasKeyArgs]
+     * Parse the typed arguments from the bundle. It is best practice to check [hasKeyArgs]
      * & then proceed with this call.
-     *
-     * When this is called for the first time it will consume the args so a next call will throws
-     * [NullPointerException].
-     *
-     * ```
-     * private lateinit var fragArgs
-     *
-     * fragArgs = getkeyArgs() // consumed,
-     * fragArgs = getKeyArgs() // second call throws NullPointerException.
-     * ```
      *
      * @throws NullPointerException When it does not exist.
      */
     fun <T : BaseArgs> getKeyArgs(): T {
-        val args = arguments?.getParcelable<T>(ARGUMENTS) as T
-        clearArgs()
-        return args
+        return arguments?.getParcelable<T>(ARGUMENTS) as T
     }
 
     /**

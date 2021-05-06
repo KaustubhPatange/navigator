@@ -20,7 +20,6 @@ internal typealias FragClazz = KClass<out Fragment>
 class Navigator(private val fm: FragmentManager, private val containerView: FrameLayout) {
 
     /**
-     * @param clazz Pass the Fragment::class as the parameter.
      * @param args Pass arguments extended from [BaseArgs].
      * @param transaction See [TransactionType].
      * @param animation See [NavAnimation].
@@ -47,9 +46,11 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
      * It will first check if the fragment exists in the backStack otherwise it will create a new one.
      *
      * In short it should be the last fragment in the host so that back press will finish the activity.
+     *
+     * @hide Need a good reason to expose this API
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun setPrimaryFragment(clazz: FragClazz) {
+    private fun setPrimaryFragment(clazz: FragClazz) {
         this.primaryFragClass = clazz
     }
 
@@ -178,7 +179,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     /**
      * Returns the current fragment class.
      */
-    fun getCurrentFragmentClass(): FragClazz? = getCurrentFragment()?.let { it::class }
+    fun getCurrentFragment() = getCurrentVisibleFragment(fm, containerView)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun getFragmentManager(): FragmentManager = fm
@@ -187,8 +188,6 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     fun getContainerView(): FrameLayout = containerView
 
     private fun getBackStackCount(): Int = fm.backStackEntryCount
-
-    private fun getCurrentFragment() = getCurrentVisibleFragment(fm, containerView)
 
     private fun getFragmentTagName(clazz: FragClazz): String =
         clazz.java.simpleName + FRAGMENT_SUFFIX
@@ -299,12 +298,12 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     }
 
     companion object {
-        fun getCurrentVisibleFragment(fm: FragmentManager, containerView: FrameLayout): Fragment? {
+        internal fun getCurrentVisibleFragment(fm: FragmentManager, containerView: FrameLayout): Fragment? {
             val fragment = fm.findFragmentById(containerView.id)
             if (fragment != null) {
                 if (fragment.isVisible) return fragment
-                // Reverse because if there are two visible fragments then the last
-                // one in container will be the one visible to user.
+                // Reverse because if there are two or more visible fragments then the last
+                // one in container will be the one visible (interactive) to user.
                 fm.fragments.reversed().forEach { frag -> if (frag.isVisible) return frag }
             }
             return null

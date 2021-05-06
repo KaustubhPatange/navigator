@@ -17,14 +17,16 @@ import kotlin.reflect.KClass
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 abstract class CommonNavigationImpl(
-    private val fm: FragmentManager,
-    private val containerView: FrameLayout,
+    private val navigator: Navigator,
     private val navFragments: Map<Int, KClass<out Fragment>>,
     private val navigation: Navigator.Navigation
 ) : CommonLifecycleCallbacks {
 
     abstract fun setUpNavigationViewCallbacks(selectionId: Int)
     abstract fun onNavigationSelectionChange(id: Int)
+
+    private val fm = navigator.getFragmentManager()
+    private val containerView = navigator.getContainerView()
 
     private var fragments = arrayListOf<Fragment>()
     private var selectedIndex = if (navigation.selectedFragmentId != -1)
@@ -89,7 +91,7 @@ abstract class CommonNavigationImpl(
 
 
     private fun setFragment(whichFragment: Fragment, runIfHasAnimations: Boolean = false) {
-        val current = Navigator.getCurrentVisibleFragment(fm, containerView)
+        val current = navigator.getCurrentFragment()
 
         if (navigation.fragmentViewRetentionType == Navigator.Navigation.ViewRetention.RETAIN) {
             if (whichFragment is ViewStateFragment) whichFragment.onViewStateChanged(ViewStateFragment.ViewState.FOREGROUND)

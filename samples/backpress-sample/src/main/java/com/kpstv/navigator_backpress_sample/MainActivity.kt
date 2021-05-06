@@ -2,6 +2,7 @@ package com.kpstv.navigator_backpress_sample
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.NavigatorTransmitter
@@ -14,6 +15,11 @@ class MainActivity : AppCompatActivity(), NavigatorTransmitter {
         makeFullScreen()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        registerFragmentLifecycleForLogging { frag, log ->
+            Log.e(frag::class.simpleName, "=> $log")
+        }
+
         navigator = Navigator(supportFragmentManager, findViewById(R.id.container))
 
         val options = Navigator.NavOptions(

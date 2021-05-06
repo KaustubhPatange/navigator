@@ -4,11 +4,11 @@ buildscript {
     ext.kotlin_version = "1.4.32"
 
     ext.versions = [
-            "navigator": '0.1-alpha11', // published
+            "navigator": '0.1-alpha12',
             "navigator_extensions": "0.1", // published
-            "navigator_base_navigation": "0.1-alpha01", // published  // if this is changed also update bottom & tab navigation library as well.
-            "navigator_bottom_navigation": "0.1-alpha07", // published
-            "navigator_tab_navigation": "0.1-alpha01" // published
+            "navigator_base_navigation": "0.1-alpha02",  // if this is changed also update bottom & tab navigation library as well.
+            "navigator_bottom_navigation": "0.1-alpha08",
+            "navigator_tab_navigation": "0.1-alpha02" 
     ]
 
     repositories {

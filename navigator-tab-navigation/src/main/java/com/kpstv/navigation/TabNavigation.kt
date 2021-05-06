@@ -28,8 +28,7 @@ fun Navigator.install(fragment: Fragment, obj: Navigator.TabNavigation): TabNavi
     val view = fragment.requireView()
 
     val impl = TabNavigationImpl(
-        fm = getFragmentManager(),
-        containerView = getContainerView(),
+        navigator = this,
         fragments = listToMapOfFragments(obj.tabNavigationFragments),
         navView = view.findViewById(obj.tabLayoutId),
         onNavSelectionChange = obj::onTabNavigationSelectionChanged,
@@ -62,8 +61,7 @@ fun Navigator.install(
     obj: Navigator.TabNavigation
 ): TabNavigationController {
     val impl = TabNavigationImpl(
-        fm = getFragmentManager(),
-        containerView = getContainerView(),
+        navigator = this,
         fragments = listToMapOfFragments(obj.tabNavigationFragments),
         navView = activity.findViewById(obj.tabLayoutId),
         onNavSelectionChange = obj::onTabNavigationSelectionChanged,

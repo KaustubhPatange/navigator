@@ -26,8 +26,7 @@ fun Navigator.install(fragment: Fragment, obj: Navigator.BottomNavigation): Bott
     val view = fragment.requireView()
 
     val impl = BottomNavigationImpl(
-        fm = getFragmentManager(),
-        containerView = getContainerView(),
+        navigator = this,
         fragments = obj.bottomNavigationFragments,
         navView = view.findViewById(obj.bottomNavigationViewId),
         onNavSelectionChange = obj::onBottomNavigationSelectionChanged,
@@ -60,8 +59,7 @@ fun Navigator.install(
     obj: Navigator.BottomNavigation
 ): BottomNavigationController {
     val impl = BottomNavigationImpl(
-        fm = getFragmentManager(),
-        containerView = getContainerView(),
+        navigator = this,
         navView = activity.findViewById(obj.bottomNavigationViewId),
         fragments = obj.bottomNavigationFragments,
         onNavSelectionChange = obj::onBottomNavigationSelectionChanged,
