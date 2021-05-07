@@ -6,16 +6,19 @@ import androidx.annotation.AnimRes
 import androidx.annotation.AnimatorRes
 import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
-import com.kpstv.navigation.internals.ViewStateFragment
+import com.kpstv.navigation.internals.*
 import com.kpstv.navigation.internals.CustomAnimation
+import com.kpstv.navigation.internals.HistoryImpl
 import com.kpstv.navigation.internals.NavigatorCircularTransform
 import com.kpstv.navigation.internals.prepareForSharedTransition
 import kotlin.reflect.KClass
 
 internal typealias FragClazz = KClass<out Fragment>
+internal typealias DialogFragClazz = KClass<out Fragment>
 
 class Navigator(private val fm: FragmentManager, private val containerView: FrameLayout) {
 
@@ -38,6 +41,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     private var hasPrimaryFragment: Boolean = false
 
     private val navigatorTransitionManager = NavigatorCircularTransform(fm, containerView)
+    private val history = HistoryImpl(fm)
 
     /**
      * Sets the default fragment as the host. The [FragmentManager.popBackStack] will be called recursively
@@ -55,15 +59,16 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     }
 
     /**
-     * A fragment transaction.
+     * Navigate to [Fragment]
      *
      * @param clazz Fragment class to which it should navigate.
      * @param navOptions Optional navigation options you can specify.
      */
     fun navigateTo(clazz: FragClazz, navOptions: NavOptions = NavOptions()) = with(navOptions) options@{
-        val newFragment = fm.fragmentFactory.instantiate(containerView.context.classLoader, clazz.java.canonicalName)
+        val newFragment = fm.newFragment(containerView.context, clazz)
+        if (newFragment is DialogFragment) show(clazz, args) // delegate to dialog navigation
         val tagName = if (newFragment is ValueFragment && newFragment.backStackName != null) {
-            newFragment.backStackName
+            newFragment.backStackName!!
         } else getFragmentTagName(clazz)
 
         if (animation is AnimationDefinition.CircularReveal) {
@@ -74,26 +79,14 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             )
             navigatorTransitionManager.circularTransform(payload, clearAllHistory)
         }
-        val bundle = Bundle().apply {
-            if (args != null)
-                putParcelable(ValueFragment.ARGUMENTS, args)
-        }
-        // Enqueue a popUpTo operation
-        if (clearAllHistory && fm.backStackEntryCount > 0) {
-            val to = fm.getBackStackEntryAt(0).name
-            fm.popBackStack(to, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        val bundle = createArguments(args)
+        // Enqueue a clear history operation
+        if (clearAllHistory) {
+            history.clearAll()
         }
         // Remove duplicate backStack entry name & add it again if exist.
         // Useful when fragment is navigating to self.
-        var innerAddToBackStack = false
-        for (i in 0 until fm.backStackEntryCount) {
-            val record = fm.getBackStackEntryAt(i)
-            if (record.name == tagName) {
-                fm.popBackStack(tagName, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                innerAddToBackStack = true
-                break
-            }
-        }
+        val innerAddToBackStack = history.clearUpTo(tagName, true)
         fm.commit {
             if (animation is AnimationDefinition.Custom)
                 CustomAnimation(fm, containerView).set(this, animation, clazz)
@@ -113,9 +106,25 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             }
             setPrimaryNavigationFragment(newFragment) // needed to avoid creating fragment after clearing all history
             // Cannot add to back stack when popUpTo is true
-            if (!clearAllHistory && (remember || innerAddToBackStack)) addToBackStack(tagName)
+            if (!clearAllHistory && (remember || innerAddToBackStack)) {
+                history.add(BackStackRecord(tagName, clazz))
+                addToBackStack(tagName)
+            }
             setReorderingAllowed(true)
         }
+    }
+
+    /**
+     * Navigate to a [DialogFragment]
+     *
+     * @param clazz DialogFragment class to which it should navigate.
+     * @param args Optional args to be passed.
+     */
+    fun show(clazz: DialogFragClazz, args: BaseArgs? = null) {
+        val dialog = fm.newFragment(containerView.context, clazz) as DialogFragment
+        val tagName = getFragmentTagName(clazz)
+        dialog.arguments = createArguments(args)
+        dialog.show(fm, tagName)
     }
 
     /**
@@ -173,9 +182,14 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             true
         }
         if (shouldPopStack) {
-            fm.popBackStackImmediate()
+            history.pop()
         }
         return shouldPopStack
+    }
+
+    private fun createArguments(args: BaseArgs?) = Bundle().apply {
+        if (args != null)
+            putParcelable(ValueFragment.ARGUMENTS, args)
     }
 
     /**

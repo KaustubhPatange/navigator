@@ -3,8 +3,6 @@ package com.kpstv.navigation
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.LayoutRes
-import androidx.annotation.RestrictTo
-import androidx.fragment.app.Fragment
 import com.kpstv.navigation.internals.ViewStateFragment
 
 /**
@@ -14,7 +12,7 @@ import com.kpstv.navigation.internals.ViewStateFragment
  * easy as calling [goBack].
  *
  * In order to pass arguments extend any class from [BaseArgs] & pass it as
- * parameter to [Navigator.navigateTo] call. Use [getKeyArgs] to retrieve
+ * parameter to [Navigator.show] call. Use [getKeyArgs] to retrieve
  * them.
  *
  * @see onBackPressed
@@ -47,7 +45,7 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     open val backStackName: String? = null
 
     /**
-     * Checks if the fragment has any arguments passed during [Navigator.navigateTo] call.
+     * Checks if the fragment has any arguments passed during [Navigator.show] call.
      */
     fun hasKeyArgs(): Boolean {
         return arguments?.containsKey(ARGUMENTS) ?: false

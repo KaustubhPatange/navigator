@@ -1,11 +1,10 @@
 package com.kpstv.navigation.internals
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
+import com.kpstv.navigation.FragClazz
 
-internal class BackStackRecord(
-    private val name: String,
-    private val lifecycleOwner: LifecycleOwner
+internal data class BackStackRecord(
+    val name: String,
+    val qualifiedName: String
 ) {
-
+    constructor(tag: String, clazz: FragClazz) : this(tag, clazz.qualifiedName!!)
 }

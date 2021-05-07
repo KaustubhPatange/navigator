@@ -5,7 +5,9 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.annotation.TransitionRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.transition.TransitionInflater
+import com.kpstv.navigation.FragClazz
 import com.kpstv.navigation.ValueFragment
 
 internal fun View.doOnLaidOut(block: (View) -> Unit) {
@@ -48,3 +50,7 @@ internal fun Fragment.clearTransitions() {
 }
 
 internal fun Context.inflateTransition(@TransitionRes id: Int) = TransitionInflater.from(this).inflateTransition(id)
+
+internal fun FragmentManager.newFragment(context: Context, clazz: FragClazz): Fragment {
+    return fragmentFactory.instantiate(context.classLoader, clazz.java.canonicalName)
+}
