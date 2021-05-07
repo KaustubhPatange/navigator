@@ -61,7 +61,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
      * @param navOptions Optional navigation options you can specify.
      */
     fun navigateTo(clazz: FragClazz, navOptions: NavOptions = NavOptions()) = with(navOptions) options@{
-        val newFragment = clazz.java.getConstructor().newInstance()
+        val newFragment = fm.fragmentFactory.instantiate(containerView.context.classLoader, clazz.java.canonicalName)
         val tagName = if (newFragment is ValueFragment && newFragment.backStackName != null) {
             newFragment.backStackName
         } else getFragmentTagName(clazz)
@@ -111,8 +111,10 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
                     TransactionType.ADD -> add(containerView.id, newFragment, tagName)
                 }
             }
+            setPrimaryNavigationFragment(newFragment) // needed to avoid creating fragment after clearing all history
             // Cannot add to back stack when popUpTo is true
             if (!clearAllHistory && (remember || innerAddToBackStack)) addToBackStack(tagName)
+            setReorderingAllowed(true)
         }
     }
 
