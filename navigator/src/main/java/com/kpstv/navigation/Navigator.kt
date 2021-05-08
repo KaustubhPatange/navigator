@@ -22,6 +22,7 @@ import kotlin.reflect.KClass
 internal typealias FragClazz = KClass<out Fragment>
 internal typealias DialogFragClazz = KClass<out Fragment>
 
+@Suppress("unused")
 class Navigator(private val fm: FragmentManager, private val containerView: FrameLayout) {
 
     /**

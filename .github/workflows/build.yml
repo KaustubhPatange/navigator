@@ -1,5 +1,8 @@
 name: build
 on: [push, pull_request]
+  paths-ignore:
+    - "README.md"
+    - "docs"
 jobs:
   buildJob:
     runs-on: ubuntu-latest

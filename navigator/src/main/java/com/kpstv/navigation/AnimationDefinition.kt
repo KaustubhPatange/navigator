@@ -2,8 +2,6 @@ package com.kpstv.navigation
 
 import android.graphics.Rect
 import android.view.View
-import androidx.annotation.AnimRes
-import androidx.annotation.AnimatorRes
 import androidx.annotation.TransitionRes
 
 /**
@@ -48,20 +46,20 @@ class AnimationDefinition {
         @TransitionRes val exit: Int = R.transition.navigator_transition_fade
     ) : NavAnimation()
 
-    /** TODO: Find a better name for parameters.
+    /**
      * Custom set of animations to play. Supported resource types are "anim", "animator" & "transition".
      *
-     * Consider a scenario of "Fragment A" navigating to "Fragment B".
-     *
-     * @param enter Animation resource to be played on Fragment B.
-     * @param exit Animation resource to be played on Fragment A.
-     * @param popEnter Animation resource to be played on Fragment A when returning from Fragment B.
-     * @param popExit Animation resource to be played on Fragment B when returning to Fragment A.
+     * @param destinationEntering Animation that'll be played on the destination fragment when navigating from the current fragment to it.
+     * @param currentExiting Animation that'll be played on the current fragment when exiting so as to navigate to the destination fragment.
+     * @param currentReturning Animation that'll be played on the current fragment when returning from the destination fragment.
+     *                         Default will be the reverse of [currentExiting].
+     * @param destinationExiting Animation that'll be played on the destination fragment when returning to the previous (current) fragment.
+     *                           Default will be the reverse of [destinationEntering].
      */
     open class Custom(
-        val enter: Int = 0,
-        val exit: Int = 0,
-        val popEnter: Int = 0,
-        val popExit: Int = 0,
+        val destinationEntering: Int, /* enter */
+        val currentExiting: Int, /* exit */
+        val currentReturning: Int = 0, /* popEnter */
+        val destinationExiting: Int = 0, /* popExit */
     ) : NavAnimation()
 }
