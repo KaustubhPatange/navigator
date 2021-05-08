@@ -10,6 +10,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
+import com.google.android.material.tabs.TabItem
+import com.google.android.material.tabs.TabLayout
 import com.kpstv.navigation.internals.*
 import com.kpstv.navigation.internals.CustomAnimation
 import com.kpstv.navigation.internals.HistoryImpl
@@ -41,6 +43,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     private var hasPrimaryFragment: Boolean = false
 
     private val navigatorTransitionManager = NavigatorCircularTransform(fm, containerView)
+    private val simpleNavigator = SimpleNavigator(containerView.context, fm)
     private val history = HistoryImpl(fm)
 
     /**
@@ -115,16 +118,10 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     }
 
     /**
-     * Navigate to a [DialogFragment]
-     *
-     * @param clazz DialogFragment class to which it should navigate.
-     * @param args Optional args to be passed.
+     * @see SimpleNavigator.show
      */
     fun show(clazz: DialogFragClazz, args: BaseArgs? = null) {
-        val dialog = fm.newFragment(containerView.context, clazz) as DialogFragment
-        val tagName = getFragmentTagName(clazz)
-        dialog.arguments = createArguments(args)
-        dialog.show(fm, tagName)
+        simpleNavigator.show(clazz, args)
     }
 
     /**
@@ -140,7 +137,9 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         val count = getBackStackCount()
         if (count == 0) {
             val fragment = getCurrentFragment() ?: return false
-            if (fragment is ValueFragment && fragment.forceBackPress) {
+            if (fragment is DialogFragment) {
+                return true
+            }else if (fragment is ValueFragment && fragment.forceBackPress) {
                 return true
             } else if (fragment is NavigatorTransmitter) {
                 return fragment.getNavigator().canGoBack()
@@ -176,6 +175,11 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         }
         val currentFragment = getCurrentFragment()
 
+        // Dialog fragment
+        if (currentFragment is DialogFragment && simpleNavigator.hasFragment(currentFragment)) {
+            return simpleNavigator.pop()
+        }
+
         val shouldPopStack = if (currentFragment is ValueFragment) {
             !currentFragment.onBackPressed()
         } else {
@@ -185,11 +189,6 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             history.pop()
         }
         return shouldPopStack
-    }
-
-    private fun createArguments(args: BaseArgs?) = Bundle().apply {
-        if (args != null)
-            putParcelable(ValueFragment.ARGUMENTS, args)
     }
 
     /**
@@ -204,9 +203,6 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     fun getContainerView(): FrameLayout = containerView
 
     private fun getBackStackCount(): Int = fm.backStackEntryCount
-
-    private fun getFragmentTagName(clazz: FragClazz): String =
-        clazz.java.simpleName + FRAGMENT_SUFFIX
 
     /**
      * Transactions like Add, Replace can be specified.
@@ -323,6 +319,13 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
                 fm.fragments.reversed().forEach { frag -> if (frag.isVisible) return frag }
             }
             return null
+        }
+
+        internal fun getFragmentTagName(clazz: FragClazz): String = clazz.java.simpleName + FRAGMENT_SUFFIX
+
+        internal fun createArguments(args: BaseArgs?) = Bundle().apply {
+            if (args != null)
+                putParcelable(ValueFragment.ARGUMENTS, args)
         }
 
         private const val FRAGMENT_SUFFIX = "_navigator"

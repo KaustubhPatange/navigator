@@ -3,6 +3,8 @@ package com.kpstv.navigation
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.LayoutRes
+import androidx.fragment.app.DialogFragment
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.kpstv.navigation.internals.ViewStateFragment
 
 /**
@@ -81,6 +83,14 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     }
 
     /**
+     * A simplified version of Navigator that can be used to show [DialogFragment] or [BottomSheetDialogFragment].
+     */
+    fun getSimpleNavigator(): SimpleNavigator {
+        if (!::simpleNavigator.isInitialized) simpleNavigator = SimpleNavigator(requireContext(), childFragmentManager)
+        return simpleNavigator
+    }
+
+    /**
      * Override this to receive back press.
      *
      * The back press is propagated from the host to all of the child fragments. During back
@@ -106,6 +116,7 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      */
     private var bottomNavigationState: Bundle? = null
     private var tabNavigationState: Bundle? = null
+    private lateinit var simpleNavigator: SimpleNavigator
 
     private fun clearArgs() {
         arguments?.remove(ARGUMENTS)

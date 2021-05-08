@@ -2,13 +2,14 @@ apply plugin: 'io.codearte.nexus-staging'
 
 buildscript {
     ext.kotlin_version = "1.4.32"
+    ext.fragment_version = "1.3.2"
 
     ext.versions = [
-            "navigator": '0.1-alpha12',
-            "navigator_extensions": "0.2",
-            "navigator_base_navigation": "0.1-alpha02",  // if this is changed also update bottom & tab navigation library as well.
-            "navigator_bottom_navigation": "0.1-alpha08",
-            "navigator_tab_navigation": "0.1-alpha02" 
+            "navigator": '0.1-alpha12', // published
+            "navigator_extensions": "0.2", // published
+            "navigator_base_navigation": "0.1-alpha02", // published // if this is changed also update bottom & tab navigation library as well.
+            "navigator_bottom_navigation": "0.1-alpha08", // published
+            "navigator_tab_navigation": "0.1-alpha02" // published
     ]
 
     repositories {

@@ -48,7 +48,7 @@ class AnimationDefinition {
         @TransitionRes val exit: Int = R.transition.navigator_transition_fade
     ) : NavAnimation()
 
-    /**
+    /** TODO: Find a better name for parameters.
      * Custom set of animations to play. Supported resource types are "anim", "animator" & "transition".
      *
      * Consider a scenario of "Fragment A" navigating to "Fragment B".
