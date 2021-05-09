@@ -5,6 +5,7 @@ import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.kpstv.navigation.internals.HistoryImpl
 import com.kpstv.navigation.internals.ViewStateFragment
 
 /**
@@ -41,10 +42,11 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      */
     open val forceBackPress = false
 
-    /**
+/*    *//** TODO: Remove it
      * Set custom backStack name. The same name will be used for tag when creating fragment.
-     */
-    open val backStackName: String? = null
+     *//*
+    open val backStackName: String? = null*/
+
 
     /**
      * Checks if the fragment has any arguments passed during [Navigator.show] call.
@@ -84,9 +86,10 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
 
     /**
      * A simplified version of Navigator that can be used to show [DialogFragment] or [BottomSheetDialogFragment].
+     * The instance is available after [onViewCreated].
      */
     fun getSimpleNavigator(): SimpleNavigator {
-        if (!::simpleNavigator.isInitialized) simpleNavigator = SimpleNavigator(requireContext(), childFragmentManager)
+        if (!isSimpleNavigatorInitialized()) throw IllegalAccessException("You must call it between onViewCreated() & onDestroy()")
         return simpleNavigator
     }
 
@@ -109,6 +112,19 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
         return false
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        simpleNavigator = SimpleNavigator(requireContext(), childFragmentManager)
+        simpleNavigator.restoreState(savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        if (isSimpleNavigatorInitialized()) {
+            simpleNavigator.saveState(outState)
+        }
+        super.onSaveInstanceState(outState)
+    }
+
     /**
      * Will be resolved through reflection at runtime.
      *
@@ -117,6 +133,8 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     private var bottomNavigationState: Bundle? = null
     private var tabNavigationState: Bundle? = null
     private lateinit var simpleNavigator: SimpleNavigator
+
+    private fun isSimpleNavigatorInitialized(): Boolean = ::simpleNavigator.isInitialized
 
     private fun clearArgs() {
         arguments?.remove(ARGUMENTS)

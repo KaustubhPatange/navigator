@@ -15,8 +15,8 @@ class MainActivity : AppCompatActivity(), NavigatorTransmitter {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        navigator = Navigator.with(this, savedInstanceState).initialize(findViewById(R.id.container))
         if (savedInstanceState == null) {
-            navigator = Navigator(supportFragmentManager, findViewById(R.id.container))
             navigator.navigateTo(MainFragment::class)
         }
     }

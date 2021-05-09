@@ -1,17 +1,19 @@
 package com.kpstv.navigation
 
 import android.content.Context
+import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.kpstv.navigation.internals.BackStackRecord
+import com.kpstv.navigation.internals.HistoryImpl
 import com.kpstv.navigation.internals.newFragment
 
 /**
  * A navigator available for [ValueFragment] limiting the original functionality.
  */
-class SimpleNavigator internal constructor(private val context: Context, private val fm: FragmentManager) {
-    private val backStack = ArrayDeque<BackStackRecord>()
+class SimpleNavigator internal constructor(private val context: Context, private val fm: FragmentManager, private val history: HistoryImpl) {
+    constructor(context: Context, fm: FragmentManager) : this(context, fm, HistoryImpl(fm))
 
     /**
      * Navigate to a [DialogFragment].
@@ -25,36 +27,27 @@ class SimpleNavigator internal constructor(private val context: Context, private
         dialog.arguments = Navigator.createArguments(args)
         dialog.show(fm, tagName)
 
-        backStack.add(BackStackRecord(tagName, clazz))
+        history.add(BackStackRecord(tagName, clazz))
     }
 
     /**
      * Dismiss the current [DialogFragment] if exist.
      */
-    fun pop(): Boolean {
-        if (!backStack.isEmpty()) {
-            val last = backStack.last().name
-            val fragment = fm.findFragmentByTag(last)
-            if (fragment is DialogFragment) {
-                fragment.dismiss()
-                return true
-            }
-        }
-        return false
-    }
+    fun pop(): Boolean = history.pop()
 
-    internal fun hasFragment(fragment: DialogFragment): Boolean {
-        if (!backStack.isEmpty()) {
-            return backStack.last().qualifiedName == fragment::class.qualifiedName
-        }
-        return false
-    }
+    internal fun isLastFragment(fragment: DialogFragment): Boolean = history.isLastFragment(fragment)
+
+    // save history state
+    internal fun saveState(bundle: Bundle) = history.onSaveState(bundle)
+
+    // restore history state
+    internal fun restoreState(bundle: Bundle?) = history.onRestoreState(bundle)
 
     init {
         fm.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentDestroyed(fm: FragmentManager, f: Fragment) {
-                if (f is DialogFragment && backStack.any { it.qualifiedName == f::class.qualifiedName }) {
-                    backStack.removeLastOrNull()
+                if (f is DialogFragment && history.isLastFragment(f)) {
+                    history.pop()
                 }
                 super.onFragmentDestroyed(fm, f)
             }

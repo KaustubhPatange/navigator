@@ -20,16 +20,18 @@ class MainActivity : AppCompatActivity(), NavigatorTransmitter {
             Log.e(frag::class.simpleName, "=> $log")
         }
 
-        navigator = Navigator(supportFragmentManager, findViewById(R.id.container))
+        navigator = Navigator.with(this, savedInstanceState).initialize(findViewById(R.id.container))
 
-        val options = Navigator.NavOptions(
-            args = AbstractWelcomeFragment.Args(
-                title = "First Fragment",
-                background = R.color.palette1,
-                nextColor = R.color.palette2,
+        if (savedInstanceState == null) {
+            val options = Navigator.NavOptions(
+                args = AbstractWelcomeFragment.Args(
+                    title = "First Fragment",
+                    background = R.color.palette1,
+                    nextColor = R.color.palette2,
+                )
             )
-        )
-        navigator.navigateTo(FirstFragment::class, options)
+            navigator.navigateTo(FirstFragment::class, options)
+        }
     }
     override fun onBackPressed() {
         if (navigator.canFinish())

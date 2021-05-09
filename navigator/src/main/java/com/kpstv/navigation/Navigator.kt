@@ -1,15 +1,14 @@
 package com.kpstv.navigation
 
+import android.app.Activity
+import android.app.Application
 import android.os.Bundle
 import android.widget.FrameLayout
 import androidx.annotation.AnimRes
 import androidx.annotation.AnimatorRes
 import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.commit
+import androidx.fragment.app.*
 import com.google.android.material.tabs.TabItem
 import com.google.android.material.tabs.TabLayout
 import com.kpstv.navigation.internals.*
@@ -23,8 +22,8 @@ internal typealias FragClazz = KClass<out Fragment>
 internal typealias DialogFragClazz = KClass<out Fragment>
 
 @Suppress("unused")
-class Navigator(private val fm: FragmentManager, private val containerView: FrameLayout) {
-
+class Navigator internal constructor(private val fm: FragmentManager, private val containerView: FrameLayout) {
+// TODO: Single instance thing & more...
     /**
      * @param args Pass arguments extended from [BaseArgs].
      * @param transaction See [TransactionType].
@@ -37,6 +36,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         val transaction: TransactionType = TransactionType.REPLACE,
         val animation: NavAnimation = AnimationDefinition.None,
         val remember: Boolean = false,
+        val singleTop: Boolean = false,
         val clearAllHistory: Boolean = false,
     )
 
@@ -44,8 +44,9 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     private var hasPrimaryFragment: Boolean = false
 
     private val navigatorTransitionManager = NavigatorCircularTransform(fm, containerView)
-    private val simpleNavigator = SimpleNavigator(containerView.context, fm)
     private val history = HistoryImpl(fm)
+
+    private val simpleNavigator = SimpleNavigator(containerView.context, fm)
 
     /**
      * Sets the default fragment as the host. The [FragmentManager.popBackStack] will be called recursively
@@ -71,9 +72,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
     fun navigateTo(clazz: FragClazz, navOptions: NavOptions = NavOptions()) = with(navOptions) options@{
         val newFragment = fm.newFragment(containerView.context, clazz)
         if (newFragment is DialogFragment) show(clazz, args) // delegate to dialog navigation
-        val tagName = if (newFragment is ValueFragment && newFragment.backStackName != null) {
-            newFragment.backStackName!!
-        } else getFragmentTagName(clazz)
+        val tagName = history.getUniqueBackStackName(clazz)
 
         if (animation is AnimationDefinition.CircularReveal) {
             val oldPayload = animation as? AnimationDefinition.CircularReveal
@@ -89,8 +88,8 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             history.clearAll()
         }
         // Remove duplicate backStack entry name & add it again if exist.
-        // Useful when fragment is navigating to self.
-        val innerAddToBackStack = history.clearUpTo(tagName, true)
+        // Useful when fragment is navigating to self or maintaining single instance.
+        val innerAddToBackStack = history.clearUpTo(tagName, true) // TODO: Do not enforce single instance
         fm.commit {
             if (animation is AnimationDefinition.Custom)
                 CustomAnimation(fm, containerView).set(this, animation, clazz)
@@ -177,7 +176,7 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         val currentFragment = getCurrentFragment()
 
         // Dialog fragment
-        if (currentFragment is DialogFragment && simpleNavigator.hasFragment(currentFragment)) {
+        if (currentFragment is DialogFragment && simpleNavigator.isLastFragment(currentFragment)) {
             return simpleNavigator.pop()
         }
 
@@ -190,6 +189,21 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
             history.pop()
         }
         return shouldPopStack
+    }
+
+    //internal fun getHistory(): History = history
+
+    internal fun restoreState(bundle: Bundle?) {
+        history.onRestoreState(bundle)
+        val simpleNavigatorState = bundle?.getBundle(SimpleNavigator::class.qualifiedName)
+        simpleNavigator.restoreState(simpleNavigatorState)
+    }
+
+    internal fun onSaveInstance(bundle: Bundle) {
+        val simpleNavigatorState = Bundle()
+        simpleNavigator.saveState(simpleNavigatorState)
+        bundle.putBundle(SimpleNavigator::class.qualifiedName, simpleNavigatorState)
+        history.onSaveState(bundle)
     }
 
     /**
@@ -310,7 +324,63 @@ class Navigator(private val fm: FragmentManager, private val containerView: Fram
         open fun onBottomNavigationSelectionChanged(@IdRes selectedId: Int) {}
     }
 
+    class Builder internal constructor(
+        private val fragmentManager: FragmentManager,
+        private val savedInstanceState: Bundle?
+    ) {
+        private lateinit var navigator: Navigator
+
+        fun initialize(containerView: FrameLayout) : Navigator {
+            navigator = Navigator(fragmentManager, containerView)
+            navigator.restoreState(savedInstanceState)
+            return navigator
+        }
+
+        internal fun set(activity: FragmentActivity) {
+            activity.application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+                override fun onActivitySaveInstanceState(act: Activity, outState: Bundle) {
+                    if (activity === act && ::navigator.isInitialized) {
+                        navigator.onSaveInstance(outState)
+                        act.application.unregisterActivityLifecycleCallbacks(this)
+                    }
+                }
+                override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+                override fun onActivityStarted(activity: Activity) {}
+                override fun onActivityResumed(activity: Activity) {}
+                override fun onActivityPaused(activity: Activity) {}
+                override fun onActivityStopped(activity: Activity) {}
+                override fun onActivityDestroyed(activity: Activity) {}
+            })
+        }
+
+        internal fun set(fragment: Fragment) {
+            fragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
+                override fun onFragmentSaveInstanceState(fm: FragmentManager, frag: Fragment, outState: Bundle) {
+                    if (fragment === frag && ::navigator.isInitialized) {
+                        navigator.onSaveInstance(outState)
+                        fm.unregisterFragmentLifecycleCallbacks(this)
+                    }
+                    super.onFragmentSaveInstanceState(fm, frag, outState)
+                }
+            }, false)
+        }
+    }
+
     companion object {
+        /**
+         * Returns a builder for creating an instance of Navigator.
+         */
+        fun with(activity: FragmentActivity, savedInstanceState: Bundle?): Builder {
+            return Builder(activity.supportFragmentManager, savedInstanceState).apply { set(activity) }
+        }
+
+        /**
+         * Returns a builder for creating an instance of Navigator.
+         */
+        fun with(fragment: Fragment, savedInstanceState: Bundle?): Builder {
+            return Builder(fragment.childFragmentManager, savedInstanceState).apply { set(fragment) }
+        }
+
         internal fun getCurrentVisibleFragment(fm: FragmentManager, containerView: FrameLayout): Fragment? {
             val fragment = fm.findFragmentById(containerView.id)
             if (fragment != null) {
