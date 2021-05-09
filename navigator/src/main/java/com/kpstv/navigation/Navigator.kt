@@ -23,12 +23,13 @@ internal typealias DialogFragClazz = KClass<out Fragment>
 
 @Suppress("unused")
 class Navigator internal constructor(private val fm: FragmentManager, private val containerView: FrameLayout) {
-// TODO: Single instance thing & more...
+
     /**
      * @param args Pass arguments extended from [BaseArgs].
      * @param transaction See [TransactionType].
      * @param animation See [NavAnimation].
      * @param remember Remembers the fragment transaction so that [goBack] can navigate to this fragment again on back press or by calling manually. Equivalent to addToBackStack in fragment transaction.
+     * @param singleTop Maintains only one instance of this [Fragment] in the current [FragmentManager].
      * @param clearAllHistory Clear all previous remembered fragment transaction. Equivalent to clearing all backstack record or popUpThisInclusive call.
      */
     data class NavOptions(
@@ -89,7 +90,9 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         }
         // Remove duplicate backStack entry name & add it again if exist.
         // Useful when fragment is navigating to self or maintaining single instance.
-        val innerAddToBackStack = history.clearUpTo(tagName, true) // TODO: Do not enforce single instance
+        val innerAddToBackStack = if (singleTop) {
+            history.clearUpTo(clazz, true)
+        } else false
         fm.commit {
             if (animation is AnimationDefinition.Custom)
                 CustomAnimation(fm, containerView).set(this, animation, clazz)
@@ -324,19 +327,25 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         open fun onBottomNavigationSelectionChanged(@IdRes selectedId: Int) {}
     }
 
+    internal lateinit var owner: Any // Will be used to query if installed in Activity or Fragment.
+    internal var savedInstanceState: Bundle? = null // Just for restoring state in other parts of library module, really missing package-private feature in Kotlin.
     class Builder internal constructor(
         private val fragmentManager: FragmentManager,
         private val savedInstanceState: Bundle?
     ) {
         private lateinit var navigator: Navigator
+        private lateinit var owner: Any
 
         fun initialize(containerView: FrameLayout) : Navigator {
             navigator = Navigator(fragmentManager, containerView)
+            navigator.owner = owner
+            navigator.savedInstanceState = savedInstanceState
             navigator.restoreState(savedInstanceState)
             return navigator
         }
 
         internal fun set(activity: FragmentActivity) {
+            owner = activity
             activity.application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
                 override fun onActivitySaveInstanceState(act: Activity, outState: Bundle) {
                     if (activity === act && ::navigator.isInitialized) {
@@ -354,6 +363,7 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         }
 
         internal fun set(fragment: Fragment) {
+            owner = fragment
             fragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
                 override fun onFragmentSaveInstanceState(fm: FragmentManager, frag: Fragment, outState: Bundle) {
                     if (fragment === frag && ::navigator.isInitialized) {

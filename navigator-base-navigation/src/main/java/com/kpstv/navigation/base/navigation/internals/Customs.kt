@@ -5,13 +5,21 @@ import androidx.activity.ComponentActivity
 import androidx.fragment.app.Fragment
 import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.NavigatorTransmitter
-import com.kpstv.navigation.ValueFragment
 
-fun Fragment.getSaveInstanceState(): Bundle? {
-    val field = Fragment::class.java.getDeclaredField("mSavedFragmentState").apply {
+// Really missing the package-private feature in Kotlin :(
+
+fun Navigator.getSaveInstanceState(): Bundle? {
+    val field = Navigator::class.java.getDeclaredField("savedInstanceState").apply {
         isAccessible = true
     }
     return field.get(this) as? Bundle
+}
+
+fun Navigator.getOwner(): Any? {
+    val field = Navigator::class.java.getDeclaredField("owner").apply {
+        isAccessible = true
+    }
+    return field.get(this)
 }
 
 fun Fragment.getNavigator(): Navigator {

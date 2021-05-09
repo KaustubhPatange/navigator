@@ -24,7 +24,7 @@ class MainFragment : ValueFragment(R.layout.fragment_main), NavigatorTransmitter
         val binding = FragmentMainBinding.bind(view).also { viewBinding = it }
         navigator = Navigator.with(this, savedInstanceState).initialize(binding.container)
 
-        bottomController = navigator.install(this, object : Navigator.BottomNavigation(){
+        bottomController = navigator.install(object : Navigator.BottomNavigation(){
             override val bottomNavigationViewId: Int = R.id.bottom_nav
             override val bottomNavigationFragments: Map<Int, KClass<out Fragment>> =
                 mapOf(
