@@ -14,6 +14,14 @@ any time.
 
 If you have any implementation details to cover let me know.
 
+**What additional benefits I can get when using this library?**
+
+- Proper handling of Fragment Transaction.
+- Handling up & back press actions efficiently on [Fragment](/samples/basic-sample).
+- Easy to use API for animations & transitions (see [here](https://github.com/KaustubhPatange/navigator/wiki/Quick-Tutorials#navigation-with-animation)).
+- Generic Typed Arguments when passing data between destinations (see [here](https://github.com/KaustubhPatange/navigator/wiki/Quick-Tutorials#navigation-with-typed-arguments)).
+- Quick Bottom & Tab navigation setup (see [tutorials](#tutorials)).
+
 ## Implementation
 
 - The individual library versions can be found [here](https://github.com/KaustubhPatange/navigator/wiki/Setup).
@@ -43,13 +51,13 @@ dependencies {
 - [Basic sample](/samples/basic-sample) - Hands on with the introduction to some library features.
 - [Backpress sample](/samples/backpress-sample) - A sample focused on handling back press events effectively.
 - [Navigation Sample](/samples/navigation-sample) - A sample which demonstrates use of Bottom & TabLayout navigation through `navigator`.
-<!-- - #### **Running the samples**
+- #### **Running the samples**
 
-````
+```
 // Run the following command before building the project.
 
 ./gradlew navigator:publishReleasePublicationToMavenLocal
-``` -->
+```
 
 ## Tutorials
 
@@ -68,8 +76,7 @@ dependencies {
 
 - [The Apache License Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-````
-
+```
 Copyright 2020 Kaustubh Patange
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -83,7 +90,4 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-```
-
 ```

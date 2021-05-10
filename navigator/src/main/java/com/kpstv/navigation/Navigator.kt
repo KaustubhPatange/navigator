@@ -36,7 +36,7 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         val transaction: TransactionType = TransactionType.REPLACE,
         val animation: NavAnimation = AnimationDefinition.None,
         val remember: Boolean = false,
-        val historyOptions: HistoryOptions = HistoryOptions.ClearHistory,
+        val historyOptions: HistoryOptions = HistoryOptions.None,
     )
 
     private var primaryFragClass: FragClazz? = null
@@ -137,6 +137,11 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
     }
 
     /**
+     * @see History
+     */
+    fun getHistory(): History = history
+
+    /**
      * Determines if "it can go back" aka backStack is empty or not.
      *
      * The call is recursive through child [Fragment]s that uses [Navigator].
@@ -202,8 +207,6 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         }
         return shouldPopStack
     }
-
-    //internal fun getHistory(): History = history
 
     internal fun restoreState(bundle: Bundle?) {
         history.onRestoreState(bundle)

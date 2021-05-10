@@ -3,6 +3,9 @@ package com.kpstv.navigation
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
+/**
+ * An abstraction layer over [FragmentManager.mBackStack] to efficiently manage backstack.
+ */
 interface History {
     /**
      * Clear the backstack history up to the fragment.
@@ -27,9 +30,30 @@ interface History {
     fun clearAll(): Boolean
 
     /**
-     * Pops the last fragment
+     * Pops the last fragment.
      */
     fun pop(): Boolean
+
+    /**
+     * Returns the backstack name of the [fragClazz] if it's present in the history.
+     *
+     * If there are multiple instance of the [fragClazz] then it will return the last added one.
+     */
+    fun getBackStackName(fragClazz: FragClazz): String?
+
+    /**
+     * Returns the backstack name of the [fragClazz] if it's present in the history.
+     *
+     * If there are multiple instance of the [fragClazz] then it will return the first added one.
+     */
+    fun getTopBackStackName(fragClazz: FragClazz): String?
+
+    /**
+     * Returns a list of backstack name of all the instance of [fragClazz] present in the history.
+     *
+     * If there are no instance of this fragment then it returns an empty list.
+     */
+    fun getAllBackStackName(fragClazz: FragClazz): List<String>
 }
 
 /**

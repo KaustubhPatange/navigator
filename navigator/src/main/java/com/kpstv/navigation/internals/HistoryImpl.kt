@@ -9,12 +9,15 @@ import com.kpstv.navigation.FragClazz
 import com.kpstv.navigation.History
 import java.util.*
 import kotlin.collections.ArrayDeque
+import kotlin.collections.ArrayList
 
 internal class HistoryImpl internal constructor(private val fm: FragmentManager) : History {
     private val backStack = ArrayDeque<BackStackRecord>()
 
     internal fun add(record: BackStackRecord) {
-        backStack.removeAll { r -> r == record } // no same backstack name
+        // no same backstack name 
+        // TODO: This is already ensured by getUniqueBackStackName, see if you need this
+        backStack.removeAll { r -> r == record }
         backStack.add(record)
     }
 
@@ -40,11 +43,11 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
             } else {
                 backStack.findLast { it.qualifiedName == clazz.qualifiedName }
             } ?: return false
-            val index = backStack.indexOf(record) + if (!inclusive) 0 else +1
-            if (index > backStack.count()) return false
-            for(i in backStack.count() - 1 downTo index) backStack.removeLast()
-
-            popInternal(record.name, inclusive)
+            val index = backStack.indexOf(record)
+            if (index != -1) {
+                for(i in backStack.count() - 1 downTo index) backStack.removeLast()
+                popInternal(record.name, inclusive)
+            }
             return true
         }
         return false
@@ -70,6 +73,28 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
             return true
         }
         return false
+    }
+
+    override fun getBackStackName(fragClazz: FragClazz): String? {
+        if (!backStack.isEmpty()) {
+            return backStack.findLast { it.qualifiedName == fragClazz.qualifiedName }?.name
+        }
+        return null
+    }
+
+    override fun getTopBackStackName(fragClazz: FragClazz): String? {
+        if (!backStack.isEmpty()) {
+            return backStack.find { it.qualifiedName == fragClazz.qualifiedName }?.name
+        }
+        return null
+    }
+
+    override fun getAllBackStackName(fragClazz: FragClazz): List<String> {
+        if (!backStack.isEmpty()) {
+            return backStack.filter { it.qualifiedName == fragClazz.qualifiedName }
+                            .map { it.name }
+        }
+        return emptyList()
     }
 
     internal fun isLastFragment(fragment: Fragment): Boolean {
