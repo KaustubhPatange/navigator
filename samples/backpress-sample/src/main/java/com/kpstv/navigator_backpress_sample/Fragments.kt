@@ -38,7 +38,7 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
                 val options =  Navigator.NavOptions(
                     args = getNextArgs(),
                     animation = AnimationDefinition.Fade,
-                    clearAllHistory = true
+                    historyOptions = HistoryOptions.ClearHistory
                 )
                 getParentNavigator().navigateTo(nextFragment, options)
             } else {

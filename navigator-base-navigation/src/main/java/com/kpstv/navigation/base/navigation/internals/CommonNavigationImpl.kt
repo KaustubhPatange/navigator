@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commitNow
+import androidx.lifecycle.Lifecycle
 import com.kpstv.navigation.BaseArgs
 import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.ValueFragment
@@ -105,7 +106,6 @@ abstract class CommonNavigationImpl(
         var transaction = fm.beginTransaction()
         if (runIfHasAnimations && current != null) {
             setAnimations(transaction, fromIndex = fragments.indexOf(current), toIndex = fragments.indexOf(whichFragment))
-
         }
         fragments.forEachIndexed { index, fragment ->
             if (fragment == whichFragment) {

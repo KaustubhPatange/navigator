@@ -33,10 +33,13 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
         return false
     }
 
-    override fun clearUpTo(clazz: FragClazz, inclusive: Boolean): Boolean {
+    override fun clearUpTo(clazz: FragClazz, inclusive: Boolean, all: Boolean): Boolean {
         if (!backStack.isEmpty()) {
-            // find first because same instance of fragments might be present with different backstack name.
-            val record = backStack.findLast { it.qualifiedName == clazz.qualifiedName } ?: return false
+            val record = if (all) {
+                backStack.find { it.qualifiedName == clazz.qualifiedName }
+            } else {
+                backStack.findLast { it.qualifiedName == clazz.qualifiedName }
+            } ?: return false
             val index = backStack.indexOf(record) + if (!inclusive) 0 else +1
             if (index > backStack.count()) return false
             for(i in backStack.count() - 1 downTo index) backStack.removeLast()

@@ -29,16 +29,14 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
      * @param transaction See [TransactionType].
      * @param animation See [NavAnimation].
      * @param remember Remembers the fragment transaction so that [goBack] can navigate to this fragment again on back press or by calling manually. Equivalent to addToBackStack in fragment transaction.
-     * @param singleTop Maintains only one instance of this [Fragment] in the current [FragmentManager].
-     * @param clearAllHistory Clear all previous remembered fragment transaction. Equivalent to clearing all backstack record or popUpThisInclusive call.
+     * @param historyOptions Manipulate history during navigating to [Fragment] by specifying any one of [HistoryOptions].
      */
     data class NavOptions(
         val args: BaseArgs? = null,
         val transaction: TransactionType = TransactionType.REPLACE,
         val animation: NavAnimation = AnimationDefinition.None,
         val remember: Boolean = false,
-        val singleTop: Boolean = false,
-        val clearAllHistory: Boolean = false,
+        val historyOptions: HistoryOptions = HistoryOptions.ClearHistory,
     )
 
     private var primaryFragClass: FragClazz? = null
@@ -75,6 +73,10 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         if (newFragment is DialogFragment) show(clazz, args) // delegate to dialog navigation
         val tagName = history.getUniqueBackStackName(clazz)
 
+        // any one of the following will be true
+        val clearAllHistory = historyOptions is HistoryOptions.ClearHistory
+        val singleTop = historyOptions is HistoryOptions.SingleTopInstance
+
         if (animation is AnimationDefinition.CircularReveal) {
             val oldPayload = animation as? AnimationDefinition.CircularReveal
             val payload = AnimationDefinition.CircularReveal(
@@ -93,6 +95,13 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         val innerAddToBackStack = if (singleTop) {
             history.clearUpTo(clazz, true)
         } else false
+        // Pop to fragment or backstack.
+        if (historyOptions is HistoryOptions.PopToFragment) {
+            history.clearUpTo(historyOptions.clazz, all = historyOptions.all)
+        } else if (historyOptions is HistoryOptions.PopToBackStack) {
+            history.clearUpTo(historyOptions.name, historyOptions.inclusive)
+        }
+
         fm.commit {
             if (animation is AnimationDefinition.Custom)
                 CustomAnimation(fm, containerView).set(this, animation, clazz)
