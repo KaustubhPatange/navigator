@@ -99,7 +99,9 @@ sealed class HistoryOptions {
      * @param name The name associated with the entry in backstack.
      * @param inclusive Should that fragment be removed as well. Equivalent to [FragmentManager.POP_BACK_STACK_INCLUSIVE].
      *
-     * @see // TODO : History.getNam
+     * @see History.getBackStackName
+     * @see History.getTopBackStackName
+     * @see History.getAllBackStackName
      */
     data class PopToBackStack(val name: String, val inclusive: Boolean = true) : HistoryOptions()
 }

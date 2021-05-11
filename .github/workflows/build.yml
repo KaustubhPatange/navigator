@@ -10,7 +10,7 @@ on:
       - "docs"
 jobs:
   buildJob:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -51,4 +51,9 @@ jobs:
           ./gradlew samples:backpress-sample:assembleDebug
           ./gradlew samples:navigation-sample:assembleDebug
 
-      # Test samples or code TODO:
+      # Test samples or code (TODO: Write tests for bottom & tab navigation)
+      - name: Run Instrumented tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          script: ./gradlew navigator:connectedAndroidTest

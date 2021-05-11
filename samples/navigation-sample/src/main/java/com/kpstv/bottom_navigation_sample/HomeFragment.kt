@@ -8,6 +8,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
+import com.google.android.material.tabs.TabLayout
 import com.kpstv.bottom_navigation_sample.databinding.FragmentHomeBinding
 import com.kpstv.navigation.*
 import kotlin.reflect.KClass

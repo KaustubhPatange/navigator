@@ -15,7 +15,7 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
     private val backStack = ArrayDeque<BackStackRecord>()
 
     internal fun add(record: BackStackRecord) {
-        // no same backstack name 
+        // no same backstack name
         // TODO: This is already ensured by getUniqueBackStackName, see if you need this
         backStack.removeAll { r -> r == record }
         backStack.add(record)
@@ -26,11 +26,12 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
             val last = backStack.last().name
             val fragment = fm.findFragmentByTag(last)
             if (fragment is DialogFragment) {
-                fragment.dismiss()
+                // Remove if not already canceled or dismissed.
+                if (!fragment.isStateSaved) fragment.dismiss()
             } else {
-                backStack.removeLast()
                 fm.popBackStackImmediate()
             }
+            backStack.removeLast()
             return true
         }
         return false
@@ -43,12 +44,7 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
             } else {
                 backStack.findLast { it.qualifiedName == clazz.qualifiedName }
             } ?: return false
-            val index = backStack.indexOf(record)
-            if (index != -1) {
-                for(i in backStack.count() - 1 downTo index) backStack.removeLast()
-                popInternal(record.name, inclusive)
-            }
-            return true
+            return clearUpTo(record.name, inclusive)
         }
         return false
     }
@@ -57,7 +53,7 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
         if (!backStack.isEmpty()) {
             val index = backStack.indexOfFirst { it.name == name }
             if (index != -1) {
-                for(i in backStack.count() -1 downTo index) backStack.removeLast()
+                for(i in backStack.count() -1 downTo if (inclusive) index else index+1) backStack.removeLast()
                 popInternal(name, inclusive)
                 return true
             }

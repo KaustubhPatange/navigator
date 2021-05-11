@@ -27,7 +27,7 @@ class SimpleNavigator internal constructor(private val context: Context, private
      */
     fun show(clazz: DialogFragClazz, args: BaseArgs? = null, onDismissListener: DialogDismissListener? = null) {
         val dialog = fm.newFragment(context, clazz) as DialogFragment
-        val tagName = Navigator.getFragmentTagName(clazz)
+        val tagName = history.getUniqueBackStackName(clazz)
         dialog.arguments = Navigator.createArguments(args)
         dialog.show(fm, tagName)
 

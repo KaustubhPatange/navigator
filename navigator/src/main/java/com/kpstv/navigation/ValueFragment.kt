@@ -42,12 +42,6 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      */
     open val forceBackPress = false
 
-/*    *//** TODO: Remove it
-     * Set custom backStack name. The same name will be used for tag when creating fragment.
-     *//*
-    open val backStackName: String? = null*/
-
-
     /**
      * Checks if the fragment has any arguments passed during [Navigator.show] call.
      */
