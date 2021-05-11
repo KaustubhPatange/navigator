@@ -3,11 +3,12 @@ package com.kpstv.navigation
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Lifecycle
-import androidx.test.core.app.ActivityScenario
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.kpstv.navigation.base.*
 import com.kpstv.navigation.internals.HistoryImpl
+import com.kpstv.navigator.test.*
 import org.junit.Before
+import org.junit.Rule
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,21 +16,18 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavigatorTests {
 
-    private lateinit var activityScenario: ActivityScenario<TestMainActivity>
-    private lateinit var navigator: Navigator
+
+    @get:Rule
+    val activity = ActivityScenarioRule(TestMainActivity::class.java)
 
     @Before
     fun init() {
-        activityScenario = ActivityScenario.launch(TestMainActivity::class.java)
-        activityScenario.onActivity { activity ->
-            navigator = activity.navigator
-        }
-        activityScenario.moveToState(Lifecycle.State.STARTED)
+        activity.scenario.moveToState(Lifecycle.State.STARTED)
     }
 
     @Test
     fun NavigateToFirstFragmentAndVerify() {
-        activityScenario.onActivity { activity ->
+        activity.with {
             navigator.navigateTo(FirstFragment::class)
             navigator.getFragmentManager().executePendingTransactions()
             val fragment = navigator.getCurrentFragment()
@@ -39,7 +37,7 @@ class NavigatorTests {
 
     @Test
     fun SomeTestsForBackstack() {
-        activityScenario.onActivity { activity ->
+        activity.with {
             navigator.navigateTo(FirstFragment::class)
             navigator.navigateTo(SecondFragment::class, Navigator.NavOptions(remember = true))
             navigator.getFragmentManager().executePendingTransactions()
@@ -68,7 +66,7 @@ class NavigatorTests {
         }
     }
 
-    private fun preSetupForHistoryTest(activity: TestMainActivity) {
+    private fun preSetupForHistoryTest(activity: TestMainActivity) = with(activity) {
         navigator.navigateTo(FirstFragment::class)
         navigator.navigateTo(SecondFragment::class, Navigator.NavOptions(remember = true))
         navigator.navigateTo(SecondFragment::class, Navigator.NavOptions(remember = true))
@@ -78,8 +76,8 @@ class NavigatorTests {
     }
     @Test
     fun SomeRandomHistoryTests() {
-        activityScenario.onActivity { activity ->
-            preSetupForHistoryTest(activity)
+        activity.with {
+            preSetupForHistoryTest(this)
 
             // Check the backstack count
             assert(navigator.getFragmentManager().backStackEntryCount == 4)
@@ -99,7 +97,7 @@ class NavigatorTests {
             navigator.getFragmentManager().executePendingTransactions()
             assert(navigator.getCurrentFragment()!!::class == FirstFragment::class)
 
-            preSetupForHistoryTest(activity)
+            preSetupForHistoryTest(this)
 
             // Clear up to SecondFragment inclusive without all
             navigator.getHistory().clearUpTo(SecondFragment::class)
@@ -123,7 +121,7 @@ class NavigatorTests {
             // Cannot go back
             assert(!navigator.canGoBack())
 
-            preSetupForHistoryTest(activity)
+            preSetupForHistoryTest(this)
 
             // Check clear history
             navigator.getHistory().clearAll()
@@ -134,7 +132,7 @@ class NavigatorTests {
             // Check if back press works
             navigator.navigateTo(SecondFragment::class, Navigator.NavOptions(remember = true))
             navigator.getFragmentManager().executePendingTransactions()
-            activity.onBackPressed()
+            onBackPressed()
             navigator.getFragmentManager().executePendingTransactions()
 
             assert(!navigator.canGoBack())
@@ -144,7 +142,7 @@ class NavigatorTests {
 
     @Test
     fun TypedArgumentTests() {
-        activityScenario.onActivity { activity ->
+        activity.with {
             navigator.navigateTo(FirstFragment::class)
 
             val args = TestArgs.create()
@@ -164,8 +162,8 @@ class NavigatorTests {
 
     @Test
     fun TestDialogFragments() {
-        activityScenario.onActivity { activity ->
-            preSetupForHistoryTest(activity)
+        activity.with {
+            preSetupForHistoryTest(this)
             val currentFragment = navigator.getCurrentFragment() as ValueFragment
 
             val args = TestArgs.create()
@@ -201,17 +199,15 @@ class NavigatorTests {
     @Test
     fun TestSaveStateInstance() {
         val currentBundle = Bundle()
-        activityScenario.onActivity { activity ->
-            preSetupForHistoryTest(activity)
+        activity.with {
+            preSetupForHistoryTest(this)
             navigator.show(FirstSheet::class)
             navigator.show(SecondSheet::class)
 
             navigator.onSaveInstance(currentBundle)
         }
-        activityScenario.recreate()
-        activityScenario.onActivity { activity ->
-            navigator = activity.navigator
-
+        activity.scenario.recreate()
+        activity.with {
             // The bundle should not be null
             assert(navigator.savedInstanceState != null)
 
@@ -227,8 +223,8 @@ class NavigatorTests {
 
     @Test
     fun HistoryOptionsTests() {
-        activityScenario.onActivity { activity ->
-            preSetupForHistoryTest(activity)
+        activity.with {
+            preSetupForHistoryTest(this)
 
             // Check for single instance
             navigator.navigateTo(SecondFragment::class, Navigator.NavOptions(historyOptions = HistoryOptions.SingleTopInstance))
@@ -244,7 +240,7 @@ class NavigatorTests {
             assert(!navigator.canGoBack())
 
             // Pop to fragment
-            preSetupForHistoryTest(activity)
+            preSetupForHistoryTest(this)
             navigator.navigateTo(ThirdFragment::class, Navigator.NavOptions(remember = true, historyOptions = HistoryOptions.PopToFragment(SecondFragment::class, all = true)))
             navigator.getFragmentManager().executePendingTransactions()
             assert(navigator.getFragmentManager().backStackEntryCount == 1)
@@ -253,7 +249,7 @@ class NavigatorTests {
 
     @Test
     fun AddTransactionTest() {
-        activityScenario.onActivity { activity ->
+        activity.with {
             navigator.navigateTo(FirstFragment::class)
             navigator.navigateTo(SecondFragment::class, Navigator.NavOptions(remember = true, transaction = Navigator.TransactionType.ADD))
             navigator.navigateTo(ThirdFragment::class, Navigator.NavOptions(remember = true, transaction = Navigator.TransactionType.ADD))

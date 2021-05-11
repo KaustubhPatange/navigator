@@ -34,3 +34,13 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+task runAllInstrumentedTest {
+    def t1 = tasks.getByPath("navigator:connectedAndroidTest")
+    def t2 = tasks.getByPath("navigator-base-navigation:connectedAndroidTest")
+
+    t2.mustRunAfter(t1)
+
+    dependsOn(t1)
+    dependsOn(t2)
+}

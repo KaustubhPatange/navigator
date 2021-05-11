@@ -159,6 +159,6 @@ abstract class CommonNavigationImpl(
 
     companion object {
         private const val FRAGMENT_SUFFIX = "_absBottomNav"
-        private const val KEY_SELECTION_INDEX = "keySelectedIndex"
+        private const val KEY_SELECTION_INDEX = "com.kpstv.navigation:base:key_selection_index"
     }
 }

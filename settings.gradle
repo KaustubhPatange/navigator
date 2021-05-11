@@ -7,3 +7,4 @@ include ':navigator-extensions'
 include ':navigator'
 rootProject.name = "Navigator"
 include ':navigator-tab-navigation'
+include ':navigator-test-common'

@@ -22,12 +22,14 @@ fun Navigator.getOwner(): Any? {
     return field.get(this)
 }
 
+// TODO: Remove if not needed
 fun Fragment.getNavigator(): Navigator {
     if (this !is NavigatorTransmitter)
         throw IllegalAccessException("The fragment must implement \"NavigatorTransmitter\" interface before setting up navigation.")
     return this.getNavigator()
 }
 
+// TODO: Remove if not needed
 fun ComponentActivity.getNavigator(): Navigator {
     if (this !is NavigatorTransmitter)
         throw IllegalAccessException("The activity must implement \"NavigatorTransmitter\" interface before setting up navigation.")

@@ -1,10 +1,9 @@
-package com.kpstv.navigation.base
+package com.kpstv.navigator.test
 
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.canFinish
-import com.kpstv.navigation.test.R
 
 class TestMainActivity : FragmentActivity() {
     lateinit var navigator: Navigator
