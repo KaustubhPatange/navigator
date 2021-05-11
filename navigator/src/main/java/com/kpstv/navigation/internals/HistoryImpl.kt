@@ -2,6 +2,7 @@ package com.kpstv.navigation.internals
 
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -138,6 +139,7 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
 
     companion object {
         private const val BACKSTACK_SUFFIX = "_navigator"
-        private const val SAVED_STATE = "com.kpstv.navigation:navigator:history_saved_state"
+        @VisibleForTesting
+        internal const val SAVED_STATE = "com.kpstv.navigation:navigator:history_saved_state"
     }
 }

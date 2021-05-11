@@ -93,7 +93,7 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         // Remove duplicate backStack entry name & add it again if exist.
         // Useful when fragment is navigating to self or maintaining single instance.
         val innerAddToBackStack = if (singleTop) {
-            history.clearUpTo(clazz, true)
+            history.clearUpTo(clazz, all = true)
         } else false
         // Pop to fragment or backstack.
         if (historyOptions is HistoryOptions.PopToFragment) {
