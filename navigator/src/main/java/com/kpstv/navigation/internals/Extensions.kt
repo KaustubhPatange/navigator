@@ -54,3 +54,7 @@ internal fun Context.inflateTransition(@TransitionRes id: Int) = TransitionInfla
 internal fun FragmentManager.newFragment(context: Context, clazz: FragClazz): Fragment {
     return fragmentFactory.instantiate(context.classLoader, clazz.java.canonicalName)
 }
+
+internal fun Any.toIdentifier(): String {
+    return this::class.qualifiedName?.replace(".", "_") ?: toString()
+}

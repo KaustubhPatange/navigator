@@ -123,18 +123,18 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
         fm.popBackStack(name, include)
     }
 
-    internal fun onRestoreState(bundle: Bundle?) {
-        val list = bundle?.getStringArrayList(SAVED_STATE) ?: return
+    internal fun onRestoreState(identifier: String, bundle: Bundle?) {
+        val list = bundle?.getStringArrayList("$SAVED_STATE:$identifier") ?: return
         list.forEach { data ->
             val split = data.split('|')
             backStack.add(BackStackRecord(split[0], split[1]))
         }
     }
 
-    internal fun onSaveState(bundle: Bundle) {
+    internal fun onSaveState(identifier: String, bundle: Bundle) {
         val arrayList = ArrayList<String>()
         backStack.forEach { arrayList.add("${it.name}|${it.qualifiedName}") }
-        bundle.putStringArrayList(SAVED_STATE, arrayList)
+        bundle.putStringArrayList("$SAVED_STATE:$identifier", arrayList)
     }
 
     companion object {

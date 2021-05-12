@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentManager
 import com.kpstv.navigation.internals.BackStackRecord
 import com.kpstv.navigation.internals.HistoryImpl
 import com.kpstv.navigation.internals.newFragment
+import com.kpstv.navigation.internals.toIdentifier
 
 internal typealias DialogDismissListener = (dialog : DialogFragment) -> Unit
 
@@ -46,10 +47,10 @@ class SimpleNavigator internal constructor(private val context: Context, private
     internal fun isLastFragment(fragment: DialogFragment): Boolean = history.isLastFragment(fragment)
 
     // save history state
-    internal fun saveState(bundle: Bundle) = history.onSaveState(bundle)
+    internal fun saveState(identifier: String, bundle: Bundle) = history.onSaveState("$SIMPLE_NAVIGATOR_STATE:$identifier", bundle)
 
     // restore history state
-    internal fun restoreState(bundle: Bundle?) = history.onRestoreState(bundle)
+    internal fun restoreState(identifier: String, bundle: Bundle?) = history.onRestoreState("$SIMPLE_NAVIGATOR_STATE:$identifier", bundle)
 
     init {
         fm.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
@@ -67,5 +68,9 @@ class SimpleNavigator internal constructor(private val context: Context, private
                 super.onFragmentDestroyed(fm, f)
             }
         }, false)
+    }
+
+    companion object {
+        private const val SIMPLE_NAVIGATOR_STATE = "simple_navigator_state"
     }
 }

@@ -152,7 +152,7 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
      */
     @Suppress("RedundantIf")
     fun canGoBack(): Boolean {
-        val count = getBackStackCount()
+        val count = getBackStackCount() // or history count somehow
         if (count == 0) {
             val fragment = getCurrentFragment() ?: return false
             Log.e(owner::class.simpleName, "Current Fragment: ${fragment::class.simpleName}")
@@ -213,16 +213,17 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
     }
 
     internal fun restoreState(bundle: Bundle?) {
-        history.onRestoreState(bundle)
-        val simpleNavigatorState = bundle?.getBundle(SimpleNavigator::class.qualifiedName)
-        simpleNavigator.restoreState(simpleNavigatorState)
+        val save = bundle?.getBundle("$NAVIGATOR_STATE:${owner.toIdentifier()}") ?: return
+        Log.e(owner::class.simpleName, "Bundle is not null")
+        history.onRestoreState(owner.toIdentifier(), save)
+        simpleNavigator.restoreState(owner.toIdentifier(), save)
     }
 
     internal fun onSaveInstance(bundle: Bundle) {
-        val simpleNavigatorState = Bundle()
-        simpleNavigator.saveState(simpleNavigatorState)
-        bundle.putBundle(SimpleNavigator::class.qualifiedName, simpleNavigatorState)
-        history.onSaveState(bundle)
+        val save = Bundle()
+        history.onSaveState(owner.toIdentifier(), save)
+        simpleNavigator.saveState(owner.toIdentifier(), save)
+        bundle.putBundle("$NAVIGATOR_STATE:${owner.toIdentifier()}", save)
     }
 
     /**
@@ -366,27 +367,34 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
                 override fun onActivitySaveInstanceState(act: Activity, outState: Bundle) {
                     if (activity === act && ::navigator.isInitialized) {
                         navigator.onSaveInstance(outState)
-                        act.application.unregisterActivityLifecycleCallbacks(this)
                     }
+                }
+                override fun onActivityDestroyed(act: Activity) {
+                    if (act === act) act.application.unregisterActivityLifecycleCallbacks(this)
                 }
                 override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
                 override fun onActivityStarted(activity: Activity) {}
                 override fun onActivityResumed(activity: Activity) {}
                 override fun onActivityPaused(activity: Activity) {}
                 override fun onActivityStopped(activity: Activity) {}
-                override fun onActivityDestroyed(activity: Activity) {}
             })
         }
 
-        internal fun set(fragment: Fragment) {
+        internal fun set(fragment: Fragment, parentFragmentManager: FragmentManager) {
             owner = fragment
-            fragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
+            parentFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
                 override fun onFragmentSaveInstanceState(fm: FragmentManager, frag: Fragment, outState: Bundle) {
                     if (fragment === frag && ::navigator.isInitialized) {
                         navigator.onSaveInstance(outState)
-                        fm.unregisterFragmentLifecycleCallbacks(this)
                     }
                     super.onFragmentSaveInstanceState(fm, frag, outState)
+                }
+
+                override fun onFragmentDestroyed(fm: FragmentManager, frag: Fragment) {
+                    if (frag === owner) {
+                        fm.unregisterFragmentLifecycleCallbacks(this)
+                    }
+                    super.onFragmentDestroyed(fm, frag)
                 }
             }, false)
         }
@@ -404,7 +412,7 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
          * Returns a builder for creating an instance of Navigator.
          */
         fun with(fragment: Fragment, savedInstanceState: Bundle?): Builder {
-            return Builder(fragment.childFragmentManager, savedInstanceState).apply { set(fragment) }
+            return Builder(fragment.childFragmentManager, savedInstanceState).apply { set(fragment, fragment.parentFragmentManager) }
         }
 
         internal fun getCurrentVisibleFragment(fm: FragmentManager, containerView: FrameLayout): Fragment? {
@@ -426,5 +434,6 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         }
 
         private const val FRAGMENT_SUFFIX = "_navigator"
+        private const val NAVIGATOR_STATE = "com.kpstv.navigator:state"
     }
 }

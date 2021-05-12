@@ -7,6 +7,7 @@ import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.kpstv.navigation.internals.HistoryImpl
 import com.kpstv.navigation.internals.ViewStateFragment
+import com.kpstv.navigation.internals.toIdentifier
 
 /**
  * A base fragment to extend from in order to use [Navigator] effectively.
@@ -103,22 +104,18 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      * once all your conditions are satisfied you should call the super method.
      */
     open fun onBackPressed(): Boolean {
-       /* val current = this as? NavigatorTransmitter
-        if (current != null && current.getNavigator().canGoBack()) {
-            return !current.getNavigator().goBack()
-        }*/
         return false
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         simpleNavigator = SimpleNavigator(requireContext(), childFragmentManager)
-        simpleNavigator.restoreState(savedInstanceState)
+        simpleNavigator.restoreState(this.toIdentifier(), savedInstanceState)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         if (isSimpleNavigatorInitialized()) {
-            simpleNavigator.saveState(outState)
+            simpleNavigator.saveState(this.toIdentifier(), outState)
         }
         super.onSaveInstanceState(outState)
     }
