@@ -3,7 +3,7 @@ package com.kpstv.navigation
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.AnimRes
 import androidx.annotation.AnimatorRes
@@ -155,7 +155,6 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         val count = getBackStackCount() // or history count somehow
         if (count == 0) {
             val fragment = getCurrentFragment() ?: return false
-            Log.e(owner::class.simpleName, "Current Fragment: ${fragment::class.simpleName}")
             if (fragment is DialogFragment) return true
             if (fragment is NavigatorTransmitter && fragment.getNavigator().canGoBack()) return true
             if (fragment is ValueFragment && fragment.forceBackPress) return true
@@ -212,18 +211,17 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         return shouldPopStack
     }
 
-    internal fun restoreState(bundle: Bundle?) {
-        val save = bundle?.getBundle("$NAVIGATOR_STATE:${owner.toIdentifier()}") ?: return
-        Log.e(owner::class.simpleName, "Bundle is not null")
-        history.onRestoreState(owner.toIdentifier(), save)
-        simpleNavigator.restoreState(owner.toIdentifier(), save)
-    }
-
     internal fun onSaveInstance(bundle: Bundle) {
         val save = Bundle()
         history.onSaveState(owner.toIdentifier(), save)
         simpleNavigator.saveState(owner.toIdentifier(), save)
         bundle.putBundle("$NAVIGATOR_STATE:${owner.toIdentifier()}", save)
+    }
+
+    internal fun restoreState(bundle: Bundle?) {
+        val save = bundle?.getBundle("$NAVIGATOR_STATE:${owner.toIdentifier()}") ?: return
+        history.onRestoreState(owner.toIdentifier(), save)
+        simpleNavigator.restoreState(owner.toIdentifier(), save)
     }
 
     /**
@@ -389,7 +387,6 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
                     }
                     super.onFragmentSaveInstanceState(fm, frag, outState)
                 }
-
                 override fun onFragmentDestroyed(fm: FragmentManager, frag: Fragment) {
                     if (frag === owner) {
                         fm.unregisterFragmentLifecycleCallbacks(this)

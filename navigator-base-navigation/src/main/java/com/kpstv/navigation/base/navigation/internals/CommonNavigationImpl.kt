@@ -47,7 +47,6 @@ abstract class CommonNavigationImpl(
                     }
                 }
             }
-
             when(navigation.fragmentViewRetentionType) {
                 Navigator.Navigation.ViewRetention.RECREATE ->  fm.commitNow { fragments.forEach { detach(it) } }
                 Navigator.Navigation.ViewRetention.RETAIN -> fm.commitNow { fragments.forEach { hide(it) } }
@@ -157,15 +156,8 @@ abstract class CommonNavigationImpl(
         outState.putInt(KEY_SELECTION_INDEX, selectedIndex)
     }
 
-    /*private fun getChildNavigatorAsStates(): Bundle {
-        *//*val bundle = Bundle()
-        for ()*//*
-    }*/
-
     companion object {
         private const val FRAGMENT_SUFFIX = "_absBottomNav"
         private const val KEY_SELECTION_INDEX = "com.kpstv.navigation:base:key_selection_index"
-        private const val CHILD_NAVIGATOR_STATE = "com.kpstv.navigation:base:child_navigator_state"
-        private const val NAVIGATOR_STATE = "com.kpstv.navigation:navigator:"
     }
 }

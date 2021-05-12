@@ -50,7 +50,7 @@ dependencies {
 
 - [Basic sample](/samples/basic-sample) - Hands on with the introduction to some library features.
 - [Backpress sample](/samples/backpress-sample) - A sample focused on handling back press events effectively.
-- [Navigation Sample](/samples/navigation-sample) - A sample which demonstrates use of Bottom & TabLayout navigation through `navigator`.
+- [Navigation Sample](/samples/navigation-sample) - A sample which demonstrates use of Bottom & TabLayout navigation supporting multiple backstack through `navigator`.
 - #### **Running the samples**
 
 ```
