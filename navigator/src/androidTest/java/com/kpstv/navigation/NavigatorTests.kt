@@ -193,6 +193,17 @@ class NavigatorTests {
             currentFragment.childFragmentManager.executePendingTransactions()
 
             assert(dismissed)
+
+            // Test dialog listener
+            var called = false
+            currentFragment.getSimpleNavigator().show(SecondSheet::class) {
+                called = true
+            }
+            currentFragment.childFragmentManager.executePendingTransactions()
+            currentFragment.getSimpleNavigator().pop()
+            currentFragment.childFragmentManager.executePendingTransactions()
+
+            assert(called)
         }
     }
 

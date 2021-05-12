@@ -2,6 +2,7 @@ package com.kpstv.navigation
 
 import android.content.Context
 import android.os.Bundle
+import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -9,7 +10,7 @@ import com.kpstv.navigation.internals.BackStackRecord
 import com.kpstv.navigation.internals.HistoryImpl
 import com.kpstv.navigation.internals.newFragment
 
-internal typealias DialogDismissListener = (DialogFragment) -> Unit
+internal typealias DialogDismissListener = (dialog : DialogFragment) -> Unit
 
 /**
  * A navigator available for [ValueFragment] limiting the original functionality.
@@ -17,7 +18,7 @@ internal typealias DialogDismissListener = (DialogFragment) -> Unit
 class SimpleNavigator internal constructor(private val context: Context, private val fm: FragmentManager, private val history: HistoryImpl) {
     constructor(context: Context, fm: FragmentManager) : this(context, fm, HistoryImpl(fm))
 
-    private val dismissListeners = HashMap<DialogFragment, DialogDismissListener>()
+    private val dismissListeners = HashMap<String, DialogDismissListener>()
     /**
      * Navigate to a [DialogFragment].
      *
@@ -32,7 +33,7 @@ class SimpleNavigator internal constructor(private val context: Context, private
         dialog.show(fm, tagName)
 
         if (onDismissListener != null) {
-            dismissListeners[dialog] = onDismissListener
+            dismissListeners[tagName] = onDismissListener
         }
         history.add(BackStackRecord(tagName, clazz))
     }
@@ -57,10 +58,10 @@ class SimpleNavigator internal constructor(private val context: Context, private
                     history.pop()
                 }
                 if (f is DialogFragment && dismissListeners.count() > 0) {
-                    val listener = dismissListeners[f]
+                    val listener = dismissListeners[f.tag]
                     if (listener != null) {
                         listener.invoke(f)
-                        dismissListeners.remove(f)
+                        dismissListeners.remove(f.tag)
                     }
                 }
                 super.onFragmentDestroyed(fm, f)
