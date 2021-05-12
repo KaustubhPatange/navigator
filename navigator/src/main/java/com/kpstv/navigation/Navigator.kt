@@ -3,6 +3,7 @@ package com.kpstv.navigation
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import android.util.Log
 import android.widget.FrameLayout
 import androidx.annotation.AnimRes
 import androidx.annotation.AnimatorRes
@@ -154,15 +155,11 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         val count = getBackStackCount()
         if (count == 0) {
             val fragment = getCurrentFragment() ?: return false
-            if (fragment is DialogFragment) {
-                return true
-            }else if (fragment is ValueFragment && fragment.forceBackPress) {
-                return true
-            } else if (fragment is NavigatorTransmitter) {
-                return fragment.getNavigator().canGoBack()
-            } else {
-                return false
-            }
+            Log.e(owner::class.simpleName, "Current Fragment: ${fragment::class.simpleName}")
+            if (fragment is DialogFragment) return true
+            if (fragment is NavigatorTransmitter && fragment.getNavigator().canGoBack()) return true
+            if (fragment is ValueFragment && fragment.forceBackPress) return true
+            return false
         } else {
             return true
         }
@@ -180,16 +177,18 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
      * @return True if the entry is removed.
      */
     fun goBack(): Boolean {
-        val clazz = primaryFragClass
+        // TODO: See if you need this concept of hasPrimaryFragment
+        /*val clazz = primaryFragClass
         if (clazz != null && !hasPrimaryFragment) {
             hasPrimaryFragment =
                 fm.fragments.any { it::class.qualifiedName == primaryFragClass?.qualifiedName }
-        }
-        if (!canGoBack() && clazz != null && !hasPrimaryFragment) {
+        }*/
+        /*if (!canGoBack() && clazz != null && !hasPrimaryFragment) {
             // Create primary fragment
             navigateTo(clazz, NavOptions(animation = AnimationDefinition.Fade))
             return false
-        }
+        }*/
+
         val currentFragment = getCurrentFragment()
 
         // Dialog fragment
@@ -197,11 +196,16 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
             return simpleNavigator.pop()
         }
 
+        if (currentFragment is NavigatorTransmitter && currentFragment.getNavigator().canGoBack()) {
+            return currentFragment.getNavigator().goBack()
+        }
+
         val shouldPopStack = if (currentFragment is ValueFragment) {
             !currentFragment.onBackPressed()
         } else {
             true
         }
+
         if (shouldPopStack) {
             history.pop()
         }

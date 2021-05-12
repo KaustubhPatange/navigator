@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayout
@@ -13,7 +14,7 @@ import com.kpstv.bottom_navigation_sample.databinding.FragmentHomeBinding
 import com.kpstv.navigation.*
 import kotlin.reflect.KClass
 
-class HomeFragment : ValueFragment(R.layout.fragment_home), NavigatorTransmitter {
+class HomeFragment : ValueFragment(R.layout.fragment_home), NavigatorTransmitter, Navigator.Navigation.Callbacks {
     private lateinit var navigator: Navigator
     private lateinit var tabController: TabNavigationController
 
@@ -39,6 +40,10 @@ class HomeFragment : ValueFragment(R.layout.fragment_home), NavigatorTransmitter
         })
     }
 
+    override fun onReselected() {
+        Toast.makeText(requireContext(), "${this::class.simpleName} is reselected", Toast.LENGTH_SHORT).show()
+    }
+
     override fun onBackPressed(): Boolean {
         val binding = viewBinding ?: return false
         if (binding.tabLayout.selectedTabPosition != 0) {
@@ -46,6 +51,11 @@ class HomeFragment : ValueFragment(R.layout.fragment_home), NavigatorTransmitter
             return true
         }
         return super.onBackPressed()
+    }
+
+    override fun onDestroyView() {
+        viewBinding = null
+        super.onDestroyView()
     }
 }
 

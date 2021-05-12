@@ -72,7 +72,11 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      */
     fun getParentNavigator(): Navigator {
         try {
-            return ((requireView().parent as View).context as NavigatorTransmitter).getNavigator()
+            return if (parentFragment != null) {
+                (requireParentFragment() as NavigatorTransmitter).getNavigator()
+            } else {
+                (requireContext() as NavigatorTransmitter).getNavigator()
+            }
         } catch (e: Exception) {
             throw NotImplementedError("Parent does not implement NavigatorTransmitter.")
         }
@@ -99,10 +103,10 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      * once all your conditions are satisfied you should call the super method.
      */
     open fun onBackPressed(): Boolean {
-        val current = this as? NavigatorTransmitter
+       /* val current = this as? NavigatorTransmitter
         if (current != null && current.getNavigator().canGoBack()) {
             return !current.getNavigator().goBack()
-        }
+        }*/
         return false
     }
 
