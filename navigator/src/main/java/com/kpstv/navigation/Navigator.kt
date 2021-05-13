@@ -3,13 +3,13 @@ package com.kpstv.navigation
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.AnimRes
 import androidx.annotation.AnimatorRes
 import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.*
+import androidx.lifecycle.*
 import com.google.android.material.tabs.TabItem
 import com.google.android.material.tabs.TabLayout
 import com.kpstv.navigation.internals.*
@@ -342,20 +342,42 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         open fun onBottomNavigationSelectionChanged(@IdRes selectedId: Int) {}
     }
 
+    internal class StateViewModel(
+        private val saveState: SavedStateHandle
+    ) : ViewModel() {
+        fun putHistory(identifier: String, bundle: Bundle) {
+            saveState[identifier] = bundle
+        }
+        fun getHistory(identifier: String): Bundle? {
+            return saveState[identifier]
+        }
+    }
+
     internal lateinit var owner: Any // Will be used to query if installed in Activity or Fragment.
     internal var savedInstanceState: Bundle? = null // Just for restoring state in other parts of library module, really missing package-private feature in Kotlin.
+    internal lateinit var stateViewModel: StateViewModel
     class Builder internal constructor(
         private val fragmentManager: FragmentManager,
         private val savedInstanceState: Bundle?
     ) {
         private lateinit var navigator: Navigator
         private lateinit var owner: Any
+        private lateinit var stateViewModelKey: String
 
         fun initialize(containerView: FrameLayout) : Navigator {
+            this.stateViewModelKey = "navigator_${containerView.id}"
             navigator = Navigator(fragmentManager, containerView)
             navigator.owner = owner
+            navigator.stateViewModel = ViewModelProvider(owner as ViewModelStoreOwner).get(SAVE_STATE_MODEL, StateViewModel::class.java)
             navigator.savedInstanceState = savedInstanceState
-            navigator.restoreState(savedInstanceState)
+            if (savedInstanceState != null) {
+                navigator.restoreState(savedInstanceState)
+            } else {
+                val bundle = navigator.stateViewModel.getHistory(stateViewModelKey)
+                if (bundle != null && !bundle.isEmpty) {
+                    navigator.restoreState(bundle)
+                }
+            }
             return navigator
         }
 
@@ -387,6 +409,14 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
                     }
                     super.onFragmentSaveInstanceState(fm, frag, outState)
                 }
+                override fun onFragmentStopped(fm: FragmentManager, frag: Fragment) {
+                    if (fragment === frag && ::navigator.isInitialized) {
+                        val bundle = Bundle()
+                        navigator.onSaveInstance(bundle)
+                        navigator.stateViewModel.putHistory(stateViewModelKey, bundle)
+                    }
+                    super.onFragmentStopped(fm, frag)
+                }
                 override fun onFragmentDestroyed(fm: FragmentManager, frag: Fragment) {
                     if (frag === owner) {
                         fm.unregisterFragmentLifecycleCallbacks(this)
@@ -394,6 +424,10 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
                     super.onFragmentDestroyed(fm, frag)
                 }
             }, false)
+        }
+
+        companion object {
+            private const val SAVE_STATE_MODEL = "com.kpstv.navigation:save_state_viewModel"
         }
     }
 

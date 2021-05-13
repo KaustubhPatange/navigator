@@ -22,6 +22,8 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
         backStack.add(record)
     }
 
+    override fun isEmpty(): Boolean = backStack.isEmpty()
+
     override fun pop(): Boolean {
         if (!backStack.isEmpty()) {
             val last = backStack.last().name

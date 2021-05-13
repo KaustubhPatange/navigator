@@ -35,6 +35,11 @@ interface History {
     fun pop(): Boolean
 
     /**
+     * Returns if backstack record is empty.
+     */
+    fun isEmpty(): Boolean
+
+    /**
      * Returns the backstack name of the [fragClazz] if it's present in the history.
      *
      * If there are multiple instance of the [fragClazz] then it will return the last added one.
