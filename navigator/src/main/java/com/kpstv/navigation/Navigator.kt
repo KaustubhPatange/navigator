@@ -346,14 +346,22 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         open fun onBottomNavigationSelectionChanged(@IdRes selectedId: Int) {}
     }
 
-    internal class StateViewModel(
-        private val saveState: SavedStateHandle
-    ) : ViewModel() {
+    internal class StateViewModel(private val saveState: Bundle) : ViewModel() {
         fun putHistory(identifier: String, bundle: Bundle) {
-            saveState[identifier] = bundle
+            saveState.putBundle(identifier, bundle)
         }
         fun getHistory(identifier: String): Bundle? {
-            return saveState[identifier]
+            return saveState.getBundle(identifier)
+        }
+        // Force the use of default factory.
+        class Factory : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return if (modelClass.isAssignableFrom(StateViewModel::class.java)) {
+                    StateViewModel(Bundle()) as T
+                } else {
+                    throw IllegalArgumentException("ViewModel Not Found")
+                }
+            }
         }
     }
 
@@ -372,7 +380,7 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
             this.stateViewModelKey = "navigator_${containerView.id}"
             navigator = Navigator(fragmentManager, containerView)
             navigator.owner = owner
-            navigator.stateViewModel = ViewModelProvider(owner as ViewModelStoreOwner).get(SAVE_STATE_MODEL, StateViewModel::class.java)
+            navigator.stateViewModel = ViewModelProvider(owner as ViewModelStoreOwner, StateViewModel.Factory()).get(SAVE_STATE_MODEL, StateViewModel::class.java)
             navigator.savedInstanceState = savedInstanceState
             if (savedInstanceState != null) {
                 navigator.restoreState(savedInstanceState)
