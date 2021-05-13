@@ -120,7 +120,7 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
                     TransactionType.ADD -> add(containerView.id, newFragment, tagName)
                 }
             }
-            setPrimaryNavigationFragment(newFragment) // needed to avoid creating fragment after clearing all history
+            setPrimaryNavigationFragment(newFragment)
             // Cannot add to back stack when popUpTo is true
             if (!clearAllHistory && (remember || innerAddToBackStack)) {
                 history.add(BackStackRecord(tagName, clazz))

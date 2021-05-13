@@ -2,7 +2,6 @@ package com.kpstv.bottom_navigation_sample
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.kpstv.bottom_navigation_sample.databinding.FragmentMainBinding
 import com.kpstv.navigation.*
@@ -16,8 +15,7 @@ class MainFragment : ValueFragment(R.layout.fragment_main), NavigatorTransmitter
     override fun getNavigator(): Navigator = navigator
 
     override val forceBackPress: Boolean
-        get() = viewBinding?.bottomNav?.selectedItemId != R.id.fragment_home ||
-                viewBinding?.root?.isDrawerOpen(GravityCompat.START) == true
+        get() = viewBinding?.bottomNav?.selectedItemId != R.id.fragment_home
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -35,19 +33,10 @@ class MainFragment : ValueFragment(R.layout.fragment_main), NavigatorTransmitter
             override val fragmentNavigationTransition = Animation.Fade
             override val fragmentViewRetentionType: ViewRetention = ViewRetention.RECREATE // or RETAIN to retain the views
         })
-
-        binding.toolbar.title = "Navigation Sample"
-        binding.toolbar.setNavigationOnClickListener {
-            binding.root.openDrawer(GravityCompat.START)
-        }
     }
 
     override fun onBackPressed(): Boolean {
         val binding = viewBinding ?: return false
-        if (binding.root.isDrawerOpen(GravityCompat.START)) {
-            binding.root.closeDrawer(GravityCompat.START)
-            return true
-        }
         if (binding.bottomNav.selectedItemId != R.id.fragment_home) {
             bottomController.select(R.id.fragment_home)
             return true
