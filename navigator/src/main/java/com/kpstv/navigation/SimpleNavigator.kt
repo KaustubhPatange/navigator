@@ -44,7 +44,12 @@ class SimpleNavigator internal constructor(private val context: Context, private
      */
     fun pop(): Boolean = history.pop()
 
-    internal fun isLastFragment(fragment: DialogFragment): Boolean = history.isLastFragment(fragment)
+    internal fun getCurrentDialogFragment() : DialogFragment? {
+        if (history.getContents().isNotEmpty()) {
+            return fm.findFragmentByTag(history.getContents().last().name) as? DialogFragment
+        }
+        return null
+    }
 
     // save history state
     internal fun saveState(identifier: String, bundle: Bundle) = history.onSaveState("$SIMPLE_NAVIGATOR_STATE:$identifier", bundle)

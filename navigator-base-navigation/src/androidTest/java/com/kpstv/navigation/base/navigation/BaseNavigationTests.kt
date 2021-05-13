@@ -4,6 +4,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.ValueFragment
 import com.kpstv.navigation.base.navigation.internals.*
@@ -14,6 +15,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class BaseNavigationTests {
 
@@ -72,14 +74,14 @@ class BaseNavigationTests {
             assert(fragment::class == ThirdFragment::class)
 
             // Check if the last arguments are stored
-            assert(fragment.hasKeyArgs())
+            assert(fragment.hasKeyArgs<TestArgs>())
 
             commonNavigationImpl.onSelectNavItem(0)
             commonNavigationImpl.onSelectNavItem(2)
             supportFragmentManager.executePendingTransactions()
 
             // Check if args are removed
-            assert(!fragment.hasKeyArgs())
+            assert(!fragment.hasKeyArgs<TestArgs>())
 
             // Check view state
             assert((fragment as ThirdFragment).viewState == ViewStateFragment.ViewState.FOREGROUND)

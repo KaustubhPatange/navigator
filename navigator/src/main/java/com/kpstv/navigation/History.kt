@@ -40,6 +40,11 @@ interface History {
     fun isEmpty(): Boolean
 
     /**
+     * Returns the count of total items in backstack.
+     */
+    fun count(): Int
+
+    /**
      * Returns the backstack name of the [fragClazz] if it's present in the history.
      *
      * If there are multiple instance of the [fragClazz] then it will return the last added one.

@@ -5,7 +5,6 @@ import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.kpstv.navigation.internals.HistoryImpl
 import com.kpstv.navigation.internals.ViewStateFragment
 import com.kpstv.navigation.internals.toIdentifier
 
@@ -26,7 +25,10 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     constructor() : this(0)
 
     companion object {
-        const val ARGUMENTS = "keyed_args"
+        fun createArgKey(args: BaseArgs): String = createArgKey(args::class.qualifiedName!!)
+        fun createArgKey(identifier: String): String = "$VALUE_ARGUMENT:$identifier"
+
+        private const val VALUE_ARGUMENT = "com.kpstv.navigator:keyed_args"
     }
 
     /**
@@ -46,8 +48,8 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     /**
      * Checks if the fragment has any arguments passed during [Navigator.show] call.
      */
-    fun hasKeyArgs(): Boolean {
-        return arguments?.containsKey(ARGUMENTS) ?: false
+    inline fun<reified T : BaseArgs> hasKeyArgs(): Boolean {
+        return arguments?.containsKey(createArgKey(T::class.qualifiedName!!)) ?: false
     }
 
     /**
@@ -56,8 +58,15 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      *
      * @throws NullPointerException When it does not exist.
      */
-    fun <T : BaseArgs> getKeyArgs(): T {
-        return arguments?.getParcelable<T>(ARGUMENTS) as T
+    inline fun <reified T : BaseArgs> getKeyArgs(): T {
+        return arguments?.getParcelable<T>(createArgKey(T::class.qualifiedName!!)) as T
+    }
+
+    /**
+     * Remove the typed arguments from the bundle.
+     */
+    inline fun <reified T: BaseArgs> clearArgs() {
+        arguments?.remove(createArgKey(T::class.qualifiedName!!))
     }
 
     /**
@@ -110,7 +119,11 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         simpleNavigator = SimpleNavigator(requireContext(), childFragmentManager)
-        simpleNavigator.restoreState(this.toIdentifier(), savedInstanceState)
+        if (savedInstanceState != null) {
+            simpleNavigator.restoreState(this.toIdentifier(), savedInstanceState)
+        } else {
+            simpleNavigator.restoreState(this.toIdentifier(), simpleNavigateState)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -120,6 +133,11 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
         super.onSaveInstanceState(outState)
     }
 
+    override fun onStop() {
+        simpleNavigator.restoreState(this.toIdentifier(), simpleNavigateState)
+        super.onStop()
+    }
+
     /**
      * Will be resolved through reflection at runtime.
      *
@@ -127,11 +145,8 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      */
     private var bottomNavigationState: Bundle? = null
     private var tabNavigationState: Bundle? = null
+    private var simpleNavigateState = Bundle()
     private lateinit var simpleNavigator: SimpleNavigator
 
     private fun isSimpleNavigatorInitialized(): Boolean = ::simpleNavigator.isInitialized
-
-    private fun clearArgs() {
-        arguments?.remove(ARGUMENTS)
-    }
 }

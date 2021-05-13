@@ -62,7 +62,7 @@ open class AbstractTextFragment : ValueFragment(R.layout.fragment_common) {
     private val toolbar: Toolbar by lazy { requireView().findViewById(R.id.toolbar) }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (hasKeyArgs()) {
+        if (hasKeyArgs<AbstractArgs>()) {
             val args = getKeyArgs<AbstractArgs>()
             textView.text = args.title
             toolbar.title = args.title

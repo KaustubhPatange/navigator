@@ -20,7 +20,7 @@ fun Navigator.canFinish() : Boolean {
 }
 
 /**
- * A hot fix to overcome Z-index issue of the views in fragment container.
+ * A hot fix to overcome Z-index issue of the views in the fragment container.
  */
 fun Navigator.autoChildElevation() {
     getFragmentManager().addOnBackStackChangedListener {
@@ -35,11 +35,4 @@ fun Navigator.autoChildElevation() {
             }
         }
     }
-}
-
-/**
- * This will clear the [BaseArgs].
- */
-fun ValueFragment.clearArgs() {
-    arguments?.remove(ValueFragment.ARGUMENTS)
 }

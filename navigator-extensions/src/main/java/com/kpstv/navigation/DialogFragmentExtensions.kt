@@ -5,13 +5,13 @@ import androidx.fragment.app.DialogFragment
 /**
  * @see ValueFragment.hasKeyArgs
  */
-fun DialogFragment.hasKeyArgs(): Boolean {
-    return arguments?.containsKey(ValueFragment.ARGUMENTS) ?: false
+inline fun<reified T : BaseArgs> DialogFragment.hasKeyArgs(): Boolean {
+    return arguments?.containsKey(ValueFragment.createArgKey(T::class.qualifiedName!!)) ?: false
 }
 
 /**
  * @see ValueFragment.getKeyArgs
  */
-fun<T : BaseArgs> DialogFragment.getKeyArgs(): T {
-    return arguments?.getParcelable<T>(ValueFragment.ARGUMENTS) as T
+inline fun<reified T : BaseArgs> DialogFragment.getKeyArgs(): T {
+    return arguments?.getParcelable<T>(ValueFragment.createArgKey(T::class.qualifiedName!!)) as T
 }

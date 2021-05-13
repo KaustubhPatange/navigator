@@ -5,6 +5,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import com.kpstv.navigation.internals.HistoryImpl
 import com.kpstv.navigator.test.*
 import org.junit.Before
@@ -13,6 +14,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class NavigatorTests {
 
@@ -152,7 +154,7 @@ class NavigatorTests {
             val currentFragment = navigator.getCurrentFragment() as ValueFragment
 
             // Check if key args are present.
-            assert(currentFragment.hasKeyArgs())
+            assert(currentFragment.hasKeyArgs<TestArgs>())
 
             // Check if both arguments has a value equality.
             val fragArgs = currentFragment.getKeyArgs<TestArgs>()
@@ -209,7 +211,6 @@ class NavigatorTests {
 
     @Test
     fun TestSaveStateInstance() {
-        // TODO: Do some vigorous testing with saving states & also why is this passing?.
         val currentBundle = Bundle()
         activity.with {
             preSetupForHistoryTest(this)
@@ -223,13 +224,24 @@ class NavigatorTests {
             // The bundle should not be null
             assert(navigator.savedInstanceState != null)
 
-            // Check if bundle contents are same
-            assert(currentBundle[HistoryImpl.SAVED_STATE] == navigator.savedInstanceState!![HistoryImpl.SAVED_STATE])
+            // Check if navigator is successfully restored
+            assert(!navigator.getHistory().isEmpty())
 
+            // Contents must be 4
+            assert(navigator.getHistory().count() == 4)
+
+            // Check if sheets are showing
+            assert(navigator.getCurrentFragment().matchClass(SecondSheet::class))
+            onBackPressed()
+            navigator.getFragmentManager().executePendingTransactions()
+            assert(navigator.getCurrentFragment().matchClass(FirstSheet::class))
             navigator.getFragmentManager().executePendingTransactions()
 
-            // Check current fragment is ThirdFragment.
-            assert(navigator.getCurrentFragment()!!::class == ThirdFragment::class)
+            onBackPressed()
+            navigator.getFragmentManager().executePendingTransactions()
+
+            // Check current fragment is Third.
+            assert(navigator.getCurrentFragment().matchClass(ThirdFragment::class))
         }
     }
 

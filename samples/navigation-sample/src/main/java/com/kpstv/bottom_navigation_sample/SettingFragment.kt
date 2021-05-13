@@ -19,10 +19,10 @@ class SettingFragment : ValueFragment(R.layout.fragment_setting), NavigatorTrans
         navigator = Navigator.with(this, savedInstanceState)
             .initialize(binding.myContainer)
 
-        // In multiple backstack navigation the fragment manager will save all necessary information that
-        // defines the earlier transaction.
+        // In multiple backstack navigation the fragment manager will saves all necessary information that
+        // defines the earlier transaction based on fragment's lifecycle changes.
         // This is also reflected in Navigator's history so it is necessary to check if history is not empty
-        // to prohibit the first navigate call which will create duplicate backstack record.
+        // to prohibit the first navigate call which will create duplicate backstack records.
         if (navigator.getHistory().isEmpty() && savedInstanceState == null) {
             navigator.navigateTo(SettingFragment1::class)
         }

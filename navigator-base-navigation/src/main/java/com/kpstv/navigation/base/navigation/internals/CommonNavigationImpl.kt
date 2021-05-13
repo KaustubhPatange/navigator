@@ -69,10 +69,10 @@ abstract class CommonNavigationImpl(
         val fragment = getFragmentFromId(id)!!
         if (fragment is ValueFragment) {
             if (args == null) {
-                fragment.arguments?.remove(ValueFragment.ARGUMENTS)
+                fragment.arguments?.clear()
             } else {
                 fragment.arguments = Bundle().apply {
-                    putParcelable(ValueFragment.ARGUMENTS, args)
+                    putParcelable(ValueFragment.createArgKey(args), args)
                 }
             }
         }

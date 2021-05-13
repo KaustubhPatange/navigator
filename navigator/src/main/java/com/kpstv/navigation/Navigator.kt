@@ -133,8 +133,8 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
     /**
      * @see SimpleNavigator.show
      */
-    fun show(clazz: DialogFragClazz, args: BaseArgs? = null) {
-        simpleNavigator.show(clazz, args)
+    fun show(clazz: DialogFragClazz, args: BaseArgs? = null, onDismissListener: DialogDismissListener? = null) {
+        simpleNavigator.show(clazz, args, onDismissListener)
     }
 
     /**
@@ -152,7 +152,7 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
      */
     @Suppress("RedundantIf")
     fun canGoBack(): Boolean {
-        val count = getBackStackCount() // or history count somehow
+        val count = getBackStackCount() // or history count if that's something should be done.
         if (count == 0) {
             val fragment = getCurrentFragment() ?: return false
             if (fragment is DialogFragment) return true
@@ -191,7 +191,7 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         val currentFragment = getCurrentFragment()
 
         // Dialog fragment
-        if (currentFragment is DialogFragment && simpleNavigator.isLastFragment(currentFragment)) {
+        if (currentFragment is DialogFragment) {
             return simpleNavigator.pop()
         }
 
@@ -225,9 +225,13 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
     }
 
     /**
-     * Returns the current fragment class.
+     * Returns the current visible fragment from the [FragmentManager].
+     *
+     * It could be [DialogFragment] if currently being shown or [Fragment] from [containerView]
      */
-    fun getCurrentFragment() = getCurrentVisibleFragment(fm, containerView)
+    fun getCurrentFragment(): Fragment? {
+        return simpleNavigator.getCurrentDialogFragment() ?: getCurrentVisibleFragment(fm, containerView)
+    }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun getFragmentManager(): FragmentManager = fm
@@ -354,7 +358,7 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
     }
 
     internal lateinit var owner: Any // Will be used to query if installed in Activity or Fragment.
-    internal var savedInstanceState: Bundle? = null // Just for restoring state in other parts of library module, really missing package-private feature in Kotlin.
+    internal var savedInstanceState: Bundle? = null // Just for restoring state in other parts of library module eg: bottom/tab, really missing package-private feature in Kotlin.
     internal lateinit var stateViewModel: StateViewModel
     class Builder internal constructor(
         private val fragmentManager: FragmentManager,
@@ -460,8 +464,9 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         internal fun getFragmentTagName(clazz: FragClazz): String = clazz.java.simpleName + FRAGMENT_SUFFIX
 
         internal fun createArguments(args: BaseArgs?) = Bundle().apply {
-            if (args != null)
-                putParcelable(ValueFragment.ARGUMENTS, args)
+            if (args != null) {
+                putParcelable(ValueFragment.createArgKey(args), args)
+            }
         }
 
         private const val FRAGMENT_SUFFIX = "_navigator"

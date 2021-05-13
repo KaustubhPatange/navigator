@@ -24,6 +24,8 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
 
     override fun isEmpty(): Boolean = backStack.isEmpty()
 
+    override fun count(): Int = backStack.size
+
     override fun pop(): Boolean {
         if (!backStack.isEmpty()) {
             val last = backStack.last().name
@@ -134,14 +136,16 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
     }
 
     internal fun onSaveState(identifier: String, bundle: Bundle) {
+        if (backStack.isEmpty()) return /* no op */
         val arrayList = ArrayList<String>()
         backStack.forEach { arrayList.add("${it.name}|${it.qualifiedName}") }
         bundle.putStringArrayList("$SAVED_STATE:$identifier", arrayList)
     }
 
+    internal fun getContents() : List<BackStackRecord> = backStack.toList()
+
     companion object {
         private const val BACKSTACK_SUFFIX = "_navigator"
-        @VisibleForTesting
-        internal const val SAVED_STATE = "com.kpstv.navigation:navigator:history_saved_state"
+        private const val SAVED_STATE = "com.kpstv.navigation:navigator:history_saved_state"
     }
 }
