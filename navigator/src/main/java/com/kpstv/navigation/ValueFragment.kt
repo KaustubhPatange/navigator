@@ -138,13 +138,10 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
         super.onStop()
     }
 
-    /**
-     * Will be resolved through reflection at runtime.
-     *
-     * @hide
-     */
+    // Will be resolved by friend path mechanism by individual navigation modules
     private var bottomNavigationState: Bundle? = null
     private var tabNavigationState: Bundle? = null
+
     private var simpleNavigateState = Bundle()
     private lateinit var simpleNavigator: SimpleNavigator
 

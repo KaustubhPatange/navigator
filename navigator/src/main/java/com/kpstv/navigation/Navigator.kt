@@ -354,6 +354,7 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
             return saveState.getBundle(identifier)
         }
         // Force the use of default factory.
+        @Suppress("UNCHECKED_CAST")
         class Factory : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return if (modelClass.isAssignableFrom(StateViewModel::class.java)) {
@@ -365,9 +366,11 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         }
     }
 
+    // friend path mechanism will help here.
     internal lateinit var owner: Any // Will be used to query if installed in Activity or Fragment.
-    internal var savedInstanceState: Bundle? = null // Just for restoring state in other parts of library module eg: bottom/tab, really missing package-private feature in Kotlin.
-    internal lateinit var stateViewModel: StateViewModel
+    internal var savedInstanceState: Bundle? = null // Just for restoring state in other parts of library module eg: bottom/tab.
+
+    private lateinit var stateViewModel: StateViewModel
     class Builder internal constructor(
         private val fragmentManager: FragmentManager,
         private val savedInstanceState: Bundle?
