@@ -40,6 +40,7 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
         val historyOptions: HistoryOptions = HistoryOptions.None,
     )
 
+    // TODO: Remove this functionality if not needed.
     private var primaryFragClass: FragClazz? = null
     private var hasPrimaryFragment: Boolean = false
 
