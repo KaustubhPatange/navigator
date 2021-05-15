@@ -139,8 +139,8 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     }
 
     // Will be resolved by friend path mechanism by individual navigation modules
-    private var bottomNavigationState: Bundle? = null
-    private var tabNavigationState: Bundle? = null
+    internal var bottomNavigationState: Bundle? = null
+    internal var tabNavigationState: Bundle? = null
 
     private var simpleNavigateState = Bundle()
     private lateinit var simpleNavigator: SimpleNavigator

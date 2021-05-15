@@ -1,10 +1,11 @@
+include ':navigator-lint'
+include ':navigator'
 include ':navigator-base-navigation'
 include ':samples:navigation-sample'
 include ':samples:backpress-sample'
 include ':samples:basic-sample'
 include ':navigator-bottom-navigation'
 include ':navigator-extensions'
-include ':navigator'
-rootProject.name = "Navigator"
 include ':navigator-tab-navigation'
 include ':navigator-test-common'
+rootProject.name = "Navigator"

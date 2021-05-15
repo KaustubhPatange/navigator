@@ -51,6 +51,10 @@ jobs:
           ./gradlew samples:backpress-sample:assembleDebug
           ./gradlew samples:navigation-sample:assembleDebug
 
+      - name: Run Unit tests
+        run: |
+          ./gradlew navigator-lint:test
+
       # Test samples or code (TODO: Write tests for bottom & tab navigation)
       - name: Run Instrumented tests
         uses: reactivecircus/android-emulator-runner@v2

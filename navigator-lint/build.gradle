@@ -1,0 +1,23 @@
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
+dependencies {
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    compileOnly "com.android.tools.lint:lint-api:27.0.1"
+    compileOnly "com.android.tools.lint:lint-checks:27.0.1"
+
+    testImplementation "com.android.tools.lint:lint:27.0.1"
+    testImplementation "com.android.tools.lint:lint-tests:27.0.1"
+
+    compileOnly 'androidx.annotation:annotation:1.1.0'
+}
+
+jar{
+    manifest{
+        attributes 'Lint-Registry-V2': 'com.kpstv.navigation.lint.IssueRegistry'
+    }
+}

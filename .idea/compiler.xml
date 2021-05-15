@@ -4,6 +4,16 @@
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
     </annotationProcessing>
-    <bytecodeTargetLevel target="11" />
+    <bytecodeTargetLevel target="1.7">
+      <module name="Navigator.navigator" target="11" />
+      <module name="Navigator.navigator-base-navigation" target="11" />
+      <module name="Navigator.navigator-bottom-navigation" target="11" />
+      <module name="Navigator.navigator-extensions" target="11" />
+      <module name="Navigator.navigator-tab-navigation" target="11" />
+      <module name="Navigator.navigator-test-common" target="11" />
+      <module name="Navigator.samples.backpress-sample" target="11" />
+      <module name="Navigator.samples.basic-sample" target="11" />
+      <module name="Navigator.samples.navigation-sample" target="11" />
+    </bytecodeTargetLevel>
   </component>
 </project>

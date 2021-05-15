@@ -4,10 +4,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.kpstv.navigation.base.navigation.internals.ActivityNavigationLifecycle
-import com.kpstv.navigation.base.navigation.internals.FragmentNavigationLifecycle
-import com.kpstv.navigation.base.navigation.internals.getOwner
-import com.kpstv.navigation.base.navigation.internals.getSaveInstanceState
+import com.kpstv.navigation.base.navigation.internals.*
 import com.kpstv.navigation.internals.*
 
 /**
