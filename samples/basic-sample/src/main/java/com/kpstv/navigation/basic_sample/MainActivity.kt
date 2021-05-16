@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kpstv.navigation.*
@@ -25,9 +24,9 @@ class MainActivity : AppCompatActivity(), NavigatorTransmitter {
             navigator.navigateTo(option.clazz, option.options)
         }
 
-       if (savedInstanceState == null) {
-           viewModel.navigate(screen = Screens.MAIN)
-       }
+        if (savedInstanceState == null) {
+            viewModel.navigate(screen = Screens.MAIN)
+        }
     }
 
     enum class Screens(val clazz: KClass<out Fragment>) {

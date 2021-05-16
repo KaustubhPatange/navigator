@@ -17,7 +17,9 @@ class NavigatorIssueTest {
             import com.kpstv.navigation.ValueFragment
             import com.kpstv.navigation.NavigatorTransmitter
 
-            class MyFragment : ValueFragment() {
+            open class AbstractValueFragment : ValueFragment() {}
+
+            class MyFragment : AbstractValueFragment() {
                 private lateinit var navigator: Navigator
             }
             """
@@ -33,10 +35,16 @@ class NavigatorIssueTest {
             .issues(NavigatorDetector.NAVTRANSMITTER_ISSUE)
             .run()
             .expect("""
-                src/com/kpstv/navigation/lint/MyFragment.kt:6: Warning: The host must implement NavigatorTransmitter interface. [noNavTransmitter]
-                class MyFragment : ValueFragment() {
+                src/com/kpstv/navigation/lint/AbstractValueFragment.kt:8: Warning: The host must implement NavigatorTransmitter interface. [noNavTransmitter]
+                class MyFragment : AbstractValueFragment() {
                       ~~~~~~~~~~
                 0 errors, 1 warnings
+            """.trimIndent())
+            .expectFixDiffs("""
+                Fix for src/com/kpstv/navigation/lint/AbstractValueFragment.kt line 8: Add "NavigatorTransmitter" interface:
+                @@ -8 +8
+                - class MyFragment : AbstractValueFragment() {
+                + class MyFragment : AbstractValueFragment() , NavigatorTransmitter {
             """.trimIndent())
     }
 
@@ -45,11 +53,13 @@ class NavigatorIssueTest {
         val stubFile = LintDetectorTest.kotlin(
             """
             package com.kpstv.navigation.lint
+
             import com.kpstv.navigation.Navigator
-            import com.kpstv.navigation.NavigatorTransmitter
             import androidx.appcompat.app.AppCompatActivity
 
-            class MyActivity : AppCompatActivity() {
+            open class AbstractActivity: AppCompatActivity() {}
+
+            class MyActivity : AbstractActivity() {
                 private lateinit var navigator: Navigator
             }
             """
@@ -65,10 +75,16 @@ class NavigatorIssueTest {
             .issues(NavigatorDetector.NAVTRANSMITTER_ISSUE)
             .run()
             .expect("""
-                src/com/kpstv/navigation/lint/MyActivity.kt:6: Warning: The host must implement NavigatorTransmitter interface. [noNavTransmitter]
-                class MyActivity : AppCompatActivity() {
+                src/com/kpstv/navigation/lint/AbstractActivity.kt:8: Warning: The host must implement NavigatorTransmitter interface. [noNavTransmitter]
+                class MyActivity : AbstractActivity() {
                       ~~~~~~~~~~
                 0 errors, 1 warnings
+            """.trimIndent())
+            .expectFixDiffs("""
+                Fix for src/com/kpstv/navigation/lint/AbstractActivity.kt line 8: Add "NavigatorTransmitter" interface:
+                @@ -8 +8
+                - class MyActivity : AbstractActivity() {
+                + class MyActivity : AbstractActivity() , NavigatorTransmitter {
             """.trimIndent())
     }
 }

@@ -10,7 +10,7 @@ class IssueRegistry : IssueRegistry() {
     override val api: Int = CURRENT_API
 
     override val minApi: Int
-        get() = api
+        get() = 8
 
     override val issues: List<Issue>
         get() = listOf(
