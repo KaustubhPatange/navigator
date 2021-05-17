@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.kpstv.navigation
 
 import android.graphics.Rect
@@ -15,6 +17,8 @@ class AnimationDefinition {
     object Fade : Custom(R.anim.navigator_fade_in, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_fade_out)
     object SlideInRight : Custom(R.anim.navigator_slide_in_right, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out_right)
     object SlideInLeft : Custom(R.anim.navigator_slide_in_left, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out_left)
+    object SlideInBottom : Custom(R.anim.navigator_slide_in_bottom, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out_bottom)
+    object SlideInTop : Custom(R.anim.navigator_slide_in_top, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out_top)
 
     /**
      * Runs a custom circular reveal animation.

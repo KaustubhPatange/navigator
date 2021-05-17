@@ -28,8 +28,10 @@ class MainFragment : ValueFragment() {
                         viewModel.navigate(
                             screen = MainActivity.Screens.FIRST,
                             animation = AnimationDefinition.Custom(
-                                destinationEntering = R.transition.myfade,
-                                currentExiting = R.transition.myfade
+                                destinationEntering = R.animator.fade_in_late,
+                                currentExiting = R.animator.zoom_out,
+                                currentReturning = R.animator.fade_in_late,
+                                destinationExiting = R.animator.fade_out_late
                             ),
                             args = AbstractArgs("First Fragment"),
                             remember = true
