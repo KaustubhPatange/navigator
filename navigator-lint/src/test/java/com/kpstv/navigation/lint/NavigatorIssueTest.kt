@@ -115,7 +115,7 @@ class NavigatorIssueTest {
             .issues(NavigatorDetector.BACKPRESS_NOT_SET_ISSUE)
             .run()
             .expect("""
-                src/com/kpstv/navigation/lint/AbstractActivity.kt:9: Warning: The activity must override & manually set onBackPressed callback. [overrideBackPress]
+                src/com/kpstv/navigation/lint/AbstractActivity.kt:9: Warning: The activity must override onBackPressed callback to manually call appropriate Navigator's methods for proper back navigation. [overrideBackPress]
                 class MyActivity : AbstractActivity(), NavigatorTransmitter {
                       ~~~~~~~~~~
                 0 errors, 1 warnings
