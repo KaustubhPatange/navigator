@@ -30,8 +30,8 @@ class MainFragment : ValueFragment() {
                             animation = AnimationDefinition.Custom(
                                 destinationEntering = R.animator.fade_in_late,
                                 currentExiting = R.animator.zoom_out,
-                                currentReturning = R.animator.fade_in_late,
-                                destinationExiting = R.animator.fade_out_late
+                                currentReturning = R.animator.zoom_in,
+                                destinationExiting = R.animator.fade_out
                             ),
                             args = AbstractArgs("First Fragment"),
                             remember = true

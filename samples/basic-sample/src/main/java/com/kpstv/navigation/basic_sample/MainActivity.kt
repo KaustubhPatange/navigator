@@ -34,6 +34,11 @@ class MainActivity : AppCompatActivity(), NavigatorTransmitter {
         FIRST(FragFirst::class),
         SECOND(FragSecond::class)
     }
+
+    override fun onBackPressed() {
+        if (navigator.canFinish())
+            super.onBackPressed()
+    }
 }
 
 class MainViewModel : ViewModel() {
