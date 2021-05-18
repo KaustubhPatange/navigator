@@ -27,12 +27,7 @@ class MainFragment : ValueFragment() {
                     setOnClickListener {
                         viewModel.navigate(
                             screen = MainActivity.Screens.FIRST,
-                            animation = AnimationDefinition.Custom(
-                                destinationEntering = R.animator.fade_in_late,
-                                currentExiting = R.animator.zoom_out,
-                                currentReturning = R.animator.zoom_in,
-                                destinationExiting = R.animator.fade_out
-                            ),
+                            animation = AnimationDefinition.Zoom,
                             args = AbstractArgs("First Fragment"),
                             remember = true
                         )

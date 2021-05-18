@@ -15,6 +15,7 @@ open class NavAnimation
 class AnimationDefinition {
     object None : NavAnimation()
     object Fade : Custom(R.anim.navigator_fade_in, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_fade_out)
+    object Zoom : Custom(R.animator.navigator_scale_in_visible, R.animator.navigator_scale_out_gone, R.animator.navigator_scale_out_visible, R.animator.navigator_scale_in_gone)
     object SlideInRight : Custom(R.anim.navigator_slide_in_right, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out_right)
     object SlideInLeft : Custom(R.anim.navigator_slide_in_left, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out_left)
     object SlideInBottom : Custom(R.anim.navigator_slide_in_bottom, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_slide_out_bottom)

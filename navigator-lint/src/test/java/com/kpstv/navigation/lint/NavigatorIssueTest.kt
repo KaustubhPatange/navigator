@@ -87,4 +87,38 @@ class NavigatorIssueTest {
                 + class MyActivity : AbstractActivity() , NavigatorTransmitter {
             """.trimIndent())
     }
+
+    @Test
+    fun CheckIfActivityHasOverrideBackPress() {
+        val stubFile = LintDetectorTest.kotlin(
+            """
+            package com.kpstv.navigation.lint
+
+            import com.kpstv.navigation.Navigator
+            import com.kpstv.navigation.NavigatorTransmitter
+            import androidx.appcompat.app.AppCompatActivity
+
+            open class AbstractActivity: AppCompatActivity() {}
+
+            class MyActivity : AbstractActivity(), NavigatorTransmitter {
+                private lateinit var navigator: Navigator
+            }
+            """
+        ).indented()
+
+        TestLintTask.lint().files(
+            Stubs.ActivityClass,
+            Stubs.NavTransmitterClass,
+            Stubs.NavigatorClass,
+            stubFile,
+        )
+            .issues(NavigatorDetector.BACKPRESS_NOT_SET_ISSUE)
+            .run()
+            .expect("""
+                src/com/kpstv/navigation/lint/AbstractActivity.kt:9: Warning: The activity must override & manually set onBackPressed callback. [overrideBackPress]
+                class MyActivity : AbstractActivity(), NavigatorTransmitter {
+                      ~~~~~~~~~~
+                0 errors, 1 warnings
+            """.trimIndent())
+    }
 }

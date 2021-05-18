@@ -7,7 +7,9 @@ object Stubs {
     val ActivityClass: TestFile = kotlin(
         """
         package androidx.appcompat.app
-        open class AppCompatActivity { }
+        open class AppCompatActivity { 
+            open fun onBackPressed() {}
+        }
         """
     )
     val FragmentClass: TestFile = kotlin(

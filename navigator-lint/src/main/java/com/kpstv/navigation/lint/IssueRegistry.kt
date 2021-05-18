@@ -14,6 +14,7 @@ class IssueRegistry : IssueRegistry() {
 
     override val issues: List<Issue>
         get() = listOf(
-            NavigatorDetector.NAVTRANSMITTER_ISSUE
+            NavigatorDetector.NAVTRANSMITTER_ISSUE,
+            NavigatorDetector.BACKPRESS_NOT_SET_ISSUE
         )
 }

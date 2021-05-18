@@ -2,12 +2,12 @@ package com.kpstv.navigation.lint.detectors
 
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.*
-import com.intellij.psi.PsiClass
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.kpstv.navigation.lint.utils.isActivity
 import com.kpstv.navigation.lint.utils.isValueFragment
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UField
+import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 class NavigatorDetector : Detector(), Detector.UastScanner {
@@ -16,15 +16,27 @@ class NavigatorDetector : Detector(), Detector.UastScanner {
     override fun createUastHandler(context: JavaContext): UElementHandler? {
         return object : UElementHandler() {
             override fun visitClass(node: UClass) {
-                if (node.extendsListTypes.any { it.isValueFragment() || it.isActivity() }
-                    && node.interfaceTypes.all { (it as PsiClassReferenceType).canonicalText != NAVTRANSMITTER_CLASS }) {
-                    node.accept(VisitorPattern(context))
+                if (node.extendsListTypes.any { it.isValueFragment() || it.isActivity() } && !node.hasNavTransmitterInterface()) {
+                    node.accept(NavTransmitterVisitorPattern(context))
+                }
+                if (node.extendsListTypes.any { it.isActivity() } && node.hasNavTransmitterInterface()) {
+                    node.checkForBackPressMethodImpl(context)
                 }
             }
         }
     }
 
-    class VisitorPattern(private val context: JavaContext) : AbstractUastVisitor() {
+    private fun UClass.checkForBackPressMethodImpl(context: JavaContext) {
+        if (methods.all { it.name != "onBackPressed" }) {
+            context.report(
+                issue = BACKPRESS_NOT_SET_ISSUE,
+                location = context.getNameLocation(this),
+                message = BACKPRESS_NOT_SET_ISSUE.getBriefDescription(TextFormat.TEXT)
+            )
+        }
+    }
+
+    class NavTransmitterVisitorPattern(private val context: JavaContext) : AbstractUastVisitor() {
         override fun visitField(node: UField): Boolean {
             if (node.type.canonicalText == NAVIGATOR_CLASS) {
                 context.report(
@@ -46,6 +58,10 @@ class NavigatorDetector : Detector(), Detector.UastScanner {
         }
     }
 
+    private fun UClass.hasNavTransmitterInterface() : Boolean {
+        return interfaceTypes.any { (it as PsiClassReferenceType).canonicalText == NAVTRANSMITTER_CLASS }
+    }
+
     companion object {
         private const val NAVTRANSMITTER_CLASS = "com.kpstv.navigation.NavigatorTransmitter"
         private const val NAVIGATOR_CLASS = "com.kpstv.navigation.Navigator"
@@ -60,6 +76,26 @@ class NavigatorDetector : Detector(), Detector.UastScanner {
                 navigator instance to the child fragments which ensures the correct behavior
                 or backpress, etc.
                 """.trimIndent(),
+            moreInfo = "https://github.com/KaustubhPatange/navigator/wiki/(Sample-1)-Quick-setup-&-usage",
+            category = Category.CORRECTNESS,
+            severity = Severity.WARNING,
+            priority = 10,
+            androidSpecific = true,
+            implementation = Implementation(
+                NavigatorDetector::class.java,
+                Scope.JAVA_FILE_SCOPE
+            )
+        )
+
+        val BACKPRESS_NOT_SET_ISSUE = Issue.create(
+            id = "overrideBackPress",
+            briefDescription = "The activity must override onBackPressed callback to manually call appropriate Navigator's methods for proper back navigation.",
+            explanation = """
+                It seems like you have setup navigator in the activity but haven't override onBackPressed.
+                You need to override that method & properly ensure if there Navigator can go back. This is
+                necessary to ensure the correct behavior of calling onBackPress on child fragments as well
+                as making sure multiple backStacks work correct.
+            """.trimIndent(),
             moreInfo = "https://github.com/KaustubhPatange/navigator/wiki/(Sample-1)-Quick-setup-&-usage",
             category = Category.CORRECTNESS,
             severity = Severity.WARNING,
