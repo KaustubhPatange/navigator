@@ -84,8 +84,10 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
         try {
             return if (parentFragment != null) {
                 (requireParentFragment() as NavigatorTransmitter).getNavigator()
-            } else {
+            } else if (requireContext() is NavigatorTransmitter) {
                 (requireContext() as NavigatorTransmitter).getNavigator()
+            } else {
+                (requireActivity() as NavigatorTransmitter).getNavigator()
             }
         } catch (e: Exception) {
             throw NotImplementedError("Parent does not implement NavigatorTransmitter.")
