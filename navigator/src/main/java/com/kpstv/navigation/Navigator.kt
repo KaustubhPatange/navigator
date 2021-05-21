@@ -3,6 +3,7 @@ package com.kpstv.navigation
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import android.util.Log
 import android.widget.FrameLayout
 import androidx.annotation.AnimRes
 import androidx.annotation.AnimatorRes
@@ -403,6 +404,10 @@ class Navigator internal constructor(private val fm: FragmentManager, private va
                 override fun onActivitySaveInstanceState(act: Activity, outState: Bundle) {
                     if (activity === act && ::navigator.isInitialized) {
                         navigator.onSaveInstance(outState)
+                        val bundle = Bundle().apply {
+                            navigator.onSaveInstance(this)
+                        }
+                        navigator.stateViewModel.putHistory(stateViewModelKey, bundle)
                     }
                 }
                 override fun onActivityDestroyed(act: Activity) {
