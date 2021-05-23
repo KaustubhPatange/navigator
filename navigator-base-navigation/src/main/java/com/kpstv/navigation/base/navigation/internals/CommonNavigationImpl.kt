@@ -17,7 +17,8 @@ import kotlin.reflect.KClass
 abstract class CommonNavigationImpl(
     private val navigator: FragmentNavigator,
     private val navFragments: Map<Int, KClass<out Fragment>>,
-    private val navigation: FragmentNavigator.Navigation
+    private val navigation: FragmentNavigator.Navigation,
+    private val stateKeys: SaveStateKeys
 ) : CommonLifecycleCallbacks {
 
     abstract fun setUpNavigationViewCallbacks(selectionId: Int)
@@ -56,7 +57,7 @@ abstract class CommonNavigationImpl(
                 val fragment = fm.findFragmentByTag(frag.simpleName + FRAGMENT_SUFFIX)!!
                 fragments.add(fragment)
             }
-            selectedIndex = savedInstanceState.getInt(KEY_SELECTION_INDEX, 0)
+            selectedIndex = savedInstanceState.getInt(stateKeys.keyIndex, 0)
             topSelectionId = navFragments.keys.elementAt(selectedIndex)
         }
 
@@ -153,11 +154,12 @@ abstract class CommonNavigationImpl(
     private fun getPrimarySelectionFragmentId(): Int = navFragments.keys.indexOf(navigation.selectedFragmentId)
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt(KEY_SELECTION_INDEX, selectedIndex)
+        outState.putInt(stateKeys.keyIndex, selectedIndex)
     }
+
+    data class SaveStateKeys(val keyIndex: String)
 
     companion object {
         private const val FRAGMENT_SUFFIX = "_absBottomNav"
-        private const val KEY_SELECTION_INDEX = "com.kpstv.navigation:base:key_selection_index"
     }
 }

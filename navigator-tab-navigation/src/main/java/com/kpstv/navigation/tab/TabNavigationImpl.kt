@@ -14,7 +14,7 @@ internal class TabNavigationImpl(
     fragments: Map<Int, KClass<out Fragment>>,
     navigation: FragmentNavigator.Navigation
 ) : CommonNavigationImpl(
-    navigator = navigator, navFragments = fragments, navigation = navigation
+    navigator = navigator, navFragments = fragments, navigation = navigation, stateKeys = SaveStateKeys("$KEY_SELECTION_INDEX${navView.id}")
 ) {
     override fun setUpNavigationViewCallbacks(selectionId: Int) /* "selectedId" is "position" */ {
         selectPosition(selectionId)
@@ -43,5 +43,9 @@ internal class TabNavigationImpl(
         navView.removeOnTabSelectedListener(tabListener)
         block.invoke()
         navView.addOnTabSelectedListener(tabListener)
+    }
+
+    companion object {
+        private const val KEY_SELECTION_INDEX = "com.kpstv.navigation:tab:key_index"
     }
 }

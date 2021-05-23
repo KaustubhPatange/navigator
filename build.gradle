@@ -5,11 +5,11 @@ buildscript {
     ext.fragment_version = "1.3.3"
     ext.lintVersion = '30.0.0-alpha10'
     ext.versions = [
-            "navigator": '0.1-alpha20',
-            "navigator_extensions": "0.4",
-            "navigator_base_navigation": "0.1-alpha07",  // if this is changed also update bottom & tab navigation library as well.
-            "navigator_bottom_navigation": "0.1-alpha13",
-            "navigator_tab_navigation": "0.1-alpha07"
+            "navigator": '0.1-alpha20', // published
+            "navigator_extensions": "0.4", // published
+            "navigator_base_navigation": "0.1-alpha08", // published // if this is changed also update bottom & tab navigation library as well.
+            "navigator_bottom_navigation": "0.1-alpha14", // published
+            "navigator_tab_navigation": "0.1-alpha08" // published
     ]
 
     repositories {

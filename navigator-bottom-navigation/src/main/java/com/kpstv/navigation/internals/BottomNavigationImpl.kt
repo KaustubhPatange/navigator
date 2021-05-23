@@ -14,7 +14,7 @@ internal class BottomNavigationImpl(
     fragments: Map<Int, KClass<out Fragment>>,
     navigation: FragmentNavigator.Navigation
 ) : CommonNavigationImpl(
-    navigator = navigator, navFragments = fragments, navigation = navigation
+    navigator = navigator, navFragments = fragments, navigation = navigation, stateKeys = SaveStateKeys("$KEY_SELECTION_INDEX${navView.id}")
 ) {
     override fun setUpNavigationViewCallbacks(selectionId: Int) {
         navView.selectedItemId = selectionId
@@ -33,5 +33,9 @@ internal class BottomNavigationImpl(
         navView.setOnNavigationItemSelectedListener(null)
         block.invoke()
         navView.setOnNavigationItemSelectedListener(navigationListener)
+    }
+
+    companion object {
+        private const val KEY_SELECTION_INDEX = "com.kpstv.navigation:bottom:key_index"
     }
 }
