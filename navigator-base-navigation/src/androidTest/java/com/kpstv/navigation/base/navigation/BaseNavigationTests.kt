@@ -5,7 +5,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import com.kpstv.navigation.Navigator
+import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.ValueFragment
 import com.kpstv.navigation.base.navigation.internals.*
 import com.kpstv.navigation.internals.ViewStateFragment
@@ -91,7 +91,7 @@ class BaseNavigationTests {
     @Test
     fun RetainFragmentOnSelectionChangeTest() {
         activityRule.with {
-            val commonNavigationImpl = preSetup(this, CustomNavigation(2, Navigator.Navigation.ViewRetention.RETAIN))
+            val commonNavigationImpl = preSetup(this, CustomNavigation(2, FragmentNavigator.Navigation.ViewRetention.RETAIN))
 
             commonNavigationImpl.onCreate(null)
             supportFragmentManager.executePendingTransactions()

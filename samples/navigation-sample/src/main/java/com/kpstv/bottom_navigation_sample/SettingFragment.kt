@@ -4,19 +4,20 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import com.kpstv.bottom_navigation_sample.databinding.FragmentSettingBinding
+import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.Navigator
-import com.kpstv.navigation.NavigatorTransmitter
 import com.kpstv.navigation.ValueFragment
 
-class SettingFragment : ValueFragment(R.layout.fragment_setting), NavigatorTransmitter, Navigator.Navigation.Callbacks {
-    private lateinit var navigator: Navigator
+class SettingFragment : ValueFragment(R.layout.fragment_setting), FragmentNavigator.Transmitter, FragmentNavigator.Navigation.Callbacks {
+    private lateinit var navigator: FragmentNavigator
 
-    override fun getNavigator(): Navigator = navigator
+    override fun getNavigator(): FragmentNavigator = navigator
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentSettingBinding.bind(view)
         navigator = Navigator.with(this, savedInstanceState)
+            .set(FragmentNavigator::class)
             .initialize(binding.myContainer)
 
         // In multiple backstack navigation the fragment manager will saves all necessary information that

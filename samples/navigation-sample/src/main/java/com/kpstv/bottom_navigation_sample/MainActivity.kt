@@ -1,20 +1,18 @@
 package com.kpstv.bottom_navigation_sample
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
-import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.kpstv.bottom_navigation_sample.databinding.ActivityMainBinding
+import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.Navigator
-import com.kpstv.navigation.NavigatorTransmitter
 import com.kpstv.navigation.canFinish
 
-class MainActivity : AppCompatActivity(), NavigatorTransmitter {
-    private lateinit var navigator: Navigator
+class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
+    private lateinit var navigator: FragmentNavigator
 
-    override fun getNavigator(): Navigator = navigator
+    override fun getNavigator(): FragmentNavigator = navigator
 
     private lateinit var binding: ActivityMainBinding
 
@@ -27,7 +25,9 @@ class MainActivity : AppCompatActivity(), NavigatorTransmitter {
             Log.e(frag::class.simpleName, "=> $text")
         }
 
-        navigator = Navigator.with(this, savedInstanceState).initialize(findViewById(R.id.container))
+        navigator = Navigator.with(this, savedInstanceState)
+            .set(FragmentNavigator::class)
+            .initialize(findViewById(R.id.container))
         if (savedInstanceState == null) {
             navigator.navigateTo(MainFragment::class)
         }

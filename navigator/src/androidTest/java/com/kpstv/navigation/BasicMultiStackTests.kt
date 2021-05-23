@@ -25,19 +25,19 @@ class BasicMultiStackTests {
     fun SimpleCompleteMultiStackTest() {
         activityRule.with main@{
             navigator.navigateTo(FirstFragment::class)
-            navigator.navigateTo(SecondFragment::class, Navigator.NavOptions(remember = true))
-            navigator.navigateTo(NavigatorFragment::class, Navigator.NavOptions(remember = true))
+            navigator.navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
+            navigator.navigateTo(NavigatorFragment::class, FragmentNavigator.NavOptions(remember = true))
             navigator.getFragmentManager().executePendingTransactions()
 
             (navigator.getCurrentFragment() as NavigatorFragment).apply first@{
                 getNavigator().navigateTo(FirstFragment::class)
-                getNavigator().navigateTo(ThirdFragment::class, Navigator.NavOptions(remember = true))
-                getNavigator().navigateTo(NavigatorFragment::class, Navigator.NavOptions(remember = true))
+                getNavigator().navigateTo(ThirdFragment::class, FragmentNavigator.NavOptions(remember = true))
+                getNavigator().navigateTo(NavigatorFragment::class, FragmentNavigator.NavOptions(remember = true))
                 getNavigator().getFragmentManager().executePendingTransactions()
 
                 (getNavigator().getCurrentFragment() as NavigatorFragment).apply second@{
                     getNavigator().navigateTo(ThirdFragment::class)
-                    getNavigator().navigateTo(SecondFragment::class, Navigator.NavOptions(remember = true))
+                    getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
                     getNavigator().getFragmentManager().executePendingTransactions()
 
                     getNavigator().show(FirstSheet::class)

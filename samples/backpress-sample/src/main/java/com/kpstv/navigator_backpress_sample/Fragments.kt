@@ -8,7 +8,6 @@ import android.os.Parcelable
 import android.view.View
 import androidx.annotation.ColorRes
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import com.kpstv.navigation.*
 import com.kpstv.navigator_backpress_sample.databinding.FragmentDisclaimerBinding
 import kotlinx.parcelize.Parcelize
@@ -35,7 +34,7 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
             val nextFragment = getNextFragment() ?: return@click
 
             if (!args.hasNext) {
-                val options =  Navigator.NavOptions(
+                val options =  FragmentNavigator.NavOptions(
                     args = getNextArgs(),
                     animation = AnimationDefinition.Fade,
                     historyOptions = HistoryOptions.ClearHistory
@@ -45,7 +44,7 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
                 val rect = Rect()
                 binding.btnNext.getGlobalVisibleRect(rect)
 
-                val options = Navigator.NavOptions(
+                val options = FragmentNavigator.NavOptions(
                     args = getNextArgs(),
                     animation = AnimationDefinition.CircularReveal(getNextFragment(), rect),
                     remember = true

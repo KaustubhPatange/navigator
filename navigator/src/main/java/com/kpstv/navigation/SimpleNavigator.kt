@@ -2,14 +2,12 @@ package com.kpstv.navigation
 
 import android.content.Context
 import android.os.Bundle
-import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.kpstv.navigation.internals.BackStackRecord
 import com.kpstv.navigation.internals.HistoryImpl
 import com.kpstv.navigation.internals.newFragment
-import com.kpstv.navigation.internals.toIdentifier
 
 internal typealias DialogDismissListener = (dialog : DialogFragment) -> Unit
 
@@ -30,7 +28,7 @@ class SimpleNavigator internal constructor(private val context: Context, private
     fun show(clazz: DialogFragClazz, args: BaseArgs? = null, onDismissListener: DialogDismissListener? = null) {
         val dialog = fm.newFragment(context, clazz) as DialogFragment
         val tagName = history.getUniqueBackStackName(clazz)
-        dialog.arguments = Navigator.createArguments(args)
+        dialog.arguments = FragmentNavigator.createArguments(args)
         dialog.show(fm, tagName)
 
         if (onDismissListener != null) {

@@ -55,7 +55,8 @@ jobs:
         run: |
           ./gradlew navigator-lint:test
 
-      # Test samples or code (TODO: Write tests for bottom & tab navigation)
+      # Test samples or code
+      # TODO: Write tests for bottom & tab navigation
       - name: Run Instrumented tests
         uses: reactivecircus/android-emulator-runner@v2
         with:

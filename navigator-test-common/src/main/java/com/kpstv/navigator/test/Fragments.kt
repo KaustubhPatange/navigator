@@ -5,8 +5,8 @@ import android.os.Parcelable
 import android.view.View
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.kpstv.navigation.BaseArgs
+import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.Navigator
-import com.kpstv.navigation.NavigatorTransmitter
 import com.kpstv.navigation.ValueFragment
 import kotlinx.android.parcel.Parcelize
 
@@ -21,14 +21,15 @@ class FirstFragment : BaseFragment()
 class SecondFragment : BaseFragment()
 class ThirdFragment : BaseFragment()
 
-class NavigatorFragment : ValueFragment(R.layout.activity_main), NavigatorTransmitter {
-    private lateinit var internalNavigator: Navigator
+class NavigatorFragment : ValueFragment(R.layout.activity_main), FragmentNavigator.Transmitter {
+    private lateinit var internalNavigator: FragmentNavigator
 
-    override fun getNavigator(): Navigator = internalNavigator
+    override fun getNavigator(): FragmentNavigator = internalNavigator
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         internalNavigator = Navigator.with(this, savedInstanceState)
+            .set(FragmentNavigator::class)
             .initialize(view.findViewById(R.id.my_container))
     }
 }

@@ -9,16 +9,18 @@ import androidx.lifecycle.ViewModel
 import com.kpstv.navigation.*
 import kotlin.reflect.KClass
 
-class MainActivity : AppCompatActivity(), NavigatorTransmitter {
-    private lateinit var navigator: Navigator
+class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
+    private lateinit var navigator: FragmentNavigator
     private val viewModel by viewModels<MainViewModel>()
 
-    override fun getNavigator(): Navigator = navigator
+    override fun getNavigator(): FragmentNavigator = navigator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        navigator = Navigator.with(this, savedInstanceState).initialize(findViewById(R.id.container))
+        navigator = Navigator.with(this, savedInstanceState)
+            .set(FragmentNavigator::class)
+            .initialize(findViewById(R.id.container))
 
         viewModel.navigation.observe(this) { option ->
             navigator.navigateTo(option.clazz, option.options)
@@ -50,7 +52,7 @@ class MainViewModel : ViewModel() {
         animation: NavAnimation = AnimationDefinition.None,
         remember: Boolean = false
     ) {
-        val options = Navigator.NavOptions(
+        val options = FragmentNavigator.NavOptions(
             args = args,
             animation = animation,
             remember = remember
@@ -60,6 +62,6 @@ class MainViewModel : ViewModel() {
 
     class NavigationOptions(
         val clazz: KClass<out Fragment>,
-        val options: Navigator.NavOptions
+        val options: FragmentNavigator.NavOptions
     )
 }

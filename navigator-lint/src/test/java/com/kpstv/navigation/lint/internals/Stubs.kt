@@ -25,16 +25,12 @@ object Stubs {
         """
     )
 
-    val NavigatorClass: TestFile = kotlin(
+    val FragmentNavigatorClass: TestFile = kotlin(
         """
         package com.kpstv.navigation
-        class Navigator {}
-        """
-    )
-    val NavTransmitterClass: TestFile = kotlin(
-        """
-        package com.kpstv.navigation
-        interface NavigatorTransmitter { }
+        class FragmentNavigator {
+            interface Transmitter
+        }
         """
     )
 }

@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commitNow
 import com.kpstv.navigation.BaseArgs
-import com.kpstv.navigation.Navigator
+import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.ValueFragment
 import com.kpstv.navigation.internals.ViewStateFragment
 import com.kpstv.navigator.base.navigation.R
@@ -15,9 +15,9 @@ import kotlin.reflect.KClass
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 abstract class CommonNavigationImpl(
-    private val navigator: Navigator,
+    private val navigator: FragmentNavigator,
     private val navFragments: Map<Int, KClass<out Fragment>>,
-    private val navigation: Navigator.Navigation
+    private val navigation: FragmentNavigator.Navigation
 ) : CommonLifecycleCallbacks {
 
     abstract fun setUpNavigationViewCallbacks(selectionId: Int)
@@ -48,8 +48,8 @@ abstract class CommonNavigationImpl(
                 }
             }
             when(navigation.fragmentViewRetentionType) {
-                Navigator.Navigation.ViewRetention.RECREATE ->  fm.commitNow { fragments.forEach { detach(it) } }
-                Navigator.Navigation.ViewRetention.RETAIN -> fm.commitNow { fragments.forEach { hide(it) } }
+                FragmentNavigator.Navigation.ViewRetention.RECREATE ->  fm.commitNow { fragments.forEach { detach(it) } }
+                FragmentNavigator.Navigation.ViewRetention.RETAIN -> fm.commitNow { fragments.forEach { hide(it) } }
             }
         } else {
             navFragments.values.forEach { frag ->
@@ -77,7 +77,7 @@ abstract class CommonNavigationImpl(
             }
         }
         if (selectedFragment === fragment) {
-            if (fragment is Navigator.Navigation.Callbacks && fragment.isVisible) {
+            if (fragment is FragmentNavigator.Navigation.Callbacks && fragment.isVisible) {
                 fragment.onReselected()
             }
         } else {
@@ -90,7 +90,7 @@ abstract class CommonNavigationImpl(
     private fun setFragment(whichFragment: Fragment, runIfHasAnimations: Boolean = false) {
         val current = navigator.getCurrentFragment()
 
-        if (navigation.fragmentViewRetentionType == Navigator.Navigation.ViewRetention.RETAIN) {
+        if (navigation.fragmentViewRetentionType == FragmentNavigator.Navigation.ViewRetention.RETAIN) {
             if (whichFragment is ViewStateFragment) whichFragment.onViewStateChanged(ViewStateFragment.ViewState.FOREGROUND)
             if (current is ViewStateFragment) current.onViewStateChanged(ViewStateFragment.ViewState.BACKGROUND)
         }
@@ -106,18 +106,18 @@ abstract class CommonNavigationImpl(
         fragments.forEachIndexed { index, fragment ->
             if (fragment == whichFragment) {
                 transaction = when(navigation.fragmentViewRetentionType) {
-                    Navigator.Navigation.ViewRetention.RECREATE -> transaction.attach(fragment)
-                    Navigator.Navigation.ViewRetention.RETAIN -> transaction.show(fragment)
+                    FragmentNavigator.Navigation.ViewRetention.RECREATE -> transaction.attach(fragment)
+                    FragmentNavigator.Navigation.ViewRetention.RETAIN -> transaction.show(fragment)
                 }
                 selectedIndex = index
 
-                if (fragment is Navigator.Navigation.Callbacks) {
+                if (fragment is FragmentNavigator.Navigation.Callbacks) {
                     fragment.onSelected()
                 }
             } else {
                 transaction = when(navigation.fragmentViewRetentionType) {
-                    Navigator.Navigation.ViewRetention.RECREATE -> transaction.detach(fragment)
-                    Navigator.Navigation.ViewRetention.RETAIN -> transaction.hide(fragment)
+                    FragmentNavigator.Navigation.ViewRetention.RECREATE -> transaction.detach(fragment)
+                    FragmentNavigator.Navigation.ViewRetention.RETAIN -> transaction.hide(fragment)
                 }
             }
         }
@@ -128,8 +128,8 @@ abstract class CommonNavigationImpl(
 
     private fun setAnimations(ft: FragmentTransaction, fromIndex: Int, toIndex: Int) {
         when (navigation.fragmentNavigationTransition) {
-            is Navigator.Navigation.Animation.None -> {}
-            is Navigator.Navigation.Animation.Slide -> {
+            is FragmentNavigator.Navigation.Animation.None -> {}
+            is FragmentNavigator.Navigation.Animation.Slide -> {
                 if (fromIndex < toIndex)
                     ft.setCustomAnimations(R.anim.navigator_slide_in_right, R.anim.navigator_slide_out_left)
                 if (fromIndex > toIndex)

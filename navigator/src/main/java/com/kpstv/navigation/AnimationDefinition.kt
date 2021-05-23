@@ -24,7 +24,7 @@ class AnimationDefinition {
     /**
      * Runs a custom circular reveal animation.
      *
-     * @param forFragment A fragment to wait for until it's view is drawn. Default is the [Navigator.NavOptions.clazz].
+     * @param forFragment A fragment to wait for until it's view is drawn. Default is the [FragmentNavigator.NavOptions.clazz].
      * @param fromTarget Start from the coordinates specified by the View or manually by [Rect]. Default is from the Center.
      *
      * @see [View.getLocalVisibleRect]

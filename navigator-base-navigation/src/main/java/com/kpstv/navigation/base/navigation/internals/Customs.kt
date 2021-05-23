@@ -3,12 +3,12 @@
 package com.kpstv.navigation.base.navigation.internals
 
 import android.os.Bundle
-import com.kpstv.navigation.Navigator
+import com.kpstv.navigation.FragmentNavigator
 
-fun Navigator.getSaveInstanceState(): Bundle? {
+fun FragmentNavigator.getSaveInstanceState(): Bundle? {
     return savedInstanceState
 }
 
-fun Navigator.getOwner(): Any {
+fun FragmentNavigator.getOwner(): Any {
     return this.owner
 }

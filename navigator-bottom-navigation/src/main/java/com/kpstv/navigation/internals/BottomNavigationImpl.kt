@@ -2,17 +2,17 @@ package com.kpstv.navigation.internals
 
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.kpstv.navigation.Navigator
+import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.base.navigation.internals.CommonNavigationImpl
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction1
 
 internal class BottomNavigationImpl(
-    navigator: Navigator,
+    navigator: FragmentNavigator,
     internal val navView: BottomNavigationView,
     private val onNavSelectionChange: KFunction1<Int, Unit>,
     fragments: Map<Int, KClass<out Fragment>>,
-    navigation: Navigator.Navigation
+    navigation: FragmentNavigator.Navigation
 ) : CommonNavigationImpl(
     navigator = navigator, navFragments = fragments, navigation = navigation
 ) {

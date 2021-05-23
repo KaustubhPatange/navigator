@@ -13,10 +13,10 @@ import com.kpstv.navigation.internals.*
  * This will automatically handle navigation & its state that can also
  * survive process death as well.
  *
- * Child fragments can implement [Navigator.Navigation.Callbacks] to get notified
+ * Child fragments can implement [FragmentNavigator.Navigation.Callbacks] to get notified
  * when they are selected & re-selected again.
  */
-fun Navigator.install(obj: Navigator.BottomNavigation): BottomNavigationController {
+fun FragmentNavigator.install(obj: FragmentNavigator.BottomNavigation): BottomNavigationController {
     val owner = getOwner()
     val savedStateInstance = getSaveInstanceState()
     return when (owner) {
@@ -27,10 +27,10 @@ fun Navigator.install(obj: Navigator.BottomNavigation): BottomNavigationControll
 }
 
 internal fun install(
-    navigator: Navigator,
+    navigator: FragmentNavigator,
     fragment: Fragment,
     savedStateInstance: Bundle?,
-    obj: Navigator.BottomNavigation
+    obj: FragmentNavigator.BottomNavigation
 ): BottomNavigationController {
     val fragmentSavedState = savedStateInstance
         ?: if (fragment is ValueFragment) fragment.getBottomNavigationState() else null
@@ -57,10 +57,10 @@ internal fun install(
 }
 
 internal fun install(
-    navigator: Navigator,
+    navigator: FragmentNavigator,
     activity: FragmentActivity,
     savedStateInstance: Bundle? = null,
-    obj: Navigator.BottomNavigation
+    obj: FragmentNavigator.BottomNavigation
 ): BottomNavigationController {
     val impl = BottomNavigationImpl(
         navigator = navigator,

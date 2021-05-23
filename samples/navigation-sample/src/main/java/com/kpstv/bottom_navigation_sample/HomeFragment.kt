@@ -9,18 +9,17 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
-import com.google.android.material.tabs.TabLayout
 import com.kpstv.bottom_navigation_sample.databinding.FragmentHomeBinding
 import com.kpstv.navigation.*
 import kotlin.reflect.KClass
 
-class HomeFragment : ValueFragment(R.layout.fragment_home), NavigatorTransmitter, Navigator.Navigation.Callbacks {
-    private lateinit var navigator: Navigator
+class HomeFragment : ValueFragment(R.layout.fragment_home), FragmentNavigator.Transmitter, FragmentNavigator.Navigation.Callbacks {
+    private lateinit var navigator: FragmentNavigator
     private lateinit var tabController: TabNavigationController
 
     private var viewBinding: FragmentHomeBinding? = null
 
-    override fun getNavigator(): Navigator = navigator
+    override fun getNavigator(): FragmentNavigator = navigator
 
     override val forceBackPress: Boolean
         get() = viewBinding?.tabLayout?.selectedTabPosition != 0
@@ -28,8 +27,10 @@ class HomeFragment : ValueFragment(R.layout.fragment_home), NavigatorTransmitter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentHomeBinding.bind(view).also { viewBinding = it }
-        navigator = Navigator.with(this, savedInstanceState).initialize(binding.container)
-        tabController = navigator.install(object: Navigator.TabNavigation() {
+        navigator = Navigator.with(this, savedInstanceState)
+            .set(FragmentNavigator::class)
+            .initialize(binding.container)
+        tabController = navigator.install(object: FragmentNavigator.TabNavigation() {
             override val tabLayoutId: Int = R.id.tabLayout
             override val tabNavigationFragments: List<KClass<out Fragment>> = listOf(
                 FirstFragment::class,

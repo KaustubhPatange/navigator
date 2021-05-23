@@ -16,10 +16,10 @@ import kotlin.reflect.KClass
  * This will automatically handle navigation & its state that can also
  * survive process death as well.
  *
- * Child fragments can implement [Navigator.Navigation.Callbacks] to get notified
+ * Child fragments can implement [FragmentNavigator.Navigation.Callbacks] to get notified
  * when they are selected & re-selected again.
  */
-fun Navigator.install(obj: Navigator.TabNavigation): TabNavigationController {
+fun FragmentNavigator.install(obj: FragmentNavigator.TabNavigation): TabNavigationController {
     val owner = getOwner()
     val savedStateInstance = getSaveInstanceState()
     return when(owner) {
@@ -31,10 +31,10 @@ fun Navigator.install(obj: Navigator.TabNavigation): TabNavigationController {
 
 
 internal fun install(
-    navigator: Navigator,
+    navigator: FragmentNavigator,
     fragment: Fragment,
     savedStateInstance: Bundle?,
-    obj: Navigator.TabNavigation
+    obj: FragmentNavigator.TabNavigation
 ): TabNavigationController {
     val fragmentSavedState = savedStateInstance
         ?: if (fragment is ValueFragment) fragment.getTabNavigationState() else null
@@ -61,10 +61,10 @@ internal fun install(
 }
 
 internal fun install(
-    navigator: Navigator,
+    navigator: FragmentNavigator,
     activity: FragmentActivity,
     savedStateInstance: Bundle? = null,
-    obj: Navigator.TabNavigation
+    obj: FragmentNavigator.TabNavigation
 ): TabNavigationController {
     val impl = TabNavigationImpl(
         navigator = navigator,

@@ -7,7 +7,6 @@ import com.kpstv.navigation.lint.utils.isActivity
 import com.kpstv.navigation.lint.utils.isValueFragment
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UField
-import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 class NavigatorDetector : Detector(), Detector.UastScanner {
@@ -38,14 +37,14 @@ class NavigatorDetector : Detector(), Detector.UastScanner {
 
     class NavTransmitterVisitorPattern(private val context: JavaContext) : AbstractUastVisitor() {
         override fun visitField(node: UField): Boolean {
-            if (node.type.canonicalText == NAVIGATOR_CLASS) {
+            if (node.type.canonicalText == FRAGMENT_NAVIGATOR_CLASS) {
                 context.report(
                     issue = NAVTRANSMITTER_ISSUE,
                     location = context.getNameLocation(node.parent),
                     message = NAVTRANSMITTER_ISSUE.getBriefDescription(TextFormat.TEXT),
                     scope = node.parent,
                     quickfixData = LintFix.create().replace()
-                        .name("Add \"NavigatorTransmitter\" interface")
+                        .name("Add \"FragmentNavigator.Transmitter\" interface")
                         .range(context.getLocation(node.parent.navigationElement))
                         .text("{")
                         .with(", $NAVTRANSMITTER_CLASS {")
@@ -63,15 +62,15 @@ class NavigatorDetector : Detector(), Detector.UastScanner {
     }
 
     companion object {
-        private const val NAVTRANSMITTER_CLASS = "com.kpstv.navigation.NavigatorTransmitter"
-        private const val NAVIGATOR_CLASS = "com.kpstv.navigation.Navigator"
+        private const val NAVTRANSMITTER_CLASS = "com.kpstv.navigation.FragmentNavigator.Transmitter"
+        private const val FRAGMENT_NAVIGATOR_CLASS = "com.kpstv.navigation.FragmentNavigator"
         private const val FRAGMENT_CLASS = "androidx.fragment.app.Fragment"
 
         val NAVTRANSMITTER_ISSUE = Issue.create(
             id = "noNavTransmitter",
-            briefDescription = "The host must implement `NavigatorTransmitter` interface.",
+            briefDescription = "The host must implement `FragmentNavigator.Transmitter` interface.",
             explanation = """
-                It seems like you have setup navigator but forgot to apply `NavigatorTransmitter`
+                It seems like you have setup navigator but forgot to apply "FragmentNavigator.Transmitter"
                 interface to this host class. This is very much needed to propagate parent
                 navigator instance to the child fragments which ensures the correct behavior
                 or backpress, etc.

@@ -6,10 +6,11 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.ValueFragment
 
-open class AbstractFragment : ValueFragment(R.layout.fragment_abstract), Navigator.Navigation.Callbacks {
+open class AbstractFragment : ValueFragment(R.layout.fragment_abstract), FragmentNavigator.Navigation.Callbacks {
 
     fun setupButton(view: View, buttonText: String, onClick: () -> Unit) {
         view.findViewById<Button>(R.id.btn_navigate).apply {
@@ -44,7 +45,7 @@ class SettingFragment1 : AbstractFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupButton(view, "Go to Second Fragment") {
-            getParentNavigator().navigateTo(SettingFragment2::class, Navigator.NavOptions(remember = true))
+            getParentNavigator().navigateTo(SettingFragment2::class, FragmentNavigator.NavOptions(remember = true))
         }
     }
 }

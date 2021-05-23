@@ -7,12 +7,12 @@ import com.kpstv.bottom_navigation_sample.databinding.FragmentMainBinding
 import com.kpstv.navigation.*
 import kotlin.reflect.KClass
 
-class MainFragment : ValueFragment(R.layout.fragment_main), NavigatorTransmitter {
-    private lateinit var navigator: Navigator
+class MainFragment : ValueFragment(R.layout.fragment_main), FragmentNavigator.Transmitter {
+    private lateinit var navigator: FragmentNavigator
     private lateinit var bottomController: BottomNavigationController
     private var viewBinding: FragmentMainBinding? = null
 
-    override fun getNavigator(): Navigator = navigator
+    override fun getNavigator(): FragmentNavigator = navigator
 
     override val forceBackPress: Boolean
         get() = viewBinding?.bottomNav?.selectedItemId != R.id.fragment_home
@@ -20,9 +20,11 @@ class MainFragment : ValueFragment(R.layout.fragment_main), NavigatorTransmitter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentMainBinding.bind(view).also { viewBinding = it }
-        navigator = Navigator.with(this, savedInstanceState).initialize(binding.container)
+        navigator = Navigator.with(this, savedInstanceState)
+            .set(FragmentNavigator::class)
+            .initialize(binding.container)
 
-        bottomController = navigator.install(object : Navigator.BottomNavigation(){
+        bottomController = navigator.install(object : FragmentNavigator.BottomNavigation(){
             override val bottomNavigationViewId: Int = R.id.bottom_nav
             override val bottomNavigationFragments: Map<Int, KClass<out Fragment>> =
                 mapOf(

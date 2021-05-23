@@ -1,16 +1,16 @@
 package com.kpstv.navigator_backpress_sample
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.Navigator
-import com.kpstv.navigation.NavigatorTransmitter
 import com.kpstv.navigation.canFinish
 
-class MainActivity : AppCompatActivity(), NavigatorTransmitter {
-    private lateinit var navigator: Navigator
-    override fun getNavigator(): Navigator = navigator
+class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
+    private lateinit var navigator: FragmentNavigator
+    override fun getNavigator(): FragmentNavigator = navigator
+
     override fun onCreate(savedInstanceState: Bundle?) {
         makeFullScreen()
         super.onCreate(savedInstanceState)
@@ -20,10 +20,12 @@ class MainActivity : AppCompatActivity(), NavigatorTransmitter {
             Log.e(frag::class.simpleName, "=> $log")
         }
 
-        navigator = Navigator.with(this, savedInstanceState).initialize(findViewById(R.id.container))
+        navigator = Navigator.with(this, savedInstanceState)
+            .set(FragmentNavigator::class)
+            .initialize(findViewById(R.id.container))
 
         if (savedInstanceState == null) {
-            val options = Navigator.NavOptions(
+            val options = FragmentNavigator.NavOptions(
                 args = AbstractWelcomeFragment.Args(
                     title = "First Fragment",
                     background = R.color.palette1,

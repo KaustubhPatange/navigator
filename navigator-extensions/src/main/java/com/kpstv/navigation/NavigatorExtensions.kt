@@ -3,13 +3,12 @@ package com.kpstv.navigation
 import android.os.Build
 import androidx.core.view.children
 import androidx.core.view.doOnPreDraw
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.Fragment
 
 /**
- * Determines if there is no [Fragment] in [FragmentManager] backStack & the
- * current [Fragment] is the last one in the backStack.
+ * Determines if it's safe to `finish()` by ensuring the backstack to be completely
+ * empty.
  */
 fun Navigator.canFinish() : Boolean {
     if (canGoBack()) {
@@ -22,7 +21,7 @@ fun Navigator.canFinish() : Boolean {
 /**
  * A hot fix to overcome Z-index issue of the views in the fragment container.
  */
-fun Navigator.autoChildElevation() {
+fun FragmentNavigator.autoChildElevation() {
     getFragmentManager().addOnBackStackChangedListener {
         if (Build.VERSION.SDK_INT >= 21) {
             getContainerView().children.forEachIndexed { index, view ->

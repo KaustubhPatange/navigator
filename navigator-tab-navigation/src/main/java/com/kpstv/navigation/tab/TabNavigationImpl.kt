@@ -2,17 +2,17 @@ package com.kpstv.navigation.tab
 
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayout
-import com.kpstv.navigation.Navigator
+import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.base.navigation.internals.CommonNavigationImpl
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction1
 
 internal class TabNavigationImpl(
-    navigator: Navigator,
+    navigator: FragmentNavigator,
     internal val navView: TabLayout,
     private val onNavSelectionChange: KFunction1<Int, Unit>,
     fragments: Map<Int, KClass<out Fragment>>,
-    navigation: Navigator.Navigation
+    navigation: FragmentNavigator.Navigation
 ) : CommonNavigationImpl(
     navigator = navigator, navFragments = fragments, navigation = navigation
 ) {
