@@ -34,7 +34,7 @@ class FragmentNavigatorIssueTest {
             .issues(NavigatorDetector.NAVTRANSMITTER_ISSUE)
             .run()
             .expect("""
-                src/com/kpstv/navigation/lint/AbstractValueFragment.kt:8: Warning: The host must implement "FragmentNavigator.Transmitter" interface. [noNavTransmitter]
+                src/com/kpstv/navigation/lint/AbstractValueFragment.kt:8: Warning: The host must implement FragmentNavigator.Transmitter interface. [noNavTransmitter]
                 class MyFragment : AbstractValueFragment() {
                       ~~~~~~~~~~
                 0 errors, 1 warnings
@@ -73,7 +73,7 @@ class FragmentNavigatorIssueTest {
             .issues(NavigatorDetector.NAVTRANSMITTER_ISSUE)
             .run()
             .expect("""
-                src/com/kpstv/navigation/lint/AbstractActivity.kt:8: Warning: The host must implement "FragmentNavigator.Transmitter" interface. [noNavTransmitter]
+                src/com/kpstv/navigation/lint/AbstractActivity.kt:8: Warning: The host must implement FragmentNavigator.Transmitter interface. [noNavTransmitter]
                 class MyActivity : AbstractActivity() {
                       ~~~~~~~~~~
                 0 errors, 1 warnings
