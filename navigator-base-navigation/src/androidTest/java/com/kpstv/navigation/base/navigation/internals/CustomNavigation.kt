@@ -21,7 +21,7 @@ class CustomCommonNavigationImpl(
     navigator: FragmentNavigator,
     fragments: Map<Int, KClass<out Fragment>>,
     navigation: FragmentNavigator.Navigation
-) : CommonNavigationImpl(navigator, fragments, navigation) {
+) : CommonNavigationImpl(navigator, fragments, navigation, SaveStateKeys("key_index")) {
     var firstId: Int = -1
     var selectedId: Int = -1
     override fun setUpNavigationViewCallbacks(selectionId: Int) {
