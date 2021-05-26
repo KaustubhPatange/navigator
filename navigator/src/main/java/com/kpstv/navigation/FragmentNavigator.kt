@@ -29,7 +29,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
      * @param args Pass arguments extended from [BaseArgs].
      * @param transaction See [TransactionType].
      * @param animation See [NavAnimation].
-     * @param remember Remembers the fragment transaction so that [goBack] can navigate to this fragment again on back press or by calling manually. Equivalent to addToBackStack in fragment transaction.
+     * @param remember Remembers the fragment transaction so that [goBack] can navigate back to this (current) fragment on back press or by calling manually from the new fragment. Equivalent to addToBackStack in a fragment transaction.
      * @param historyOptions Manipulate history during navigating to [Fragment] by specifying any one of [HistoryOptions].
      */
     data class NavOptions(
@@ -48,8 +48,6 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
     interface Transmitter {
         fun getNavigator(): FragmentNavigator
     }
-
-    private var hasPrimaryFragment: Boolean = false
 
     private val navigatorTransitionManager = NavigatorCircularTransform(fm, containerView)
     private val history = HistoryImpl(fm)
@@ -84,8 +82,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
         if (clearAllHistory) {
             history.clearAll()
         }
-        // Remove duplicate backStack entry name & add it again if exist.
-        // Useful when fragment is navigating to self or maintaining single instance.
+        // Maintaining single instance.
         val innerAddToBackStack = if (singleTop) {
             history.clearUpTo(clazz, all = true)
         } else false

@@ -1,9 +1,12 @@
 package com.kpstv.navigation
 
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.kpstv.navigation.internals.ViewStateFragment
 import com.kpstv.navigation.internals.toIdentifier
@@ -81,16 +84,10 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      * is inflated.
      */
     fun getParentNavigator(): FragmentNavigator {
-        try {
-            return if (parentFragment != null) {
-                (requireParentFragment() as FragmentNavigator.Transmitter).getNavigator()
-            } else if (requireContext() is FragmentNavigator.Transmitter) {
-                (requireContext() as FragmentNavigator.Transmitter).getNavigator()
-            } else {
-                (requireActivity() as FragmentNavigator.Transmitter).getNavigator()
-            }
-        } catch (e: Exception) {
-            throw NotImplementedError("Parent does not implement NavigatorTransmitter.")
+        return if (parentFragment != null) {
+            (requireParentFragment() as FragmentNavigator.Transmitter).getNavigator()
+        } else {
+            requireContext().findFragmentTransmitter().getNavigator()
         }
     }
 
@@ -148,4 +145,14 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     private lateinit var simpleNavigator: SimpleNavigator
 
     private fun isSimpleNavigatorInitialized(): Boolean = ::simpleNavigator.isInitialized
+
+    private fun Context.findFragmentTransmitter(): FragmentNavigator.Transmitter {
+        if (this is FragmentActivity && this is FragmentNavigator.Transmitter) return this
+        if (this is ContextWrapper) {
+            val baseContext = this.baseContext
+            if (baseContext is FragmentNavigator.Transmitter) return baseContext
+            baseContext.findFragmentTransmitter()
+        }
+        throw NotImplementedError("Parent has not implemented \"FragmentNavigator.Transmitter\" interface.")
+    }
 }

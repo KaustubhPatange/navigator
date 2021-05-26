@@ -10,7 +10,7 @@ interface Navigator {
     fun goBack(): Boolean
 
     class Builder internal constructor(private val owner: Any, private val savedInstanceState: Bundle?) {
-        fun set(fragNavClass: KClass<FragmentNavigator>) : FragmentNavigator.Builder {
+        fun setNavigator(fragNavClass: KClass<FragmentNavigator>) : FragmentNavigator.Builder {
             return when(owner) {
                 is FragmentActivity -> FragmentNavigator.Builder(owner.supportFragmentManager, savedInstanceState).apply { set(owner) }
                 is Fragment -> FragmentNavigator.Builder(owner.childFragmentManager, savedInstanceState).apply { set(owner, owner.parentFragmentManager) }

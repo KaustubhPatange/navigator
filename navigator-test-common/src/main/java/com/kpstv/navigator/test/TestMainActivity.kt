@@ -13,7 +13,7 @@ class TestMainActivity : FragmentActivity() {
         setContentView(R.layout.activity_main)
 
         navigator = Navigator.with(this, savedInstanceState)
-            .set(FragmentNavigator::class)
+            .setNavigator(FragmentNavigator::class)
             .initialize(findViewById(R.id.my_container))
     }
 

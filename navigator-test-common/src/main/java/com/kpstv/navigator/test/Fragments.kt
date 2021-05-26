@@ -29,7 +29,7 @@ class NavigatorFragment : ValueFragment(R.layout.activity_main), FragmentNavigat
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         internalNavigator = Navigator.with(this, savedInstanceState)
-            .set(FragmentNavigator::class)
+            .setNavigator(FragmentNavigator::class)
             .initialize(view.findViewById(R.id.my_container))
     }
 }
