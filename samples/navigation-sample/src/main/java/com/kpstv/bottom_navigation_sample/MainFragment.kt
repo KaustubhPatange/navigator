@@ -21,7 +21,7 @@ class MainFragment : ValueFragment(R.layout.fragment_main), FragmentNavigator.Tr
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentMainBinding.bind(view).also { viewBinding = it }
         navigator = Navigator.with(this, savedInstanceState)
-            .set(FragmentNavigator::class)
+            .setNavigator(FragmentNavigator::class)
             .initialize(binding.container)
 
         bottomController = navigator.install(object : FragmentNavigator.BottomNavigation(){

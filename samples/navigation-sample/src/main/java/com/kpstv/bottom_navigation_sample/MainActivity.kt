@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
         }
 
         navigator = Navigator.with(this, savedInstanceState)
-            .set(FragmentNavigator::class)
+            .setNavigator(FragmentNavigator::class)
             .initialize(findViewById(R.id.container))
         if (savedInstanceState == null) {
             navigator.navigateTo(MainFragment::class)

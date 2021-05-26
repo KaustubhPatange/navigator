@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         navigator = Navigator.with(this, savedInstanceState)
-            .set(FragmentNavigator::class)
+            .setNavigator(FragmentNavigator::class)
             .initialize(findViewById(R.id.container))
 
         viewModel.navigation.observe(this) { option ->

@@ -17,7 +17,7 @@ class SettingFragment : ValueFragment(R.layout.fragment_setting), FragmentNaviga
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentSettingBinding.bind(view)
         navigator = Navigator.with(this, savedInstanceState)
-            .set(FragmentNavigator::class)
+            .setNavigator(FragmentNavigator::class)
             .initialize(binding.myContainer)
 
         // In multiple backstack navigation the fragment manager will saves all necessary information that
