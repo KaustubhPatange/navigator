@@ -221,6 +221,8 @@ class FragmentNavigatorTests {
         }
         activity.scenario.recreate()
         activity.with {
+            supportFragmentManager.executePendingTransactions()
+
             // The bundle should not be null
             assert(getNavigator().savedInstanceState != null)
 
