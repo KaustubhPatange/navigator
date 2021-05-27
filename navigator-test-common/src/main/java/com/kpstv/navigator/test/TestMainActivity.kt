@@ -6,8 +6,11 @@ import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.canFinish
 
-class TestMainActivity : FragmentActivity() {
-    lateinit var navigator: FragmentNavigator
+class TestMainActivity : FragmentActivity(), FragmentNavigator.Transmitter {
+    private lateinit var navigator: FragmentNavigator
+
+    override fun getNavigator(): FragmentNavigator = navigator
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

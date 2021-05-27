@@ -24,12 +24,12 @@ class BasicMultiStackTests {
     @Test
     fun SimpleCompleteMultiStackTest() {
         activityRule.with main@{
-            navigator.navigateTo(FirstFragment::class)
-            navigator.navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
-            navigator.navigateTo(NavigatorFragment::class, FragmentNavigator.NavOptions(remember = true))
-            navigator.getFragmentManager().executePendingTransactions()
+            getNavigator().navigateTo(FirstFragment::class)
+            getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
+            getNavigator().navigateTo(NavigatorFragment::class, FragmentNavigator.NavOptions(remember = true))
+            getNavigator().getFragmentManager().executePendingTransactions()
 
-            (navigator.getCurrentFragment() as NavigatorFragment).apply first@{
+            (getNavigator().getCurrentFragment() as NavigatorFragment).apply first@{
                 getNavigator().navigateTo(FirstFragment::class)
                 getNavigator().navigateTo(ThirdFragment::class, FragmentNavigator.NavOptions(remember = true))
                 getNavigator().navigateTo(NavigatorFragment::class, FragmentNavigator.NavOptions(remember = true))
@@ -53,9 +53,9 @@ class BasicMultiStackTests {
         activityRule.scenario.moveToState(Lifecycle.State.STARTED)
         activityRule.scenario.with main@{
             // Check for the first Navigator fragment.
-            assert(navigator.getCurrentFragment().matchClass(NavigatorFragment::class))
+            assert(getNavigator().getCurrentFragment().matchClass(NavigatorFragment::class))
 
-            (navigator.getCurrentFragment() as NavigatorFragment).apply first@{
+            (getNavigator().getCurrentFragment() as NavigatorFragment).apply first@{
                 (getNavigator().getCurrentFragment() as NavigatorFragment).apply second@{
                     // Check if first sheet is showing
                     assert(getNavigator().getCurrentFragment().matchClass(FirstSheet::class))
@@ -87,17 +87,17 @@ class BasicMultiStackTests {
                 assert(getNavigator().getHistory().isEmpty())
             }
             onBackPressed()
-            navigator.getFragmentManager().executePendingTransactions()
+            getNavigator().getFragmentManager().executePendingTransactions()
 
             // Check if fragment is Second
-            assert(navigator.getCurrentFragment().matchClass(SecondFragment::class))
+            assert(getNavigator().getCurrentFragment().matchClass(SecondFragment::class))
 
             onBackPressed()
-            navigator.getFragmentManager().executePendingTransactions()
+            getNavigator().getFragmentManager().executePendingTransactions()
 
             // Check if fragment is first & is the last fragment
-            assert(navigator.getCurrentFragment().matchClass(FirstFragment::class))
-            assert(navigator.getHistory().isEmpty())
+            assert(getNavigator().getCurrentFragment().matchClass(FirstFragment::class))
+            assert(getNavigator().getHistory().isEmpty())
         }
     }
 }

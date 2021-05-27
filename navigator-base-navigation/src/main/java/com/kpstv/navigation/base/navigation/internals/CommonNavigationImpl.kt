@@ -40,11 +40,11 @@ abstract class CommonNavigationImpl(
     override fun onCreate(savedInstanceState: Bundle?) {
         if (savedInstanceState == null) {
             fm.commitNow {
-                navFragments.values.forEach { frag ->
-                    val tagFragment = fm.findFragmentByTag(frag.simpleName + FRAGMENT_SUFFIX)?.also { fragments.add(it) }
+                navFragments.forEach { (id, frag) ->
+                    val tagFragment = fm.findFragmentByTag(getFragmentTagFromId(id))?.also { fragments.add(it) }
                     if (tagFragment == null) {
                         val fragment = frag.java.getConstructor().newInstance().also { fragments.add(it) }
-                        add(containerView.id, fragment, frag.simpleName + FRAGMENT_SUFFIX)
+                        add(containerView.id, fragment, getFragmentTagFromId(id))
                     }
                 }
             }
@@ -53,8 +53,8 @@ abstract class CommonNavigationImpl(
                 FragmentNavigator.Navigation.ViewRetention.RETAIN -> fm.commitNow { fragments.forEach { hide(it) } }
             }
         } else {
-            navFragments.values.forEach { frag ->
-                val fragment = fm.findFragmentByTag(frag.simpleName + FRAGMENT_SUFFIX)!!
+            navFragments.keys.forEach{ id ->
+                val fragment = fm.findFragmentByTag(getFragmentTagFromId(id))!!
                 fragments.add(fragment)
             }
             selectedIndex = savedInstanceState.getInt(stateKeys.keyIndex, 0)
@@ -105,7 +105,7 @@ abstract class CommonNavigationImpl(
             setAnimations(transaction, fromIndex = fragments.indexOf(current), toIndex = fragments.indexOf(whichFragment))
         }
         fragments.forEachIndexed { index, fragment ->
-            if (fragment == whichFragment) {
+            if (fragment === whichFragment) {
                 transaction = when(navigation.fragmentViewRetentionType) {
                     FragmentNavigator.Navigation.ViewRetention.RECREATE -> transaction.attach(fragment)
                     FragmentNavigator.Navigation.ViewRetention.RETAIN -> transaction.show(fragment)
@@ -124,7 +124,7 @@ abstract class CommonNavigationImpl(
         }
         transaction.commit()
 
-        onNavigationSelectionChange(getSelectedNavFragmentId())
+        onNavigationSelectionChange(selectedIndex)
     }
 
     private fun setAnimations(ft: FragmentTransaction, fromIndex: Int, toIndex: Int) {
@@ -140,26 +140,24 @@ abstract class CommonNavigationImpl(
         }
     }
 
-    private fun getSelectedNavFragmentId(): Int {
-        return navFragments
-            .filter { it.value.qualifiedName == selectedFragment.javaClass.name }
-            .map { it.key }.first()
-    }
-
-    private fun getFragmentFromId(@IdRes id: Int): Fragment? {
-        val tag = navFragments[id]!!.java.simpleName + FRAGMENT_SUFFIX
-        return fm.findFragmentByTag(tag)
-    }
-
     private fun getPrimarySelectionFragmentId(): Int = navFragments.keys.indexOf(navigation.selectedFragmentId)
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt(stateKeys.keyIndex, selectedIndex)
     }
 
+    private fun getFragmentFromId(@IdRes id: Int): Fragment? {
+        val tag = getFragmentTagFromId(id)
+        return fm.findFragmentByTag(tag)
+    }
+
+    private fun getFragmentTagFromId(id: Int) : String {
+        return "${navFragments[id]!!.qualifiedName}_${id}_$FRAGMENT_SUFFIX"
+    }
+
     data class SaveStateKeys(val keyIndex: String)
 
     companion object {
-        private const val FRAGMENT_SUFFIX = "_absBottomNav"
+        private const val FRAGMENT_SUFFIX = "base_navigation" // TODO: FIx unique back stack name (Friends path)
     }
 }

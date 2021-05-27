@@ -30,9 +30,9 @@ class FragmentNavigatorTests {
     @Test
     fun NavigateToFirstFragmentAndVerify() {
         activity.with {
-            navigator.navigateTo(FirstFragment::class)
-            navigator.getFragmentManager().executePendingTransactions()
-            val fragment = navigator.getCurrentFragment()
+            getNavigator().navigateTo(FirstFragment::class)
+            getNavigator().getFragmentManager().executePendingTransactions()
+            val fragment = getNavigator().getCurrentFragment()
             assert(fragment!!::class == FirstFragment::class)
         }
     }
@@ -40,41 +40,41 @@ class FragmentNavigatorTests {
     @Test
     fun SomeTestsForBackstack() {
         activity.with {
-            navigator.navigateTo(FirstFragment::class)
-            navigator.navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
-            navigator.getFragmentManager().executePendingTransactions()
+            getNavigator().navigateTo(FirstFragment::class)
+            getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
+            getNavigator().getFragmentManager().executePendingTransactions()
 
             // Check if it can go back.
-            assert(navigator.canGoBack())
+            assert(getNavigator().canGoBack())
 
             // Check if the fragment is added to backstack.
-            assert(navigator.getFragmentManager().backStackEntryCount > 0)
+            assert(getNavigator().getFragmentManager().backStackEntryCount > 0)
 
             // Check if the backstack has unique name.
             val name = "SecondFragment_navigator$0"
-            assert(navigator.getFragmentManager().getBackStackEntryAt(0).name == name)
+            assert(getNavigator().getFragmentManager().getBackStackEntryAt(0).name == name)
 
             // Check a new unique backstack name for SecondFragment is not same as the above.
-            val new = (navigator.getHistory() as HistoryImpl).getUniqueBackStackName(SecondFragment::class)
+            val new = (getNavigator().getHistory() as HistoryImpl).getUniqueBackStackName(SecondFragment::class)
             assert(name != new)
 
             // Go back & see if the current fragment is FirstFragment.
-            navigator.goBack()
-            navigator.getFragmentManager().executePendingTransactions()
-            assert(navigator.getCurrentFragment()!!::class == FirstFragment::class)
+            getNavigator().goBack()
+            getNavigator().getFragmentManager().executePendingTransactions()
+            assert(getNavigator().getCurrentFragment()!!::class == FirstFragment::class)
 
             // It must not back.
-            assert(!navigator.canGoBack())
+            assert(!getNavigator().canGoBack())
         }
     }
 
     private fun preSetupForHistoryTest(activity: TestMainActivity) = with(activity) {
-        navigator.navigateTo(FirstFragment::class)
-        navigator.navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
-        navigator.navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
-        navigator.navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
-        navigator.navigateTo(ThirdFragment::class, FragmentNavigator.NavOptions(remember = true))
-        navigator.getFragmentManager().executePendingTransactions()
+        getNavigator().navigateTo(FirstFragment::class)
+        getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
+        getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
+        getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
+        getNavigator().navigateTo(ThirdFragment::class, FragmentNavigator.NavOptions(remember = true))
+        getNavigator().getFragmentManager().executePendingTransactions()
     }
     @Test
     fun SomeRandomHistoryTests() {
@@ -82,76 +82,76 @@ class FragmentNavigatorTests {
             preSetupForHistoryTest(this)
 
             // Check the backstack count
-            assert(navigator.getFragmentManager().backStackEntryCount == 4)
+            assert(getNavigator().getFragmentManager().backStackEntryCount == 4)
 
             // Get the last backstack name
-            assert(navigator.getHistory().getBackStackName(SecondFragment::class) == "SecondFragment_navigator$2")
+            assert(getNavigator().getHistory().getBackStackName(SecondFragment::class) == "SecondFragment_navigator$2")
 
             // Get the top backstack name
-            assert(navigator.getHistory().getTopBackStackName(SecondFragment::class) == "SecondFragment_navigator$0")
+            assert(getNavigator().getHistory().getTopBackStackName(SecondFragment::class) == "SecondFragment_navigator$0")
 
             // Get all backstack name
-            var list = navigator.getHistory().getAllBackStackName(SecondFragment::class)
+            var list = getNavigator().getHistory().getAllBackStackName(SecondFragment::class)
             assert(list.count() == 3)
 
             // Clear up to SecondFragment all & inclusive
-            navigator.getHistory().clearUpTo(SecondFragment::class, all = true)
-            navigator.getFragmentManager().executePendingTransactions()
-            assert(navigator.getCurrentFragment()!!::class == FirstFragment::class)
+            getNavigator().getHistory().clearUpTo(SecondFragment::class, all = true)
+            getNavigator().getFragmentManager().executePendingTransactions()
+            assert(getNavigator().getCurrentFragment()!!::class == FirstFragment::class)
 
             preSetupForHistoryTest(this)
 
             // Clear up to SecondFragment inclusive without all
-            navigator.getHistory().clearUpTo(SecondFragment::class)
-            navigator.getFragmentManager().executePendingTransactions()
-            list = navigator.getHistory().getAllBackStackName(SecondFragment::class)
+            getNavigator().getHistory().clearUpTo(SecondFragment::class)
+            getNavigator().getFragmentManager().executePendingTransactions()
+            list = getNavigator().getHistory().getAllBackStackName(SecondFragment::class)
             assert(list.count() == 2)
             assert(list.last() == "SecondFragment_navigator$1")
 
             // Clear up to SecondFragment not inclusive & all
-            navigator.getHistory().clearUpTo(SecondFragment::class, inclusive = false, all = true)
-            navigator.getFragmentManager().executePendingTransactions()
-            list = navigator.getHistory().getAllBackStackName(SecondFragment::class)
+            getNavigator().getHistory().clearUpTo(SecondFragment::class, inclusive = false, all = true)
+            getNavigator().getFragmentManager().executePendingTransactions()
+            list = getNavigator().getHistory().getAllBackStackName(SecondFragment::class)
             assert(list.count() == 1)
             assert(list[0] == "SecondFragment_navigator$0")
 
             // Check if pop works
-            navigator.getHistory().pop()
-            navigator.getFragmentManager().executePendingTransactions()
-            assert(navigator.getCurrentFragment()!!::class == FirstFragment::class)
+            getNavigator().getHistory().pop()
+            getNavigator().getFragmentManager().executePendingTransactions()
+            assert(getNavigator().getCurrentFragment()!!::class == FirstFragment::class)
 
             // Cannot go back
-            assert(!navigator.canGoBack())
+            assert(!getNavigator().canGoBack())
 
             preSetupForHistoryTest(this)
 
             // Check clear history
-            navigator.getHistory().clearAll()
-            navigator.getFragmentManager().executePendingTransactions()
-            assert(!navigator.canGoBack())
-            assert(navigator.getCurrentFragment()!!::class == FirstFragment::class)
+            getNavigator().getHistory().clearAll()
+            getNavigator().getFragmentManager().executePendingTransactions()
+            assert(!getNavigator().canGoBack())
+            assert(getNavigator().getCurrentFragment()!!::class == FirstFragment::class)
 
             // Check if back press works
-            navigator.navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
-            navigator.getFragmentManager().executePendingTransactions()
+            getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
+            getNavigator().getFragmentManager().executePendingTransactions()
             onBackPressed()
-            navigator.getFragmentManager().executePendingTransactions()
+            getNavigator().getFragmentManager().executePendingTransactions()
 
-            assert(!navigator.canGoBack())
-            assert(navigator.getCurrentFragment()!!::class == FirstFragment::class)
+            assert(!getNavigator().canGoBack())
+            assert(getNavigator().getCurrentFragment()!!::class == FirstFragment::class)
         }
     }
 
     @Test
     fun TypedArgumentTests() {
         activity.with {
-            navigator.navigateTo(FirstFragment::class)
+            getNavigator().navigateTo(FirstFragment::class)
 
             val args = TestArgs.create()
-            navigator.navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(args = args))
+            getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(args = args))
 
-            navigator.getFragmentManager().executePendingTransactions()
-            val currentFragment = navigator.getCurrentFragment() as ValueFragment
+            getNavigator().getFragmentManager().executePendingTransactions()
+            val currentFragment = getNavigator().getCurrentFragment() as ValueFragment
 
             // Check if key args are present.
             assert(currentFragment.hasKeyArgs<TestArgs>())
@@ -166,7 +166,7 @@ class FragmentNavigatorTests {
     fun TestDialogFragments() {
         activity.with {
             preSetupForHistoryTest(this)
-            val currentFragment = navigator.getCurrentFragment() as ValueFragment
+            val currentFragment = getNavigator().getCurrentFragment() as ValueFragment
 
             val args = TestArgs.create()
             currentFragment.getSimpleNavigator().show(FirstSheet::class, args)
@@ -214,34 +214,34 @@ class FragmentNavigatorTests {
         val currentBundle = Bundle()
         activity.with {
             preSetupForHistoryTest(this)
-            navigator.show(FirstSheet::class)
-            navigator.show(SecondSheet::class)
+            getNavigator().show(FirstSheet::class)
+            getNavigator().show(SecondSheet::class)
 
-            navigator.onSaveInstance(currentBundle)
+            getNavigator().onSaveInstance(currentBundle)
         }
         activity.scenario.recreate()
         activity.with {
             // The bundle should not be null
-            assert(navigator.savedInstanceState != null)
+            assert(getNavigator().savedInstanceState != null)
 
             // Check if navigator is successfully restored
-            assert(!navigator.getHistory().isEmpty())
+            assert(!getNavigator().getHistory().isEmpty())
 
             // Contents must be 4
-            assert(navigator.getHistory().count() == 4)
+            assert(getNavigator().getHistory().count() == 4)
 
             // Check if sheets are showing
-            assert(navigator.getCurrentFragment().matchClass(SecondSheet::class))
+            assert(getNavigator().getCurrentFragment().matchClass(SecondSheet::class))
             onBackPressed()
-            navigator.getFragmentManager().executePendingTransactions()
-            assert(navigator.getCurrentFragment().matchClass(FirstSheet::class))
-            navigator.getFragmentManager().executePendingTransactions()
+            getNavigator().getFragmentManager().executePendingTransactions()
+            assert(getNavigator().getCurrentFragment().matchClass(FirstSheet::class))
+            getNavigator().getFragmentManager().executePendingTransactions()
 
             onBackPressed()
-            navigator.getFragmentManager().executePendingTransactions()
+            getNavigator().getFragmentManager().executePendingTransactions()
 
             // Check current fragment is Third.
-            assert(navigator.getCurrentFragment().matchClass(ThirdFragment::class))
+            assert(getNavigator().getCurrentFragment().matchClass(ThirdFragment::class))
         }
     }
 
@@ -251,36 +251,36 @@ class FragmentNavigatorTests {
             preSetupForHistoryTest(this)
 
             // Check for single instance
-            navigator.navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(historyOptions = HistoryOptions.SingleTopInstance))
-            navigator.getFragmentManager().executePendingTransactions()
-            assert(navigator.getHistory().getAllBackStackName(SecondFragment::class).count() == 1)
+            getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(historyOptions = HistoryOptions.SingleTopInstance))
+            getNavigator().getFragmentManager().executePendingTransactions()
+            assert(getNavigator().getHistory().getAllBackStackName(SecondFragment::class).count() == 1)
 
-            navigator.navigateTo(SecondFragment::class)
-            navigator.navigateTo(ThirdFragment::class)
+            getNavigator().navigateTo(SecondFragment::class)
+            getNavigator().navigateTo(ThirdFragment::class)
 
             // Clear history & navigate
-            navigator.navigateTo(FirstFragment::class, FragmentNavigator.NavOptions(historyOptions = HistoryOptions.ClearHistory))
-            navigator.getFragmentManager().executePendingTransactions()
-            assert(!navigator.canGoBack())
+            getNavigator().navigateTo(FirstFragment::class, FragmentNavigator.NavOptions(historyOptions = HistoryOptions.ClearHistory))
+            getNavigator().getFragmentManager().executePendingTransactions()
+            assert(!getNavigator().canGoBack())
 
             // Pop to fragment
             preSetupForHistoryTest(this)
-            navigator.navigateTo(ThirdFragment::class, FragmentNavigator.NavOptions(remember = true, historyOptions = HistoryOptions.PopToFragment(SecondFragment::class, all = true)))
-            navigator.getFragmentManager().executePendingTransactions()
-            assert(navigator.getFragmentManager().backStackEntryCount == 1)
+            getNavigator().navigateTo(ThirdFragment::class, FragmentNavigator.NavOptions(remember = true, historyOptions = HistoryOptions.PopToFragment(SecondFragment::class, all = true)))
+            getNavigator().getFragmentManager().executePendingTransactions()
+            assert(getNavigator().getFragmentManager().backStackEntryCount == 1)
         }
     }
 
     @Test
     fun AddTransactionTest() {
         activity.with {
-            navigator.navigateTo(FirstFragment::class)
-            navigator.navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true, transaction = FragmentNavigator.TransactionType.ADD))
-            navigator.navigateTo(ThirdFragment::class, FragmentNavigator.NavOptions(remember = true, transaction = FragmentNavigator.TransactionType.ADD))
-            navigator.getFragmentManager().executePendingTransactions()
+            getNavigator().navigateTo(FirstFragment::class)
+            getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true, transaction = FragmentNavigator.TransactionType.ADD))
+            getNavigator().navigateTo(ThirdFragment::class, FragmentNavigator.NavOptions(remember = true, transaction = FragmentNavigator.TransactionType.ADD))
+            getNavigator().getFragmentManager().executePendingTransactions()
 
             // Check if container has 3 views
-            assert(navigator.getContainerView().childCount == 3)
+            assert(getNavigator().getContainerView().childCount == 3)
         }
     }
 }

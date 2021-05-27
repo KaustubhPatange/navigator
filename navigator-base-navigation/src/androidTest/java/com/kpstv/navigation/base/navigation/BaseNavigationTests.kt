@@ -26,7 +26,7 @@ class BaseNavigationTests {
     fun init() {
         activityRule.with {
             // Check owner
-            assert(navigator.getOwner() is FragmentActivity)
+            assert(getNavigator().getOwner() is FragmentActivity)
         }
         activityRule.scenario.moveToState(Lifecycle.State.STARTED)
     }
@@ -34,43 +34,43 @@ class BaseNavigationTests {
     @Test
     fun CompleteNavigationWithStateSavingTest() {
         activityRule.with {
-            val commonNavigationImpl = preSetup(this, CustomNavigation())
+            val commonNavigationImpl = preSetup(this, Custom3Navigation())
 
             commonNavigationImpl.onCreate(null)
             supportFragmentManager.executePendingTransactions()
 
             // Check if top selection id is 0 & fragment is First
             assert(commonNavigationImpl.firstId == 0)
-            assert(navigator.getCurrentFragment()!!::class == FirstFragment::class)
+            assert(getNavigator().getCurrentFragment()!!::class == FirstFragment::class)
 
             // Check if selection is changed & fragment is Second
             commonNavigationImpl.onSelectNavItem(1)
             supportFragmentManager.executePendingTransactions()
             assert(commonNavigationImpl.selectedId == 1)
-            assert(navigator.getCurrentFragment()!!::class == SecondFragment::class)
+            assert(getNavigator().getCurrentFragment()!!::class == SecondFragment::class)
 
             val args = TestArgs.create()
             commonNavigationImpl.onSelectNavItem(2, args)
             supportFragmentManager.executePendingTransactions()
 
             // Check if args are the same.
-            val fragArgs = (navigator.getCurrentFragment() as ThirdFragment).getKeyArgs<TestArgs>()
+            val fragArgs = (getNavigator().getCurrentFragment() as ThirdFragment).getKeyArgs<TestArgs>()
             assert(fragArgs == args)
         }
         activityRule.scenario.recreate()
         activityRule.with {
-            val commonNavigationImpl = preSetup(this, CustomNavigation())
-            val savedState = navigator.getSaveInstanceState()
+            val commonNavigationImpl = preSetup(this, Custom3Navigation())
+            val savedState = getNavigator().getSaveInstanceState()
 
             // Saved state must not be null
-            assert(savedState != null)
+            assert(savedState != null  && savedState.get("key_index") == 2)
 
             commonNavigationImpl.onCreate(savedState)
             supportFragmentManager.executePendingTransactions()
 
             // Check if top selection Id is 1 & fragment is Second
             assert(commonNavigationImpl.firstId == 2)
-            val fragment = navigator.getCurrentFragment() as ValueFragment
+            val fragment = getNavigator().getCurrentFragment() as ValueFragment
             assert(fragment::class == ThirdFragment::class)
 
             // Check if the last arguments are stored
@@ -91,24 +91,24 @@ class BaseNavigationTests {
     @Test
     fun RetainFragmentOnSelectionChangeTest() {
         activityRule.with {
-            val commonNavigationImpl = preSetup(this, CustomNavigation(2, FragmentNavigator.Navigation.ViewRetention.RETAIN))
+            val commonNavigationImpl = preSetup(this, Custom3Navigation(topSelectedId = 2, option = FragmentNavigator.Navigation.ViewRetention.RETAIN))
 
             commonNavigationImpl.onCreate(null)
             supportFragmentManager.executePendingTransactions()
 
             // Check if top selection is 2 & fragment is Third
             assert(commonNavigationImpl.firstId == 2)
-            assert(navigator.getCurrentFragment()!!::class == ThirdFragment::class)
+            assert(getNavigator().getCurrentFragment()!!::class == ThirdFragment::class)
 
             // Check if there are 3 views in the container
-            assert(navigator.getContainerView().childCount == 3)
+            assert(getNavigator().getContainerView().childCount == 3)
 
             commonNavigationImpl.onSelectNavItem(0)
             supportFragmentManager.executePendingTransactions()
 
             // Check selection is 0 & fragment is First
             assert(commonNavigationImpl.selectedId == 0)
-            assert(navigator.getCurrentFragment()!!::class == FirstFragment::class)
+            assert(getNavigator().getCurrentFragment()!!::class == FirstFragment::class)
 
             // Check view state changes of all three fragments
             assert((supportFragmentManager.fragments[0] as FirstFragment).viewState == ViewStateFragment.ViewState.FOREGROUND)
@@ -123,11 +123,26 @@ class BaseNavigationTests {
             assert((supportFragmentManager.fragments[1] as SecondFragment).viewState == ViewStateFragment.ViewState.FOREGROUND)
             assert((supportFragmentManager.fragments[2] as ThirdFragment).viewState == ViewStateFragment.ViewState.BACKGROUND)
         }
-    }
+        activityRule.scenario.recreate()
+        activityRule.with {
+            val commonNavigationImpl = preSetup(this, Custom3Navigation(topSelectedId = 2, option = FragmentNavigator.Navigation.ViewRetention.RETAIN))
+            val savedState = getNavigator().getSaveInstanceState()
 
-    private fun preSetup(activity: TestMainActivity, navigation: CustomNavigation): CustomCommonNavigationImpl{
-        val commonNavigationImpl = CustomCommonNavigationImpl(activity.navigator, navigation.fragments, navigation)
-        activity.application.registerActivityLifecycleCallbacks(ActivityNavigationLifecycle(activity, commonNavigationImpl))
-        return commonNavigationImpl
+            // Saved state must not be null
+            assert(savedState != null && savedState.get("key_index") == 1)
+
+            commonNavigationImpl.onCreate(savedState)
+            supportFragmentManager.executePendingTransactions()
+
+            // Test if state is saved
+            assert(commonNavigationImpl.firstId == 1)
+            assert(getNavigator().getCurrentFragment()!!::class == SecondFragment::class)
+        }
     }
+}
+
+fun preSetup(activity: TestMainActivity, navigation: Custom3Navigation): CustomCommonNavigationImpl {
+    val commonNavigationImpl = CustomCommonNavigationImpl(activity.getNavigator(), navigation.fragments, navigation)
+    activity.application.registerActivityLifecycleCallbacks(ActivityNavigationLifecycle(activity, commonNavigationImpl))
+    return commonNavigationImpl
 }

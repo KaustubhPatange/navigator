@@ -20,6 +20,7 @@ abstract class BaseFragment : ValueFragment(R.layout.fragment_abstract) {
 class FirstFragment : BaseFragment()
 class SecondFragment : BaseFragment()
 class ThirdFragment : BaseFragment()
+class ForthFragment : BaseFragment()
 
 class NavigatorFragment : ValueFragment(R.layout.activity_main), FragmentNavigator.Transmitter {
     private lateinit var internalNavigator: FragmentNavigator
