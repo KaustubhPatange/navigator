@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="navigator_fragment_1" type="id"/>
+    <item name="navigator_fragment_2" type="id"/>
+    <item name="first_fragment" type="id"/>
+</resources>

@@ -67,6 +67,7 @@ abstract class CommonNavigationImpl(
     }
 
     fun onSelectNavItem(id: Int, args: BaseArgs? = null) : Boolean {
+        runChecks()
         val fragment = getFragmentFromId(id)!!
         if (fragment is ValueFragment) {
             if (args == null) {
@@ -124,7 +125,7 @@ abstract class CommonNavigationImpl(
         }
         transaction.commit()
 
-        onNavigationSelectionChange(selectedIndex)
+        onNavigationSelectionChange(navFragments.keys.elementAt(selectedIndex))
     }
 
     private fun setAnimations(ft: FragmentTransaction, fromIndex: Int, toIndex: Int) {
@@ -155,9 +156,13 @@ abstract class CommonNavigationImpl(
         return "${navFragments[id]!!.qualifiedName}_${id}_$FRAGMENT_SUFFIX"
     }
 
+    private fun runChecks() {
+        check(fragments.isNotEmpty()) { "Fragment list are empty. Did you forgot to call onCreate()?" }
+    }
+
     data class SaveStateKeys(val keyIndex: String)
 
     companion object {
-        private const val FRAGMENT_SUFFIX = "base_navigation" // TODO: FIx unique back stack name (Friends path)
+        private const val FRAGMENT_SUFFIX = "base_navigation"
     }
 }

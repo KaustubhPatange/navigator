@@ -16,7 +16,7 @@ internal fun FragmentTransaction.prepareForSharedTransition(fm: FragmentManager,
 
     val currentFragment = fm.findFragmentById(containerView.id)
     currentFragment?.let {
-        if (payload.currentExiting != -1) currentFragment.exitTransition =containerView.context.inflateTransition(payload.currentExiting)
+        if (payload.currentExiting != -1) currentFragment.exitTransition = containerView.context.inflateTransition(payload.currentExiting)
     }
 
     fm.registerFragmentLifecycleCallbacks(
@@ -34,7 +34,8 @@ internal class SharedElementCallback(
         super.onFragmentCreated(fm, f, savedInstanceState)
         if (f::class == clazz) {
             if (payload.destinationEntering != -1) f.enterTransition = f.requireContext().inflateTransition(payload.destinationEntering)
-            f.sharedElementEnterTransition = f.requireContext().inflateTransition(R.transition.navigator_change_transform)
+            f.sharedElementEnterTransition = f.requireContext().inflateTransition(payload.sharedElementEntering)
+            f.sharedElementReturnTransition = f.requireContext().inflateTransition(payload.sharedElementExiting)
             fm.unregisterFragmentLifecycleCallbacks(this)
         }
     }

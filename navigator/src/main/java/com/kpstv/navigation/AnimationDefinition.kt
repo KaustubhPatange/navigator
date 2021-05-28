@@ -39,14 +39,18 @@ class AnimationDefinition {
      * Equivalent to shared animations.
      *
      * You must set a unique `android:transitionName` on the [View] of Fragment A to make sure
-     * return shared transition works perfectly.
+     * exit shared transition works perfectly.
      *
      * @param elements A map of "from [View]" of Fragment A to the "Transition name of [View]" of Fragment B.
+     * @param sharedElementEntering Set the enter transition for the shared element(s).
+     * @param sharedElementExiting Set the exit transition for the shared element(s).
      * @param destinationEntering A transition to be applied on Fragment B. Set -1 to omit.
      * @param currentExiting A transition to be applied on Fragment A. Set -1 to omit.
      */
     data class Shared(
         val elements: Map<View, String>,
+        @TransitionRes val sharedElementEntering: Int = R.transition.navigator_change_transform,
+        @TransitionRes val sharedElementExiting: Int = R.transition.navigator_change_transform,
         @TransitionRes val destinationEntering: Int = R.transition.navigator_transition_fade,
         @TransitionRes val currentExiting: Int = R.transition.navigator_transition_fade
     ) : NavAnimation()
