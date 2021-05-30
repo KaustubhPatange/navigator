@@ -18,7 +18,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FragmentNavigatorTests {
 
-
     @get:Rule
     val activity = ActivityScenarioRule(TestMainActivity::class.java)
 
@@ -211,13 +210,17 @@ class FragmentNavigatorTests {
 
     @Test
     fun TestSaveStateInstance() {
-        val currentBundle = Bundle()
         activity.with {
             preSetupForHistoryTest(this)
             getNavigator().show(FirstSheet::class)
             getNavigator().show(SecondSheet::class)
 
+            getNavigator().getFragmentManager().executePendingTransactions()
+
+            val currentBundle = Bundle()
             getNavigator().onSaveInstance(currentBundle)
+
+            assert(!currentBundle.isEmpty)
         }
         activity.scenario.recreate()
         activity.with {
@@ -283,6 +286,23 @@ class FragmentNavigatorTests {
 
             // Check if container has 3 views
             assert(getNavigator().getContainerView().childCount == 3)
+        }
+    }
+
+    @Test
+    fun TestIfInitialDestinationsAreWorking() {
+        activity.with {
+            val initials = Destination.of(listOf(FirstFragment::class, SecondFragment::class, ThirdFragment::class))
+            val navigator = Navigator.with(this, null)
+                .setNavigator(FragmentNavigator::class)
+                .initialize(findViewById(com.kpstv.navigation.test.R.id.my_container), initials)
+
+            // Check current fragment
+            assert(navigator.getCurrentFragment() is ThirdFragment)
+
+            // Check history
+            assert(!navigator.getHistory().isEmpty())
+            assert(navigator.getHistory().count() == 2)
         }
     }
 }

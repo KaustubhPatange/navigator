@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Navigator Bottom Sheet</string>
+    <string name="app_name">Navigator Navigation Sample</string>
 
     <string name="lorem_ipsum">This fragment\'s view is retained. So scroll state will be saved.\n\n
 

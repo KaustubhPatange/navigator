@@ -33,6 +33,8 @@ class PrimaryNavigationTest {
     fun TestIfBackPressNavigatesToPrimaryNavigationProperly() {
         activityRule.with {
             (getNavigator().get<TestNavigationFragment>()).apply {
+                assert(baseNavigation.firstId == R.id.navigator_fragment_1)
+
                 (getNavigator().get<NavigatorFragment>()).apply {
                     getNavigator().navigateTo(ThirdFragment::class)
                     getNavigator().navigateTo(ForthFragment::class, FragmentNavigator.NavOptions(remember = true))

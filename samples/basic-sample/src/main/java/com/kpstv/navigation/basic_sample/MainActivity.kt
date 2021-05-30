@@ -20,14 +20,10 @@ class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
         setContentView(R.layout.activity_main)
         navigator = Navigator.with(this, savedInstanceState)
             .setNavigator(FragmentNavigator::class)
-            .initialize(findViewById(R.id.container))
+            .initialize(findViewById(R.id.container), Destination.of(MainFragment::class))
 
         viewModel.navigation.observe(this) { option ->
             navigator.navigateTo(option.clazz, option.options)
-        }
-
-        if (savedInstanceState == null) {
-            viewModel.navigate(screen = Screens.MAIN)
         }
     }
 

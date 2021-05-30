@@ -3,6 +3,7 @@ package com.kpstv.navigator_backpress_sample
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.kpstv.navigation.Destination
 import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.canFinish
@@ -20,21 +21,16 @@ class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
             Log.e(frag::class.simpleName, "=> $log")
         }
 
+        val args = AbstractWelcomeFragment.Args(
+            title = "First Fragment",
+            background = R.color.palette1,
+            nextColor = R.color.palette2,
+        )
         navigator = Navigator.with(this, savedInstanceState)
             .setNavigator(FragmentNavigator::class)
-            .initialize(findViewById(R.id.container))
-
-        if (savedInstanceState == null) {
-            val options = FragmentNavigator.NavOptions(
-                args = AbstractWelcomeFragment.Args(
-                    title = "First Fragment",
-                    background = R.color.palette1,
-                    nextColor = R.color.palette2,
-                )
-            )
-            navigator.navigateTo(FirstFragment::class, options)
-        }
+            .initialize(findViewById(R.id.container), Destination.of(FirstFragment::class to args))
     }
+    
     override fun onBackPressed() {
         if (navigator.canFinish())
             super.onBackPressed()

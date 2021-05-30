@@ -3,6 +3,7 @@ package com.kpstv.navigator.test
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import com.kpstv.navigation.FragmentNavigator
+import com.kpstv.navigation.Destination
 import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.canFinish
 

@@ -89,7 +89,7 @@ class BaseNavigationTests {
     }
 
     @Test
-    fun RetainFragmentOnSelectionChangeTest() {
+    fun  RetainFragmentOnSelectionChangeTest() {
         activityRule.with {
             val commonNavigationImpl = preSetup(this, Custom3Navigation(topSelectedId = 2, option = FragmentNavigator.Navigation.ViewRetention.RETAIN))
 
@@ -98,7 +98,11 @@ class BaseNavigationTests {
 
             // Check if top selection is 2 & fragment is Third
             assert(commonNavigationImpl.firstId == 2)
-            assert(getNavigator().getCurrentFragment()!!::class == ThirdFragment::class)
+            assert(getNavigator().getCurrentFragment().matchClass(ThirdFragment::class))
+
+            getNavigator().getFragmentManager().fragments.forEach { frag ->
+                if (frag !is ThirdFragment) assert(frag.isHidden)
+            }
 
             // Check if there are 3 views in the container
             assert(getNavigator().getContainerView().childCount == 3)
@@ -108,7 +112,7 @@ class BaseNavigationTests {
 
             // Check selection is 0 & fragment is First
             assert(commonNavigationImpl.selectedId == 0)
-            assert(getNavigator().getCurrentFragment()!!::class == FirstFragment::class)
+            assert(getNavigator().getCurrentFragment().matchClass(FirstFragment::class))
 
             // Check view state changes of all three fragments
             assert((supportFragmentManager.fragments[0] as FirstFragment).viewState == ViewStateFragment.ViewState.FOREGROUND)

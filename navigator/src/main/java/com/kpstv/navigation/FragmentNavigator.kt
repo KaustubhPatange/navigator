@@ -55,14 +55,15 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
     private val simpleNavigator = SimpleNavigator(containerView.context, fm)
 
     /**
-     * Navigate to [Fragment]
+     * Navigate to a [Fragment].
      *
      * @param clazz Fragment class to which it should navigate.
      * @param navOptions Optional navigation options you can specify.
      */
     fun navigateTo(clazz: FragClazz, navOptions: NavOptions = NavOptions()) = with(navOptions) options@{
+        if (clazz == DialogFragment::class) show(clazz, args) // delegate to dialog navigation
+
         val newFragment = fm.newFragment(containerView.context, clazz)
-        if (newFragment is DialogFragment) show(clazz, args) // delegate to dialog navigation
         val tagName = history.getUniqueBackStackName(clazz)
 
         // any one of the following will be true
@@ -338,7 +339,13 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
         private lateinit var owner: Any
         private lateinit var stateViewModelKey: String
 
-        fun initialize(containerView: FrameLayout) : FragmentNavigator {
+        /**
+         * Returns the [FragmentNavigator] instance.
+         *
+         * @param containerView The container for the fragments.
+         * @param initials The initial fragment(s) (passed along with args) that users will see when `navigator` is initialized. Eg: `Fragment::class to args`.
+         */
+        fun initialize(containerView: FrameLayout, initials: Destination? = null) : FragmentNavigator {
             this.stateViewModelKey = "navigator_${containerView.id}"
             navigator = FragmentNavigator(fragmentManager, containerView)
             navigator.owner = owner
@@ -351,6 +358,12 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
                 if (bundle != null && !bundle.isEmpty) {
                     navigator.restoreState(bundle)
                 }
+            }
+            if (initials != null && navigator.getHistory().isEmpty() && savedInstanceState == null) {
+                initials.fragments.onEachIndexed { index, ( fragClass, baseArgs) ->
+                    navigator.navigateTo(fragClass, NavOptions(args = baseArgs, remember = index != 0))
+                }
+                fragmentManager.executePendingTransactions()
             }
             return navigator
         }
@@ -413,7 +426,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
         internal fun getCurrentVisibleFragment(fm: FragmentManager, containerView: FrameLayout): Fragment? {
             val fragment = fm.findFragmentById(containerView.id)
             if (fragment != null) {
-                if (fragment.isVisible) return fragment
+                if (fragment.isAdded && !fragment.isHidden) return fragment
                 // Reverse because if there are two or more visible fragments then the last
                 // one in container will be the one visible (interactive) to user.
                 fm.fragments.reversed().forEach { frag -> if (frag.isVisible) return frag }

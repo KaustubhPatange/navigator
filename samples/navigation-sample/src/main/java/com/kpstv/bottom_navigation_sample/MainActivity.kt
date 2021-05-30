@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.kpstv.bottom_navigation_sample.databinding.ActivityMainBinding
+import com.kpstv.navigation.Destination
 import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.canFinish
@@ -27,10 +28,7 @@ class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
 
         navigator = Navigator.with(this, savedInstanceState)
             .setNavigator(FragmentNavigator::class)
-            .initialize(findViewById(R.id.container))
-        if (savedInstanceState == null) {
-            navigator.navigateTo(MainFragment::class)
-        }
+            .initialize(findViewById(R.id.container), Destination.of(MainFragment::class))
 
         setToolbar()
     }
