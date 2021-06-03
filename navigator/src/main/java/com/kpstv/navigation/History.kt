@@ -10,9 +10,9 @@ interface History {
     /**
      * Clear the backstack history up to the fragment.
      *
-     * @param clazz [Fragment]'s class to be removed.
+     * @param clazz [Fragment]'s class up to where history should be clear.
      * @param inclusive Include this fragment as well.
-     * @param all There may be multiple instance of this fragment on the backstack this will remove all the instance of them if set to true.
+     * @param all There may be multiple instance of this fragment on the backstack this will remove all the instance of them if set to true, otherwise the last added one from the backstack will be removed.
      */
     fun clearUpTo(clazz: FragClazz, inclusive: Boolean = true, all: Boolean = false): Boolean
 
@@ -30,7 +30,7 @@ interface History {
     fun clearAll(): Boolean
 
     /**
-     * Pops the last fragment.
+     * Removes the last fragment.
      */
     fun pop(): Boolean
 
@@ -67,28 +67,27 @@ interface History {
 }
 
 /**
- * @see [HistoryOptions.ClearHistory]
- * @see [HistoryOptions.SingleTopInstance]
- * @see [HistoryOptions.PopToFragment]
- * @see [HistoryOptions.PopToBackStack]
+ * Some set of options to manage backstack history in a fragment transaction through [FragmentNavigator.navigateTo] call.
+ *
+ * @see <a href="https://github.com/KaustubhPatange/navigator/wiki/Quick-Tutorials#navigation-with-single-top-instance-or-popupto">Navigation with single top instance or popUpTo</a>
  */
 sealed class HistoryOptions {
     object None : HistoryOptions()
 
     /**
-     * Clear all previous remembered fragment transaction. Equivalent to clearing all backstack record.
+     * Clear all the previous remembered fragment transactions. Equivalent to clearing all backstack records.
      */
     object ClearHistory: HistoryOptions()
 
     /**
      * Maintains only one instance of this [Fragment] in the current [FragmentManager].
      *
-     * If that instance exist it will be replaced with this new one after clearing history till there.
+     * If that instance exist it will be replaced with this new one after clearing the history till there.
      */
     object SingleTopInstance: HistoryOptions()
 
     /**
-     * Clear transaction history up to the [clazz].
+     * Clear backstack history up to the [clazz]. This also removes all the necessary fragment involved in that fragment transaction.
      *
      * - Example: Consider a history in order `[first, second, second, third, forth]` where we are navigating
      * to `fifth`.
@@ -101,7 +100,7 @@ sealed class HistoryOptions {
     data class PopToFragment(val clazz: FragClazz, val all: Boolean = true) : HistoryOptions()
 
     /**
-     * Clear transaction history up to the [name] of the entry in backstack.
+     * Clear history up to the [name] of the entry in backstack. This also removes all the necessary fragment involved in that fragment transaction.
      *
      * - Example: Consider a history in order `[first, second, third, forth]`. So a `PopToFragment(second)` call
      * will make history `[first, fifth]` where `fifth` is the fragment to which we are navigating.

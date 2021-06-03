@@ -187,10 +187,10 @@ class FragmentNavigatorTests {
 
             // Now dismiss 4 times
             var dismissed = true
-            dismissed = dismissed and currentFragment.getSimpleNavigator().pop()
-            dismissed = dismissed and currentFragment.getSimpleNavigator().pop()
-            dismissed = dismissed and currentFragment.getSimpleNavigator().pop()
-            dismissed = dismissed and currentFragment.getSimpleNavigator().pop()
+            dismissed = dismissed and currentFragment.getSimpleNavigator().dismiss()
+            dismissed = dismissed and currentFragment.getSimpleNavigator().dismiss()
+            dismissed = dismissed and currentFragment.getSimpleNavigator().dismiss()
+            dismissed = dismissed and currentFragment.getSimpleNavigator().dismiss()
             currentFragment.childFragmentManager.executePendingTransactions()
 
             assert(dismissed)
@@ -201,7 +201,7 @@ class FragmentNavigatorTests {
                 called = true
             }
             currentFragment.childFragmentManager.executePendingTransactions()
-            currentFragment.getSimpleNavigator().pop()
+            currentFragment.getSimpleNavigator().dismiss()
             currentFragment.childFragmentManager.executePendingTransactions()
 
             assert(called)

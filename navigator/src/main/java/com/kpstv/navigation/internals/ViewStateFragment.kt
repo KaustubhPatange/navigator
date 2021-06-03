@@ -22,7 +22,7 @@ open class ViewStateFragment(@LayoutRes id: Int) : Fragment(id) {
      *
      * When you add a new [Fragment] to the container through [FragmentManager] add transaction,
      * chances are the previous [Fragment]'s view will still be present in the container,
-     * in such case [onPause], [onStop], etc. are not called.
+     * in such case [onPause], [onStop], etc. are not called for that fragment.
      *
      * This callback is associated with the [View] & not to the [Fragment]'s lifecycle.
      *

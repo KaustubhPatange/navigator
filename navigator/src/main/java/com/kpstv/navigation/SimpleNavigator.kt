@@ -12,7 +12,9 @@ import com.kpstv.navigation.internals.newFragment
 internal typealias DialogDismissListener = (dialog : DialogFragment) -> Unit
 
 /**
- * A navigator available for [ValueFragment] limiting the original functionality.
+ * A navigator available for [ValueFragment] limiting the original functionality eg: for showing [DialogFragment].
+ *
+ * @see <a href="https://github.com/KaustubhPatange/navigator/wiki/Quick-Tutorials#navigate-to-a-bottomsheet-or-dialog-fragment">Navigate to a BottomSheet or Dialog Fragment</a>
  */
 class SimpleNavigator internal constructor(private val context: Context, private val fm: FragmentManager, private val history: HistoryImpl) {
     constructor(context: Context, fm: FragmentManager) : this(context, fm, HistoryImpl(fm))
@@ -40,7 +42,7 @@ class SimpleNavigator internal constructor(private val context: Context, private
     /**
      * Dismiss the current [DialogFragment] if exist.
      */
-    fun pop(): Boolean = history.pop()
+    fun dismiss(): Boolean = history.pop()
 
     internal fun getCurrentDialogFragment() : DialogFragment? {
         if (history.getContents().isNotEmpty()) {

@@ -59,6 +59,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
      *
      * @param clazz Fragment class to which it should navigate.
      * @param navOptions Optional navigation options you can specify.
+     *
      */
     fun navigateTo(clazz: FragClazz, navOptions: NavOptions = NavOptions()) = with(navOptions) options@{
         if (clazz == DialogFragment::class) show(clazz, args) // delegate to dialog navigation
@@ -141,7 +142,6 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
      *
      * @return True means it is safe to [goBack].
      */
-    @Suppress("RedundantIf")
     override fun canGoBack(): Boolean {
         val count = getBackStackCount() // or history count if that's something should be done.
         if (count == 0) {
@@ -158,11 +158,11 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
     /**
      * Remove the latest entry from [FragmentManager]'s backStack.
      *
-     * The call is recursive to child [Fragment]s, in this way their
+     * The call is recursive to the child [Fragment]s, in this way their
      * [ValueFragment.onBackPressed] are also called which returns if the backPress
-     * is consumed or not. If consumed then it means child [Fragment] don't want the
-     * parent [FragmentNavigator] to go back, hence [goBack] will return false
-     * & no entry will be removed from the current [FragmentManager].
+     * is consumed or not. If consumed then [FragmentNavigator] will not remove the
+     * child fragment & hence [goBack] will return false where no entry will be
+     * removed from the current [FragmentManager].
      *
      * @return True if the entry is removed.
      */
@@ -171,7 +171,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
 
         // Dialog fragment
         if (currentFragment is DialogFragment) {
-            return simpleNavigator.pop()
+            return simpleNavigator.dismiss()
         }
 
         if (currentFragment is Transmitter && currentFragment.getNavigator().canGoBack()) {
@@ -204,9 +204,11 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
     }
 
     /**
-     * Returns the current visible fragment from the [FragmentManager].
+     * Returns the current visible fragment from the [FragmentManager]. The visibility here means
+     * A. The fragment is added &
+     * B. The fragment is not hidden.
      *
-     * It could be [DialogFragment] if currently being shown or [Fragment] from [containerView]
+     * It could be a [DialogFragment] if currently being shown or a [Fragment] from [containerView]
      */
     fun getCurrentFragment(): Fragment? {
         return simpleNavigator.getCurrentDialogFragment() ?: getCurrentVisibleFragment(fm, containerView)
@@ -277,20 +279,20 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
          */
         enum class ViewRetention {
             /**
-             * The fragment view will be destroyed once the current selection fragment has be changed in the container.
+             * The fragment's view will be destroyed once the current selection is changed.
              *
-             * The fragment will through all of the necessary lifecycle it has to.
+             * The fragment will follow through all of the necessary lifecycle it has to go through.
              */
             RECREATE,
 
             /**
-             * The fragment view will not be destroyed once the current selection fragment is changed.
+             * The fragment's view will not be destroyed once the current selection fragment is changed.
              *
              * This is done via hiding the fragment in the container. Since it does not replace the underlying fragment
              * the old fragment will not go through the lifecycle changes. Hence no [onPause], [onStop], [onDestroyView]
              * & so on will be called.
              *
-             * The only way to rely on view state change is to listen [ViewStateFragment.onViewStateChanged].
+             * The only way to rely on view state changes is to listen [ViewStateFragment.onViewStateChanged].
              */
             RETAIN
         }

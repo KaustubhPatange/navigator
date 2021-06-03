@@ -17,10 +17,6 @@ import com.kpstv.navigation.internals.toIdentifier
  * the fragment backStack can be effectively managed & going back is as
  * easy as calling [goBack].
  *
- * In order to pass arguments extend any class from [BaseArgs] & pass it as
- * parameter to [FragmentNavigator.show] call. Use [getKeyArgs] to retrieve
- * them.
- *
  * @see onBackPressed
  * @see BaseArgs
  */
@@ -35,21 +31,19 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     }
 
     /**
-     * Tells [FragmentNavigator] to forcefully invoke [onBackPressed] on this fragment event though
+     * Tells [FragmentNavigator] to forcefully invoke [onBackPressed] on this fragment, even though
      * [FragmentNavigator.canGoBack] returns true.
      *
-     * If True then [onBackPressed] will be called regardless of any behavior. It is necessary
-     * that you should return False (sometime in future) when your conditions are satisfied,
+     * If `True` then [onBackPressed] will be called regardless of any behavior. It is necessary
+     * that you should return `False` (sometime in future) when your conditions are satisfied,
      * otherwise there will be unexpected side effects.
-     *
-     * This API is exposed for very edge case use only. It is not designed to always use
-     * with [onBackPressed]. In extreme cases when [FragmentNavigator] fails
-     * to manage back press behaviors this API should be used.
      */
     open val forceBackPress = false
 
     /**
-     * Checks if the fragment has any arguments passed during [FragmentNavigator.show] call.
+     * Checks if the fragment has any arguments passed during [FragmentNavigator.navigateTo] call.
+     *
+     * @see BaseArgs
      */
     inline fun<reified T : BaseArgs> hasKeyArgs(): Boolean {
         return arguments?.containsKey(createArgKey(T::class.qualifiedName!!)) ?: false
@@ -60,6 +54,7 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      * & then proceed with this call.
      *
      * @throws NullPointerException When it does not exist.
+     * @see BaseArgs
      */
     inline fun <reified T : BaseArgs> getKeyArgs(): T {
         return arguments?.getParcelable<T>(createArgKey(T::class.qualifiedName!!)) as T
@@ -67,6 +62,8 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
 
     /**
      * Remove the typed arguments from the bundle.
+     *
+     * @see BaseArgs
      */
     inline fun <reified T: BaseArgs> clearArgs() {
         arguments?.remove(createArgKey(T::class.qualifiedName!!))
@@ -94,6 +91,8 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     /**
      * A simplified version of Navigator that can be used to show [DialogFragment] or [BottomSheetDialogFragment].
      * The instance is available after [onViewCreated].
+     *
+     * @see SimpleNavigator
      */
     fun getSimpleNavigator(): SimpleNavigator {
         if (!isSimpleNavigatorInitialized()) throw IllegalAccessException("You must call it between onViewCreated() & onDestroy()")
@@ -101,15 +100,14 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     }
 
     /**
-     * Override this to receive back press.
+     * Override this method to receive back press.
      *
      * The back press is propagated from the host to all of the child fragments. During back
      * press if [FragmentNavigator] decides to remove this fragment from the stack it will first call
-     * this method to know the result. Upon True, the event has been consumed by the
-     * [ValueFragment] & [FragmentNavigator] will not pop this fragment.
+     * this method to know the result. Upon `True`, the event has been consumed by the
+     * [ValueFragment] & [FragmentNavigator] will not remove this fragment.
      *
-     * It also handles the backpress of the child fragments as well. So it is necessary that
-     * once all your conditions are satisfied you should call the super method.
+     * @see <a href="https://github.com/KaustubhPatange/navigator/wiki/Quick-Tutorials#navigate-to-a-fragment-but-remember-the-transaction">Navigate to a Fragment but remember the transaction</a>
      */
     open fun onBackPressed(): Boolean {
         return false
@@ -153,6 +151,6 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
             if (baseContext is FragmentNavigator.Transmitter) return baseContext
             baseContext.findFragmentTransmitter()
         }
-        throw NotImplementedError("Parent has not implemented \"FragmentNavigator.Transmitter\" interface.")
+        throw NotImplementedError("Parent must implement \"FragmentNavigator.Transmitter\" interface to propagate navigator's instance to all the child fragments.")
     }
 }
