@@ -3,8 +3,10 @@
 package com.kpstv.navigation
 
 import android.graphics.Rect
+import android.os.Parcelable
 import android.view.View
 import androidx.annotation.TransitionRes
+import kotlinx.android.parcel.Parcelize
 
 /**
  * A generic base animation class which will be used for animating fragment transaction.
@@ -29,16 +31,17 @@ class AnimationDefinition {
     /**
      * Runs a custom circular reveal animation.
      *
-     * @param forFragment A fragment to wait for until it's view is drawn. Default is the [FragmentNavigator.NavOptions.clazz].
      * @param fromTarget Start from the coordinates specified by the View or manually by [Rect]. Default is from the Center.
+     * @param delayMillis Time in milliseconds to wait until the animation should start.
      *
      * @see [View.getLocalVisibleRect]
      * @see [View.getGlobalVisibleRect]
      */
+    @Parcelize
     data class CircularReveal(
-        val forFragment: FragClazz? = null,
-        val fromTarget: Rect? = null
-    ) : NavAnimation()
+        val fromTarget: Rect? = null,
+        val delayMillis: Long = 0
+    ) : NavAnimation(), Parcelable
 
     /**
      * Equivalent to shared animations.

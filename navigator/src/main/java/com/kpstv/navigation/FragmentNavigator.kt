@@ -49,8 +49,8 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
         fun getNavigator(): FragmentNavigator
     }
 
-    private val navigatorTransitionManager = NavigatorCircularTransform(fm, containerView)
     private val history = HistoryImpl(fm)
+    private val navigatorTransitionManager = NavigatorCircularTransform(history::getContents, fm, containerView)
 
     private val simpleNavigator = SimpleNavigator(containerView.context, fm)
 
@@ -72,12 +72,8 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
         val singleTop = historyOptions is HistoryOptions.SingleTopInstance
 
         if (animation is AnimationDefinition.CircularReveal) {
-            val oldPayload = animation as? AnimationDefinition.CircularReveal
-            val payload = AnimationDefinition.CircularReveal(
-                forFragment = oldPayload?.forFragment ?: clazz,
-                fromTarget = oldPayload?.fromTarget
-            )
-            navigatorTransitionManager.circularTransform(payload, clearAllHistory)
+            val backStackName = if (remember) tagName else null
+            navigatorTransitionManager.circularTransform(animation, backStackName, clearAllHistory)
         }
         val bundle = createArguments(args)
         // Enqueue a clear history operation
@@ -171,7 +167,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
 
         // Dialog fragment
         if (currentFragment is DialogFragment) {
-            return simpleNavigator.dismiss()
+            return simpleNavigator.pop()
         }
 
         if (currentFragment is Transmitter && currentFragment.getNavigator().canGoBack()) {
@@ -185,6 +181,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
         }
 
         if (shouldPopStack) {
+            navigatorTransitionManager.executeReverseTransform()
             history.pop()
         }
         return shouldPopStack
@@ -194,6 +191,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
         val save = Bundle()
         history.onSaveState(owner.toIdentifier(), save)
         simpleNavigator.saveState(owner.toIdentifier(), save)
+        navigatorTransitionManager.onSaveStateInstance(save)
         bundle.putBundle("$NAVIGATOR_STATE:${owner.toIdentifier()}", save)
     }
 
@@ -201,6 +199,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
         val save = bundle?.getBundle("$NAVIGATOR_STATE:${owner.toIdentifier()}") ?: return
         history.onRestoreState(owner.toIdentifier(), save)
         simpleNavigator.restoreState(owner.toIdentifier(), save)
+        navigatorTransitionManager.restoreStateInstance(save)
     }
 
     /**

@@ -46,8 +46,9 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
 
                 val options = FragmentNavigator.NavOptions(
                     args = getNextArgs(),
-                    animation = AnimationDefinition.CircularReveal(getNextFragment(), rect),
-                    remember = true
+                    animation = AnimationDefinition.CircularReveal(rect),
+                    remember = true,
+
                 )
                 getParentNavigator().navigateTo(nextFragment, options)
             }

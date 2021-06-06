@@ -7,6 +7,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.kpstv.navigation.internals.HistoryImpl
+import com.kpstv.navigation.internals.NavigatorCircularTransform
 import com.kpstv.navigator.test.*
 import org.junit.Before
 import org.junit.Rule
@@ -187,10 +188,10 @@ class FragmentNavigatorTests {
 
             // Now dismiss 4 times
             var dismissed = true
-            dismissed = dismissed and currentFragment.getSimpleNavigator().dismiss()
-            dismissed = dismissed and currentFragment.getSimpleNavigator().dismiss()
-            dismissed = dismissed and currentFragment.getSimpleNavigator().dismiss()
-            dismissed = dismissed and currentFragment.getSimpleNavigator().dismiss()
+            dismissed = dismissed and currentFragment.getSimpleNavigator().pop()
+            dismissed = dismissed and currentFragment.getSimpleNavigator().pop()
+            dismissed = dismissed and currentFragment.getSimpleNavigator().pop()
+            dismissed = dismissed and currentFragment.getSimpleNavigator().pop()
             currentFragment.childFragmentManager.executePendingTransactions()
 
             assert(dismissed)
@@ -201,7 +202,7 @@ class FragmentNavigatorTests {
                 called = true
             }
             currentFragment.childFragmentManager.executePendingTransactions()
-            currentFragment.getSimpleNavigator().dismiss()
+            currentFragment.getSimpleNavigator().pop()
             currentFragment.childFragmentManager.executePendingTransactions()
 
             assert(called)
@@ -303,6 +304,35 @@ class FragmentNavigatorTests {
             // Check history
             assert(!navigator.getHistory().isEmpty())
             assert(navigator.getHistory().count() == 2)
+        }
+    }
+
+    @Test
+    fun TestIfNavigatorTransformRestoresStack() {
+        val navTransitionField = FragmentNavigator::class.java.getDeclaredField("navigatorTransitionManager").apply { isAccessible = true }
+        val circularTransformStackField = NavigatorCircularTransform::class.java.getDeclaredField("circularTransformStack").apply { isAccessible = true }
+
+        activity.with {
+            val options = FragmentNavigator.NavOptions(
+                animation = AnimationDefinition.CircularReveal(),
+                remember = true // without remember reverse will not work.
+            )
+            getNavigator().navigateTo(FirstFragment::class)
+            getNavigator().getFragmentManager().executePendingTransactions()
+
+            getNavigator().navigateTo(SecondFragment::class, options)
+            getNavigator().getFragmentManager().executePendingTransactions()
+
+            getNavigator().navigateTo(ThirdFragment::class, options)
+            getNavigator().getFragmentManager().executePendingTransactions()
+        }
+        activity.scenario.recreate()
+        activity.with {
+            val nct = navTransitionField.get(getNavigator()) as NavigatorCircularTransform
+            val stack = circularTransformStackField.get(nct) as MutableMap<String, AnimationDefinition.CircularReveal>
+
+            // Size must be 2
+            assert(stack.size == 2)
         }
     }
 }

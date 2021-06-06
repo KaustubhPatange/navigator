@@ -42,7 +42,7 @@ class SimpleNavigator internal constructor(private val context: Context, private
     /**
      * Dismiss the current [DialogFragment] if exist.
      */
-    fun dismiss(): Boolean = history.pop()
+    fun pop(): Boolean = history.pop()
 
     internal fun getCurrentDialogFragment() : DialogFragment? {
         if (history.getContents().isNotEmpty()) {
