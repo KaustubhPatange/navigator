@@ -9,6 +9,7 @@
       <module name="Navigator.navigator-base-navigation" target="11" />
       <module name="Navigator.navigator-bottom-navigation" target="11" />
       <module name="Navigator.navigator-extensions" target="11" />
+      <module name="Navigator.navigator-rail-navigation" target="11" />
       <module name="Navigator.navigator-tab-navigation" target="11" />
       <module name="Navigator.navigator-test-common" target="11" />
       <module name="Navigator.samples.backpress-sample" target="11" />

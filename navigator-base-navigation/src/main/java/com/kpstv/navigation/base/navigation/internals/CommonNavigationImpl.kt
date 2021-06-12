@@ -131,11 +131,17 @@ abstract class CommonNavigationImpl(
     private fun setAnimations(ft: FragmentTransaction, fromIndex: Int, toIndex: Int) {
         when (navigation.fragmentNavigationTransition) {
             is FragmentNavigator.Navigation.Animation.None -> {}
-            is FragmentNavigator.Navigation.Animation.Slide -> {
+            is FragmentNavigator.Navigation.Animation.SlideHorizontally -> {
                 if (fromIndex < toIndex)
                     ft.setCustomAnimations(R.anim.navigator_slide_in_right, R.anim.navigator_slide_out_left)
                 if (fromIndex > toIndex)
                     ft.setCustomAnimations(R.anim.navigator_slide_in_left, R.anim.navigator_slide_out_right)
+            }
+            is FragmentNavigator.Navigation.Animation.SlideVertically -> {
+                if (fromIndex < toIndex)
+                    ft.setCustomAnimations(R.anim.navigator_slide_in_bottom, R.anim.navigator_slide_out_top)
+                if (fromIndex > toIndex)
+                    ft.setCustomAnimations(R.anim.navigator_slide_in_top, R.anim.navigator_slide_out_bottom)
             }
             else -> ft.setCustomAnimations(navigation.fragmentNavigationTransition.enter, navigation.fragmentNavigationTransition.exit)
         }

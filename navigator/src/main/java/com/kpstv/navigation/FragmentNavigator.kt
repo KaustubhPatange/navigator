@@ -262,9 +262,11 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
         open class Animation(@AnimRes @AnimatorRes val enter: Int, @AnimRes @AnimatorRes val exit: Int) {
             object None : Animation(-1,-1)
             object Fade : Animation(R.anim.navigator_fade_in, R.anim.navigator_fade_out)
-            object Slide : Animation(-1,-1) // we will use a custom one
+            object SlideHorizontally : Animation(-1,-1) // we will use a custom one
+            object SlideVertically : Animation(-1,-1) // we will use a custom one
         }
 
+        @Deprecated("Use Animation")
         enum class Transition {
             NONE,
             FADE,
@@ -324,6 +326,20 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
         abstract val bottomNavigationViewId: Int
 
         open fun onBottomNavigationSelectionChanged(@IdRes selectedId: Int) {}
+    }
+
+    abstract class RailNavigation : Navigation() {
+        /**
+         * A map of the Id of rail navigation menu resource to [Fragment] class.
+         */
+        abstract val railNavigationFragments: Map<Int, KClass<out Fragment>>
+
+        /**
+         * The Navigation View Id.
+         */
+        abstract val railNavigationViewId: Int
+
+        open fun onRailNavigationSelectionChanged(@IdRes selectedId: Int) {}
     }
 
     // friend path mechanism will help here.

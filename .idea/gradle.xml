@@ -4,7 +4,7 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="testRunner" value="GRADLE" />
+        <option name="testRunner" value="PLATFORM" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleJvm" value="11" />
@@ -16,6 +16,7 @@
             <option value="$PROJECT_DIR$/navigator-bottom-navigation" />
             <option value="$PROJECT_DIR$/navigator-extensions" />
             <option value="$PROJECT_DIR$/navigator-lint" />
+            <option value="$PROJECT_DIR$/navigator-rail-navigation" />
             <option value="$PROJECT_DIR$/navigator-tab-navigation" />
             <option value="$PROJECT_DIR$/navigator-test-common" />
             <option value="$PROJECT_DIR$/samples" />

@@ -37,7 +37,7 @@ class HomeFragment : ValueFragment(R.layout.fragment_home), FragmentNavigator.Tr
                 FirstFragment::class,
                 SecondFragment::class
             )
-            override val fragmentNavigationTransition: Animation = Animation.Slide
+            override val fragmentNavigationTransition: Animation = Animation.SlideHorizontally
             override val fragmentViewRetentionType: ViewRetention = ViewRetention.RETAIN
         })
     }

@@ -45,6 +45,7 @@ dependencies {
     implementation "io.github.kaustubhpatange:navigator-extensions:<version>" // Optional but recommended
     implementation "io.github.kaustubhpatange:navigator-bottom-navigation:<version>" // For setting up Bottom Navigation.
     implementation "io.github.kaustubhpatange:navigator-tab-navigation:<version>" // For setting up Tab Layout Navigation.
+    implementation "io.github.kaustubhpatange:navigator-rail-navigation:<version>" // For setting up Rail Navigation.
 }
 ```
 
@@ -73,6 +74,7 @@ dependencies {
   - [Navigate to a BottomSheet or Dialog Fragment](https://github.com/KaustubhPatange/navigator/wiki/Quick-Tutorials#navigate-to-a-bottomSheet-or-dialog-fragment)
 - [Bottom navigation setup](<https://github.com/KaustubhPatange/navigator/wiki/(Sample-2)-Bottom-navigation-setup>)
 - [TabLayout navigation setup](<https://github.com/KaustubhPatange/navigator/wiki/(Sample-3)-Tab-Navigation>)
+- [Rail navigation setup](<https://github.com/KaustubhPatange/navigator/wiki/(Sample-4)-Rail-Navigation>)
 
 ## License
 

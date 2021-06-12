@@ -8,5 +8,5 @@ include ':navigator-bottom-navigation'
 include ':navigator-extensions'
 include ':navigator-tab-navigation'
 include ':navigator-test-common'
-//include ':navigator-compose'
+include ':navigator-rail-navigation'
 rootProject.name = "Navigator"
