@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.core.*
@@ -75,7 +74,8 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
         private const val HISTORY_SAVED_STATE = "compose_navigator:state:"
         private const val NAVIGATOR_SAVED_STATE_SUFFIX = "_compose_navigator"
     }
-    //TODO: A builder to set Animation Spec, Also a function to suppress back press
+
+    //TODO: A builder to set custom Animation Spec
     internal class History<T : Parcelable> internal constructor(private val initial: T) {
         internal enum class NavType { Forward, Backward }
 
@@ -125,18 +125,42 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
         }
     }
 
-    class Controller<T : Parcelable> internal constructor(private val key: T, private val navigator: ComposeNavigator, private val history: History<T>) {
+    /**
+     * A controller to manage navigation for Route [T].
+     *
+     * This should be used to handle forward as well as backward navigation.
+     */
+    class Controller<T : Parcelable> internal constructor(private val key: KClass<out Parcelable>, private val navigator: ComposeNavigator, private val history: History<T>) {
+
+        /**
+         * @param singleTop Ensures that there will be only once instance of this destination in the stack.
+         *                  If there would be a previous one, then it would be brought front.
+         * @param animation A DSL to set animations.
+         */
         data class NavOptions<T>(
             var singleTop: Boolean = false,
             var animation: NavAnimation.() -> Unit = {},
             internal var popOptions: PopUpOptions<T>? = null
         ) {
+            /**
+             * @param inclusive Include this destination to be popped as well.
+             * @param all There could be situation where multiple destinations could be present on the backstack,
+             *            this will recursively pop till the first one in the backstack. Otherwise, the last
+             *            added one will be chosen.
+             */
             data class PopUpOptions<T>(internal var dest: T, var inclusive: Boolean = true, var all: Boolean = false)
+
+            /**
+             * Pop up to the destination. Additional parameters can be set through [options] DSL.
+             */
             fun popUpTo(dest: T, options: PopUpOptions<T>.() -> Unit = {}) {
                 popOptions = PopUpOptions(dest).apply(options)
             }
         }
 
+        /**
+         * Navigate to other destination composable. Additional parameters can be set through [options] DSL.
+         */
         fun navigateTo(destination: T, options: NavOptions<T>.() -> Unit = {}) {
             val current = NavOptions<T>().apply(options)
             var snapshot = ArrayList(history.get())
@@ -157,17 +181,27 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
             }
             snapshot.add(destination)
 
-            if (!navigator.backStackMap.containsKey(key::class)) {
+            if (!navigator.backStackMap.containsKey(key)) {
                 // This should not happen but it happened!
-                navigator.backStackMap[key::class] = history
+                navigator.backStackMap[key] = history
             }
-            navigator.backStackMap.bringToTop(key::class)
+            navigator.backStackMap.bringToTop(key)
 
             history.animationDefinition.add(NavAnimation().apply(current.animation))
             history.set(snapshot)
         }
 
+        /**
+         * @return If it safe to go back i.e up the stack. If false then it means the current composable
+         *         is the last screen. This also means that the backstack is empty.
+         */
         fun canGoBack(): Boolean = navigator.canGoBack()
+
+        /**
+         * Go back to the previous destination.
+         *
+         * @return true if it went up the stack.
+         */
         fun goBack(): Boolean = navigator.goBack()
     }
 
@@ -198,9 +232,12 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
 
     private val backPressHandler = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            goBack()
+            if (isBackPressedEnabled()) goBack()
         }
     }
+
+    @JvmName("isBackEnabled")
+    private fun isBackPressedEnabled() : Boolean = isBackPressedEnabled
 
     private val backStackMap = mutableMapOf<KClass<out Parcelable>, History<*>>()
 
@@ -234,21 +271,37 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
         return (backStackMap[clazz] as History<T>)
     }
 
+    /**
+     * Should back button enqueue a back navigation operation.
+     */
+    var isBackPressedEnabled: Boolean = true
+
+    /**
+     * An entry to the navigation composable.
+     *
+     * Destinations should be managed within [content]. [content] is composable lambda that receives two parameters,
+     * [Controller] which is used to manage navigation & [T] which is the current destination.
+     *
+     * @param initial The start destination for the navigation.
+     *
+     * @see Controller
+     */
+    @ExperimentalRenderApi
     @Composable
-    fun<T : Parcelable> Render(modifier: Modifier = Modifier, initial: T, block: @Composable (controller: Controller<T>, peek: T) -> Unit) {
+    fun<T : Parcelable> Render(modifier: Modifier = Modifier, initial: T, content: @Composable (controller: Controller<T>, dest: T) -> Unit) {
         val history = remember { fetchOrUpdateHistory(initial::class, initial) }
-        val controller = remember { Controller(initial, this, history) }
+        val controller = remember { Controller(initial::class, this, history) }
 
         @Composable
         fun Inner(body: @Composable () -> Unit) = Box(modifier) { body() }
 //        Log.e("Render", "${initial::class.qualifiedName} Recomposed()/Composed()")
         Inner {
             // recompose on history change
-            Log.e("Inner", "Recomposed()/Composed() ${history.peek()} - ${initial::class.qualifiedName}")
+//            Log.e("Inner", "Recomposed()/Composed() ${history.peek()} - ${initial::class.qualifiedName}")
             CompositionLocalProvider(LocalController provides controller, LocalNavigator provides this) {
                 val current = history.peek()
                 CommonEffect(targetState = current.first, animation = current.second, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
-                    block(LocalController.current as Controller<T>, peek)
+                    content(LocalController.current as Controller<T>, peek)
                 }
             }
             LaunchedEffect(key1 = history.get(), block = {
@@ -266,7 +319,7 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
         content: @Composable (T) -> Unit
     ) {
         val animationSnapShot = animation.copy()
-        val items = remember { mutableStateListOf<SlideAnimationItem<T>>() }
+        val items = remember { mutableStateListOf<CommonAnimationItemHolder<T>>() }
         val transitionState = remember { MutableTransitionState(targetState) }
         val targetChanged = (targetState != transitionState.targetState)
         transitionState.targetState = targetState
@@ -310,7 +363,7 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
             items.clear()
 
             keys.mapTo(items) { key ->
-                SlideAnimationItem(key) {
+                CommonAnimationItemHolder(key) {
                     BoxWithConstraints {
                         val progress by transition.animateFloat(
                             transitionSpec = { animationSpec }, label = "normal")
@@ -343,9 +396,12 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
         }
     }
 
-    private data class SlideAnimationItem<T>(
+    private data class CommonAnimationItemHolder<T>(
         val key: T,
         val content: @Composable () -> Unit
     )
 }
 
+@RequiresOptIn(message = "The experimental API name \"Render\" could change in future releases.")
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
+annotation class ExperimentalRenderApi
