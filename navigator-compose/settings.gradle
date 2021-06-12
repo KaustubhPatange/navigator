@@ -1,11 +1,3 @@
-/*dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenLocal()
-        mavenCentral()
-    }
-}*/
+include ":navigator-compose"
+include ":samples:basic-sample"
 rootProject.name = "Navigator Compose"
-include ':sample'
-include ':navigator-compose'

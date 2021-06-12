@@ -27,17 +27,53 @@ private fun<K, V> Map<K,V>.last(): V? = get(keys.last())
 private fun<K, V> MutableMap<K,V>.removeLastOrNull(): V? = remove(keys.last())
 private fun<K, V> MutableMap<K, V>.bringToTop(key: K) = remove(key)?.let { put(key, it) }
 
+/**
+ * Find the [ComposeNavigator] provided by the nearest CompositionLocalProvider.
+ */
 @Composable
 fun findComposeNavigator() : ComposeNavigator = LocalNavigator.current
 
+/**
+ * Find the [ComposeNavigator.Controller] provided by the nearest CompositionLocalProvider.
+ */
 @Composable
 fun <T : Parcelable> findController() : ComposeNavigator.Controller<T> = LocalController.current as ComposeNavigator.Controller<T>
 
-@Parcelize
-data class NavAnimation(
-    var enter: EnterAnimation = EnterAnimation.None,
-    var exit: ExitAnimation = ExitAnimation.None
-) : Parcelable
+/**
+ * @param singleTop Ensures that there will be only once instance of this destination in the stack.
+ *                  If there would be a previous one, then it would be brought front.
+ * @param animation A DSL to set animations.
+ */
+data class NavOptions<T>(
+    var singleTop: Boolean = false,
+    var animation: NavAnimation.() -> Unit = {},
+    internal var popOptions: PopUpOptions<T>? = null
+) {
+    /**
+     * @param enter Set the enter transition for the destination composable.
+     * @param exit Set the exit transition for the current composable.
+     */
+    @Parcelize
+    data class NavAnimation(
+        var enter: EnterAnimation = EnterAnimation.None,
+        var exit: ExitAnimation = ExitAnimation.None
+    ) : Parcelable
+
+    /**
+     * @param inclusive Include this destination to be popped as well.
+     * @param all There could be situation where multiple destinations could be present on the backstack,
+     *            this will recursively pop till the first one in the backstack. Otherwise, the last
+     *            added one will be chosen.
+     */
+    data class PopUpOptions<T>(internal var dest: T, var inclusive: Boolean = true, var all: Boolean = false)
+
+    /**
+     * Pop up to the destination. Additional parameters can be set through [options] DSL.
+     */
+    fun popUpTo(dest: T, options: PopUpOptions<T>.() -> Unit = {}) {
+        popOptions = PopUpOptions(dest).apply(options)
+    }
+}
 
 @Parcelize enum class EnterAnimation : Parcelable {
     None, FadeIn, SlideInRight, SlideInLeft, ShrinkIn;
@@ -80,7 +116,7 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
         internal enum class NavType { Forward, Backward }
 
         private var backStack by mutableStateOf(listOf(initial))
-        internal var animationDefinition = arrayListOf(NavAnimation())
+        internal var animationDefinition = arrayListOf(NavOptions.NavAnimation())
 
         internal var lastTransactionStatus = NavType.Forward
 
@@ -94,7 +130,7 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
             }
         }
 
-        internal fun peek(): Pair<T, NavAnimation> = backStack.last() to animationDefinition.last()
+        internal fun peek(): Pair<T, NavOptions.NavAnimation> = backStack.last() to animationDefinition.last()
         internal fun pop(): Boolean {
             if (canGoBack()) { // last item will not be popped
                 lastTransactionStatus = NavType.Backward
@@ -133,32 +169,6 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
     class Controller<T : Parcelable> internal constructor(private val key: KClass<out Parcelable>, private val navigator: ComposeNavigator, private val history: History<T>) {
 
         /**
-         * @param singleTop Ensures that there will be only once instance of this destination in the stack.
-         *                  If there would be a previous one, then it would be brought front.
-         * @param animation A DSL to set animations.
-         */
-        data class NavOptions<T>(
-            var singleTop: Boolean = false,
-            var animation: NavAnimation.() -> Unit = {},
-            internal var popOptions: PopUpOptions<T>? = null
-        ) {
-            /**
-             * @param inclusive Include this destination to be popped as well.
-             * @param all There could be situation where multiple destinations could be present on the backstack,
-             *            this will recursively pop till the first one in the backstack. Otherwise, the last
-             *            added one will be chosen.
-             */
-            data class PopUpOptions<T>(internal var dest: T, var inclusive: Boolean = true, var all: Boolean = false)
-
-            /**
-             * Pop up to the destination. Additional parameters can be set through [options] DSL.
-             */
-            fun popUpTo(dest: T, options: PopUpOptions<T>.() -> Unit = {}) {
-                popOptions = PopUpOptions(dest).apply(options)
-            }
-        }
-
-        /**
          * Navigate to other destination composable. Additional parameters can be set through [options] DSL.
          */
         fun navigateTo(destination: T, options: NavOptions<T>.() -> Unit = {}) {
@@ -187,7 +197,7 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
             }
             navigator.backStackMap.bringToTop(key)
 
-            history.animationDefinition.add(NavAnimation().apply(current.animation))
+            history.animationDefinition.add(NavOptions.NavAnimation().apply(current.animation))
             history.set(snapshot)
         }
 
@@ -286,18 +296,17 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
      *
      * @see Controller
      */
-    @ExperimentalRenderApi
     @Composable
-    fun<T : Parcelable> Render(modifier: Modifier = Modifier, initial: T, content: @Composable (controller: Controller<T>, dest: T) -> Unit) {
+    fun<T : Parcelable> Setup(modifier: Modifier = Modifier, initial: T, content: @Composable (controller: Controller<T>, dest: T) -> Unit) {
         val history = remember { fetchOrUpdateHistory(initial::class, initial) }
         val controller = remember { Controller(initial::class, this, history) }
 
         @Composable
         fun Inner(body: @Composable () -> Unit) = Box(modifier) { body() }
-//        Log.e("Render", "${initial::class.qualifiedName} Recomposed()/Composed()")
+//        Log.i("Render", "${initial::class.qualifiedName} Recomposed()/Composed()")
         Inner {
             // recompose on history change
-//            Log.e("Inner", "Recomposed()/Composed() ${history.peek()} - ${initial::class.qualifiedName}")
+//            Log.i("Inner", "Recomposed()/Composed() ${history.peek()} - ${initial::class.qualifiedName}")
             CompositionLocalProvider(LocalController provides controller, LocalNavigator provides this) {
                 val current = history.peek()
                 CommonEffect(targetState = current.first, animation = current.second, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
@@ -313,7 +322,7 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
     @Composable
     private fun <T> CommonEffect(
         targetState: T,
-        animation: NavAnimation,
+        animation: NavOptions.NavAnimation,
         isBackward: Boolean = false, // if triggered on back press.
         animationSpec: FiniteAnimationSpec<Float> = tween(durationMillis = 300),
         content: @Composable (T) -> Unit
@@ -401,7 +410,3 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
         val content: @Composable () -> Unit
     )
 }
-
-@RequiresOptIn(message = "The experimental API name \"Render\" could change in future releases.")
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
-annotation class ExperimentalRenderApi

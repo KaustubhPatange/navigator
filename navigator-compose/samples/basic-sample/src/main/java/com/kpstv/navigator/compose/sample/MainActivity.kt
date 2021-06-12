@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun StartScreen(navigator: ComposeNavigator, route: Route) {
-    navigator.Render(initial = route) { controller, dest ->
+    navigator.Setup(initial = route) { controller, dest ->
         val onChanged: (screen: Route) -> Unit = { value ->
             controller.navigateTo(value) {
                 animation = {
@@ -76,7 +76,7 @@ sealed class Route : Parcelable {
 @Composable
 fun FirstScreen(data: String, change: (Route) -> Unit) {
     val navigator = findComposeNavigator()
-    navigator.Render(initial = FirstRoute.Primary) { controller, dest ->
+    navigator.Setup(initial = FirstRoute.Primary) { controller, dest ->
         when(dest) {
             FirstRoute.Primary -> PrimaryFirst(data, change, { route ->
                 controller.navigateTo(route) {
@@ -125,9 +125,13 @@ fun PrimaryFirst(data: String, change: (Route) -> Unit, change2: (FirstRoute) ->
 @Composable
 fun SecondScreen() {
     Column {
+        // not sure if this is the right way to setup a bottom navigation
+        // because if the menu is moved inside the scope then it'll too
+        // undergo recomposition when destination is changed which looks
+        // bad if animations are enabled.
         val destination = remember { mutableStateOf(MenuItem.Home) }
         val controller = remember { mutableStateOf<ComposeNavigator.Controller<MenuItem>?>(null) }
-        findComposeNavigator().Render(modifier = Modifier.weight(1f), initial = MenuItem.Home) { con, dest ->
+        findComposeNavigator().Setup(modifier = Modifier.weight(1f), initial = MenuItem.Home) { con, dest ->
             destination.value = dest
             controller.value = con
 
@@ -177,9 +181,16 @@ fun SecondScreen() {
 @Composable
 fun Gallery() {
     val navigator = findComposeNavigator()
-    navigator.Render(initial = GalleryRoute.Primary as GalleryRoute) { controller, dest ->
+    navigator.Setup(initial = GalleryRoute.Primary as GalleryRoute) { controller, dest ->
         when(dest) {
-            is GalleryRoute.Primary -> PrimaryGallery { controller.navigateTo(GalleryRoute.Detail(it)) }
+            is GalleryRoute.Primary -> PrimaryGallery {
+                controller.navigateTo(GalleryRoute.Detail(it)) {
+                    animation = {
+                        enter = EnterAnimation.FadeIn
+                        exit = ExitAnimation.FadeOut
+                    }
+                }
+            }
             is GalleryRoute.Detail -> GalleryDetail(dest.item)
         }
     }
@@ -258,7 +269,7 @@ fun ReusableComponent(text: String) {
 
 @Composable
 fun ThirdScreen() {
-    findComposeNavigator().Render(initial = ThirdRoute.Third1) { controller, dest ->
+    findComposeNavigator().Setup(initial = ThirdRoute.Third1) { controller, dest ->
         val onChanged: (ThirdRoute) -> Unit = { screen ->
             controller.navigateTo(screen) {
                 animation = {

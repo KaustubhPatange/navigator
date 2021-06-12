@@ -57,9 +57,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
     implementation 'androidx.activity:activity-compose:1.3.0-beta01'
 
-//    implementation "io.github.kaustubhpatange:navigator-compose:${versions.navigator_compose}"
-
-    implementation project(":navigator-compose")
+    implementation "io.github.kaustubhpatange:navigator-compose:${versions.navigator_compose}"
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
