@@ -1,0 +1,32 @@
+apply plugin: 'io.codearte.nexus-staging'
+
+buildscript {
+    ext {
+        compose_version = '1.0.0-beta08'
+        versions = [
+                "navigator_compose": "0.1-alpha01"
+        ]
+    }
+    repositories {
+        google()
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.1.0-alpha02'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.10"
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
