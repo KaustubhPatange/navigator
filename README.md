@@ -2,6 +2,8 @@
 
 ![build](https://github.com/KaustubhPatange/navigator/workflows/build/badge.svg)
 
+> **Looking for Jetpack Compose implementation of `navigator`, see [here](navigator-compose)**.
+
 A small (Kotlin first) navigation library for Android to ease the use of fragment transactions with a `navigator.navigateTo`
 call (rest is handled for you) & navigating back is as simple as `navigator.goBack()`.
 
