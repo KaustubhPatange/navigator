@@ -15,6 +15,7 @@ import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -23,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kpstv.navigator.R
 import com.kpstv.navigator.compose.sample.ui.GalleryItem
@@ -53,7 +55,7 @@ fun StartScreen(navigator: ComposeNavigator, route: Route) {
     navigator.Setup(initial = route) { controller, dest ->
         val onChanged: (screen: Route) -> Unit = { value ->
             controller.navigateTo(value) {
-                animation = {
+                withAnimation {
                     enter = EnterAnimation.FadeIn
                     exit = ExitAnimation.FadeOut
                 }
@@ -80,7 +82,7 @@ fun FirstScreen(data: String, change: (Route) -> Unit) {
         when(dest) {
             FirstRoute.Primary -> PrimaryFirst(data, change, { route ->
                 controller.navigateTo(route) {
-                    animation = {
+                    withAnimation {
                         enter = EnterAnimation.SlideInRight
                         exit = ExitAnimation.FadeOut
                     }
@@ -125,8 +127,7 @@ fun PrimaryFirst(data: String, change: (Route) -> Unit, change2: (FirstRoute) ->
 @Composable
 fun SecondScreen() {
     Column {
-        // not sure if this is the right way to setup a bottom navigation
-        // because if the menu is moved inside the scope then it'll too
+        // if the menu is moved inside the navigator scope then it'll too
         // undergo recomposition when destination is changed which looks
         // bad if animations are enabled.
         val destination = remember { mutableStateOf(MenuItem.Home) }
@@ -151,7 +152,7 @@ fun SecondScreen() {
                     if (menuItem != MenuItem.Home) {
                         singleTop = true
                     }
-                    animation = {
+                    withAnimation {
                         when (destination.value) {
                             MenuItem.Home -> {
                                 enter = EnterAnimation.SlideInRight
@@ -185,7 +186,7 @@ fun Gallery() {
         when(dest) {
             is GalleryRoute.Primary -> PrimaryGallery {
                 controller.navigateTo(GalleryRoute.Detail(it)) {
-                    animation = {
+                    withAnimation {
                         enter = EnterAnimation.FadeIn
                         exit = ExitAnimation.FadeOut
                     }
@@ -272,7 +273,7 @@ fun ThirdScreen() {
     findComposeNavigator().Setup(initial = ThirdRoute.Third1) { controller, dest ->
         val onChanged: (ThirdRoute) -> Unit = { screen ->
             controller.navigateTo(screen) {
-                animation = {
+                withAnimation {
                     enter = EnterAnimation.ShrinkIn
                     exit = ExitAnimation.ShrinkOut
                 }
@@ -293,6 +294,7 @@ enum class ThirdRoute : Parcelable {
 @Composable
 fun ThirdScreen1(change: (ThirdRoute) -> Unit) {
     val controller = findController<ThirdRoute>()
+    val navigator = findComposeNavigator()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -300,7 +302,9 @@ fun ThirdScreen1(change: (ThirdRoute) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Third Screen 1")
+        Text("Third Screen 1\n\nBackpress is suppressed for this screen & can only be triggered by pressing the icon below.",
+            modifier = Modifier.padding(20.dp),
+            textAlign = TextAlign.Center)
         Button(
             onClick = { change.invoke(ThirdRoute.Third2) },
             modifier = Modifier.padding(top = 10.dp)
@@ -310,6 +314,13 @@ fun ThirdScreen1(change: (ThirdRoute) -> Unit) {
         Spacer(modifier = Modifier.height(10.dp))
         IconButton(onClick = { controller.goBack() }) {
             Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
+        }
+    }
+
+    DisposableEffect(key1 = controller) {
+        navigator.isBackPressedEnabled = false
+        onDispose {
+            navigator.isBackPressedEnabled = true
         }
     }
 }

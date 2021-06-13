@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate", "unused")
+
 package com.kpstv.navigator.compose
 
 import android.app.Activity
@@ -31,30 +33,30 @@ private fun<K, V> MutableMap<K, V>.bringToTop(key: K) = remove(key)?.let { put(k
  * Find the [ComposeNavigator] provided by the nearest CompositionLocalProvider.
  */
 @Composable
-fun findComposeNavigator() : ComposeNavigator = LocalNavigator.current
+public fun findComposeNavigator() : ComposeNavigator = LocalNavigator.current
 
 /**
  * Find the [ComposeNavigator.Controller] provided by the nearest CompositionLocalProvider.
  */
 @Composable
-fun <T : Parcelable> findController() : ComposeNavigator.Controller<T> = LocalController.current as ComposeNavigator.Controller<T>
+public fun <T : Parcelable> findController() : ComposeNavigator.Controller<T> = LocalController.current as ComposeNavigator.Controller<T>
 
 /**
  * @param singleTop Ensures that there will be only once instance of this destination in the stack.
  *                  If there would be a previous one, then it would be brought front.
  * @param animation A DSL to set animations.
  */
-data class NavOptions<T>(
+public data class NavOptions<T>(
     var singleTop: Boolean = false,
-    var animation: NavAnimation.() -> Unit = {},
-    internal var popOptions: PopUpOptions<T>? = null
+    internal var popOptions: PopUpOptions<T>? = null,
+    internal var animationOptions: NavAnimation = NavAnimation()
 ) {
     /**
      * @param enter Set the enter transition for the destination composable.
      * @param exit Set the exit transition for the current composable.
      */
     @Parcelize
-    data class NavAnimation(
+    public data class NavAnimation(
         var enter: EnterAnimation = EnterAnimation.None,
         var exit: ExitAnimation = ExitAnimation.None
     ) : Parcelable
@@ -65,19 +67,27 @@ data class NavOptions<T>(
      *            this will recursively pop till the first one in the backstack. Otherwise, the last
      *            added one will be chosen.
      */
-    data class PopUpOptions<T>(internal var dest: T, var inclusive: Boolean = true, var all: Boolean = false)
+    public data class PopUpOptions<T>(internal var dest: T, var inclusive: Boolean = true, var all: Boolean = false)
 
     /**
      * Pop up to the destination. Additional parameters can be set through [options] DSL.
      */
-    fun popUpTo(dest: T, options: PopUpOptions<T>.() -> Unit = {}) {
+    public fun popUpTo(dest: T, options: PopUpOptions<T>.() -> Unit = {}) {
         popOptions = PopUpOptions(dest).apply(options)
+    }
+
+    /**
+     * Customize enter & exit animations through [options] DSL.
+     */
+    public fun withAnimation(options: NavAnimation.() -> Unit = {}) {
+        animationOptions = NavAnimation().apply(options)
     }
 }
 
-@Parcelize enum class EnterAnimation : Parcelable {
+@Parcelize
+public enum class EnterAnimation : Parcelable {
     None, FadeIn, SlideInRight, SlideInLeft, ShrinkIn;
-    companion object {
+    internal companion object {
         internal fun EnterAnimation.reverse() : ExitAnimation {
             return when(this) {
                 FadeIn -> ExitAnimation.FadeOut
@@ -90,9 +100,10 @@ data class NavOptions<T>(
     }
 }
 
-@Parcelize enum class ExitAnimation : Parcelable {
+@Parcelize
+public enum class ExitAnimation : Parcelable {
     None, FadeOut, SlideOutRight, SlideOutLeft, ShrinkOut;
-    companion object {
+    internal companion object {
         internal fun ExitAnimation.reverse() : EnterAnimation {
             return when(this) {
                 FadeOut -> EnterAnimation.FadeIn
@@ -105,8 +116,11 @@ data class NavOptions<T>(
     }
 }
 
-class ComposeNavigator(private val activity: ComponentActivity, private val savedInstanceState: Bundle?) {
-    companion object {
+/**
+ * A navigator for Jetpack Compose.
+ */
+public class ComposeNavigator(private val activity: ComponentActivity, private val savedInstanceState: Bundle?) {
+    private companion object {
         private const val HISTORY_SAVED_STATE = "compose_navigator:state:"
         private const val NAVIGATOR_SAVED_STATE_SUFFIX = "_compose_navigator"
     }
@@ -166,12 +180,12 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
      *
      * This should be used to handle forward as well as backward navigation.
      */
-    class Controller<T : Parcelable> internal constructor(private val key: KClass<out Parcelable>, private val navigator: ComposeNavigator, private val history: History<T>) {
+    public class Controller<T : Parcelable> internal constructor(private val key: KClass<out Parcelable>, private val navigator: ComposeNavigator, private val history: History<T>) {
 
         /**
          * Navigate to other destination composable. Additional parameters can be set through [options] DSL.
          */
-        fun navigateTo(destination: T, options: NavOptions<T>.() -> Unit = {}) {
+        public fun navigateTo(destination: T, options: NavOptions<T>.() -> Unit = {}) {
             val current = NavOptions<T>().apply(options)
             var snapshot = ArrayList(history.get())
 
@@ -197,7 +211,7 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
             }
             navigator.backStackMap.bringToTop(key)
 
-            history.animationDefinition.add(NavOptions.NavAnimation().apply(current.animation))
+            history.animationDefinition.add(current.animationOptions)
             history.set(snapshot)
         }
 
@@ -205,14 +219,14 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
          * @return If it safe to go back i.e up the stack. If false then it means the current composable
          *         is the last screen. This also means that the backstack is empty.
          */
-        fun canGoBack(): Boolean = navigator.canGoBack()
+        public fun canGoBack(): Boolean = navigator.canGoBack()
 
         /**
          * Go back to the previous destination.
          *
          * @return true if it went up the stack.
          */
-        fun goBack(): Boolean = navigator.goBack()
+        public fun goBack(): Boolean = navigator.goBack()
     }
 
     private fun goBack(): Boolean {
@@ -284,7 +298,7 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
     /**
      * Should back button enqueue a back navigation operation.
      */
-    var isBackPressedEnabled: Boolean = true
+    public var isBackPressedEnabled: Boolean = true
 
     /**
      * An entry to the navigation composable.
@@ -297,7 +311,7 @@ class ComposeNavigator(private val activity: ComponentActivity, private val save
      * @see Controller
      */
     @Composable
-    fun<T : Parcelable> Setup(modifier: Modifier = Modifier, initial: T, content: @Composable (controller: Controller<T>, dest: T) -> Unit) {
+    public fun<T : Parcelable> Setup(modifier: Modifier = Modifier, initial: T, content: @Composable (controller: Controller<T>, dest: T) -> Unit) {
         val history = remember { fetchOrUpdateHistory(initial::class, initial) }
         val controller = remember { Controller(initial::class, this, history) }
 

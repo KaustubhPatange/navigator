@@ -6,9 +6,18 @@ An implementation of [`navigator`](https://github.com/KaustubhPatange/navigator)
 
 **What are the benefits?**
 
-Handle navigation with proper backpress events with animations. No Fragments needed pure `@Composable` navigation with backstack that survives configuration change as well as process death.
+Handles navigation with proper backpress events & animations. No Fragments needed, pure `@Composable` navigation with backstack that survives configuration change as well as process death.
 
 ## Implementation
+
+```groovy
+// root's build.gradle
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+```
 
 ```groovy
 dependencies {
@@ -18,11 +27,14 @@ dependencies {
 
 ## Samples
 
-- [Basic sample](/samples/basic-sample) - A sample to showcase all the library features.
+- [Basic sample](/samples/basic-sample) - Demonstrates forward & backward navigation with animations as well as setup of Bottom Navigation supporting multiple backstack.
 
 ## Tutorials
 
-- [Quick Setup & usage]()
+- [Quick Setup & usage](https://github.com/KaustubhPatange/navigator/wiki/Compose-Setup)
+- [Hands on Tutorials](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials)
+  - [Navigating with animation](#navigating-with-animation)
+  - [Navigate with single top instance & `popUpTo`](#navigate-with-single-top-instance-&-popUpTo)
 
 ## License
 
