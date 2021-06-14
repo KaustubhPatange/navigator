@@ -19,4 +19,11 @@ val galleryItems = listOf(
     GalleryItem("Zoe", 2),
     GalleryItem("Ava", 6),
     GalleryItem("Gracie", 6),
+    GalleryItem("Liberty", 6),
+    GalleryItem("Isabella", 9),
+    GalleryItem("Luna", 3),
+    GalleryItem("Jada", 6),
+    GalleryItem("Abby", 4),
+    GalleryItem("Harley", 8),
+    GalleryItem("Henry", 3),
 )

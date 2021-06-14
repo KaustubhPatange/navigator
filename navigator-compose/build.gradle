@@ -4,7 +4,7 @@ buildscript {
     ext {
         compose_version = '1.0.0-beta08'
         versions = [
-                "navigator_compose": "0.1-alpha02"
+                "navigator_compose": "0.1-alpha03"
         ]
     }
     repositories {

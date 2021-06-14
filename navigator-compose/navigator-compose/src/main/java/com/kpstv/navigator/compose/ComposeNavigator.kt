@@ -6,12 +6,15 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -314,6 +317,7 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
     public fun<T : Parcelable> Setup(modifier: Modifier = Modifier, initial: T, content: @Composable (controller: Controller<T>, dest: T) -> Unit) {
         val history = remember { fetchOrUpdateHistory(initial::class, initial) }
         val controller = remember { Controller(initial::class, this, history) }
+        val saveableStateHolder = rememberSaveableStateHolder()
 
         @Composable
         fun Inner(body: @Composable () -> Unit) = Box(modifier) { body() }
@@ -324,7 +328,9 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
             CompositionLocalProvider(LocalController provides controller, LocalNavigator provides this) {
                 val current = history.peek()
                 CommonEffect(targetState = current.first, animation = current.second, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
-                    content(LocalController.current as Controller<T>, peek)
+                    saveableStateHolder.SaveableStateProvider(key = peek) {
+                        content(LocalController.current as Controller<T>, peek)
+                    }
                 }
             }
             LaunchedEffect(key1 = history.get(), block = {
@@ -384,18 +390,17 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
                 }
             }
             items.clear()
-
             keys.mapTo(items) { key ->
                 CommonAnimationItemHolder(key) {
+                    val progress by transition.animateFloat(
+                        transitionSpec = { animationSpec }, label = "normal")
+                    { if (it == key) 1f else 0f }
+
+                    val shrinkProgress by transition.animateFloat(
+                        transitionSpec = { animationSpec }, label = "shrink")
+                    { if (it == key) 1f else 0.9f }
+
                     BoxWithConstraints {
-                        val progress by transition.animateFloat(
-                            transitionSpec = { animationSpec }, label = "normal")
-                        { if (it == key) 1f else 0f }
-
-                        val shrinkProgress by transition.animateFloat(
-                            transitionSpec = { animationSpec }, label = "shrink")
-                        { if (it == key) 1f else 0.9f }
-
                         val width = with(LocalDensity.current) { maxWidth.toPx() }
                         val internalModifier = getUpdatedModifier(width, progress, shrinkProgress, key)
                         Box(internalModifier) {
@@ -408,9 +413,7 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
             items.removeAll { it.key != transitionState.targetState }
         }
 
-        if (animationSnapShot.enter == EnterAnimation.None && animationSnapShot.exit == ExitAnimation.None) {
-            content(targetState)
-        } else {
+        Box {
             items.fastForEach {
                 key(it.key) {
                     it.content()
