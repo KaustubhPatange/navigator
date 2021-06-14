@@ -2,6 +2,7 @@ package com.kpstv.navigator.compose.sample
 
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -16,10 +17,9 @@ import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +35,7 @@ import com.kpstv.navigator.compose.sample.ui.galleryItems
 import com.kpstv.navigator.compose.sample.ui.theme.ComposeTestAppTheme
 import com.kpstv.navigator.compose.*
 import com.kpstv.navigator.compose.sample.ui.MenuItem
+import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
 class MainActivity : ComponentActivity() {
@@ -90,7 +91,9 @@ fun FirstScreen(data: String, change: (Route) -> Unit) {
                     }
                 }
             })
-            FirstRoute.Third -> ThirdScreen()
+            FirstRoute.Third -> {
+                ThirdScreen()
+            }
         }
     }
 }
@@ -124,6 +127,11 @@ fun PrimaryFirst(data: String, change: (Route) -> Unit, change2: (FirstRoute) ->
             Text("Go to third screen")
         }
     }
+}
+
+sealed class BB : Parcelable {
+    @Parcelize
+    object Home : BB()
 }
 
 @Composable
@@ -208,13 +216,14 @@ sealed class GalleryRoute : Parcelable {
 
 @Composable
 fun PrimaryGallery(onItemSelected: (GalleryItem) -> Unit) {
+    val state = rememberLazyListState() // FIXME: Nested navigation doesn't save list state across process death.
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
     ) {
         val image = painterResource(R.drawable.placeholder)
-        LazyColumn {
+        LazyColumn(state = state) {
             items(galleryItems) { item ->
                 Box(
                     modifier = Modifier

@@ -9,11 +9,12 @@ import android.os.Parcelable
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -22,13 +23,15 @@ import androidx.compose.ui.util.fastForEach
 import com.kpstv.navigator.compose.EnterAnimation.Companion.reverse
 import com.kpstv.navigator.compose.ExitAnimation.Companion.reverse
 import kotlinx.parcelize.Parcelize
+import java.io.Serializable
 import kotlin.IllegalArgumentException
 import kotlin.reflect.KClass
 
 private val LocalController = compositionLocalOf<ComposeNavigator.Controller<out Parcelable>> { throw Exception("NavController not set.") }
 private val LocalNavigator = compositionLocalOf<ComposeNavigator> { throw Exception("Compose Navigator not set.") }
 
-private fun<K, V> Map<K,V>.last(): V? = get(keys.last())
+private fun<K, V> Map<K,V>.lastKey(): K? = keys.last()
+private fun<K, V> Map<K,V>.lastValue(): V? = get(keys.last())
 private fun<K, V> MutableMap<K,V>.removeLastOrNull(): V? = remove(keys.last())
 private fun<K, V> MutableMap<K, V>.bringToTop(key: K) = remove(key)?.let { put(key, it) }
 
@@ -47,9 +50,8 @@ public fun <T : Parcelable> findController() : ComposeNavigator.Controller<T> = 
 /**
  * @param singleTop Ensures that there will be only once instance of this destination in the stack.
  *                  If there would be a previous one, then it would be brought front.
- * @param animation A DSL to set animations.
  */
-public data class NavOptions<T>(
+public data class NavOptions<T : Parcelable>(
     var singleTop: Boolean = false,
     internal var popOptions: PopUpOptions<T>? = null,
     internal var animationOptions: NavAnimation = NavAnimation()
@@ -70,7 +72,7 @@ public data class NavOptions<T>(
      *            this will recursively pop till the first one in the backstack. Otherwise, the last
      *            added one will be chosen.
      */
-    public data class PopUpOptions<T>(internal var dest: T, var inclusive: Boolean = true, var all: Boolean = false)
+    public data class PopUpOptions<T : Parcelable>(internal var dest: T, var inclusive: Boolean = true, var all: Boolean = false)
 
     /**
      * Pop up to the destination. Additional parameters can be set through [options] DSL.
@@ -128,41 +130,52 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
         private const val NAVIGATOR_SAVED_STATE_SUFFIX = "_compose_navigator"
     }
 
-    //TODO: A builder to set custom Animation Spec
+    //TODO: A builder to set custom Animation Spec, Make primary destination feature which will be navigated automatically when backstack becomes empty...
     internal class History<T : Parcelable> internal constructor(private val initial: T) {
+        companion object {
+            private const val LAST_REMOVED_ITEM_KEY = "history:last_item:key"
+            private const val LAST_REMOVED_ITEM_ANIMATION = "history:last_item:animation"
+        }
         internal enum class NavType { Forward, Backward }
 
-        private var backStack by mutableStateOf(listOf(initial))
-        internal var animationDefinition = arrayListOf(NavOptions.NavAnimation())
+        // TODO: Wait for Kotlin 1.5.20 (KT-42652). Make this parcelable for saving states.
+        internal data class BackStackRecord<T: Parcelable>(val key: T, val animation: NavOptions.NavAnimation = NavOptions.NavAnimation())
 
+        private var backStack by mutableStateOf(listOf(BackStackRecord(initial)))
+        private var lastRemoved: BackStackRecord<T>? = null
         internal var lastTransactionStatus = NavType.Forward
 
-        internal fun get(): List<T> =
-            backStack
 
-        internal fun set(elements: List<T>) {
+        internal fun get(): List<BackStackRecord<T>> = backStack
+
+        internal fun set(elements: List<BackStackRecord<T>>) {
             if (elements != backStack) {
                 lastTransactionStatus = NavType.Forward
                 backStack = elements
             }
         }
 
-        internal fun peek(): Pair<T, NavOptions.NavAnimation> = backStack.last() to animationDefinition.last()
-        internal fun pop(): Boolean {
+        internal fun peek(): BackStackRecord<T> = backStack.last()
+        internal fun pop(): BackStackRecord<T>? {
             if (canGoBack()) { // last item will not be popped
                 lastTransactionStatus = NavType.Backward
+                lastRemoved = backStack.last()
                 backStack = backStack.subList(0, backStack.lastIndex)
-                return true
+                return lastRemoved
             }
-            return false
+            return null
         }
         internal fun canGoBack(): Boolean = backStack.size > 1
+
+        internal fun getLastRemovedItem(): BackStackRecord<T>? = lastRemoved
 
         internal fun saveState(outState: Bundle) {
             if (backStack.isNotEmpty()) {
                 val bundle = Bundle().apply {
-                    putParcelableArrayList(::backStack.name, ArrayList(backStack))
-                    putParcelableArrayList(::animationDefinition.name, animationDefinition)
+                    putParcelableArrayList(BackStackRecord<T>::key.name, ArrayList(backStack.map { it.key }))
+                    putParcelableArrayList(BackStackRecord<T>::animation.name, ArrayList(backStack.map { it.animation }))
+                    putParcelable(LAST_REMOVED_ITEM_KEY, lastRemoved?.key)
+                    putParcelable(LAST_REMOVED_ITEM_ANIMATION, lastRemoved?.animation)
                 }
                 val name = "$HISTORY_SAVED_STATE${initial::class.qualifiedName}"
                 outState.putBundle(name, bundle)
@@ -172,8 +185,16 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
         internal fun restoreState(bundle: Bundle?) {
             val name = "$HISTORY_SAVED_STATE${initial::class.qualifiedName}"
             bundle?.getBundle(name)?.let { inner ->
-                animationDefinition = inner.getParcelableArrayList(::animationDefinition.name)!!
-                backStack = inner.getParcelableArrayList(::backStack.name)!!
+                val keys: List<T> = inner.getParcelableArrayList(BackStackRecord<T>::key.name)!!
+                val animations: List<NavOptions.NavAnimation> = inner.getParcelableArrayList(BackStackRecord<T>::animation.name)!!
+
+                val lastKey: T? = inner.getParcelable(LAST_REMOVED_ITEM_KEY)
+                val lastAnimation: NavOptions.NavAnimation? = inner.getParcelable(LAST_REMOVED_ITEM_ANIMATION)
+                if (lastKey != null && lastAnimation != null) {
+                    lastRemoved = BackStackRecord(lastKey, lastAnimation)
+                }
+
+                backStack = keys.zip(animations).map { BackStackRecord(it.first, it.second) }
             }
         }
     }
@@ -195,18 +216,19 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
             val popOptions = current.popOptions
             if (popOptions != null) { // recursive remove till pop options
                 val dest = if (popOptions.all)
-                    snapshot.find { it == popOptions.dest }
+                    snapshot.find { it.key == popOptions.dest }
                 else
-                    snapshot.findLast { it == popOptions.dest }
+                    snapshot.findLast { it.key == popOptions.dest }
                 val index = snapshot.indexOf(dest)
                 if (index != -1) {
-                    snapshot = ArrayList(snapshot.subList(0, index))
+                    val clamp = if (popOptions.inclusive) index else minOf(index + 1, snapshot.lastIndex)
+                    snapshot = ArrayList(snapshot.subList(0, clamp))
                 }
             }
             if (current.singleTop) { // remove duplicates
-                snapshot.removeAll { it == destination}
+                snapshot.removeAll { it.key == destination}
             }
-            snapshot.add(destination)
+            snapshot.add(History.BackStackRecord(destination, current.animationOptions))
 
             if (!navigator.backStackMap.containsKey(key)) {
                 // This should not happen but it happened!
@@ -214,7 +236,6 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
             }
             navigator.backStackMap.bringToTop(key)
 
-            history.animationDefinition.add(current.animationOptions)
             history.set(snapshot)
         }
 
@@ -227,22 +248,22 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
         /**
          * Go back to the previous destination.
          *
-         * @return true if it went up the stack.
+         * @return The removed key.
          */
-        public fun goBack(): Boolean = navigator.goBack()
+        public fun goBack(): T? = navigator.goBack()?.key as? T
     }
 
-    private fun goBack(): Boolean {
-        val last = backStackMap.last()
+    private fun goBack(): History.BackStackRecord<out Parcelable>? {
+        val last = backStackMap.lastValue()
         if (backStackMap.size > 1 && !last!!.canGoBack()) {
             backStackMap.removeLastOrNull()
             return goBack()
         }
-        return last?.pop() == true
+        return last?.pop()
     }
 
     private fun canGoBack(): Boolean {
-        val last = backStackMap.last()
+        val last = backStackMap.lastValue()
         if (backStackMap.size > 1) {
             val aggregate = backStackMap.values.sumOf { it.get().size }
             if (aggregate == backStackMap.size) return false
@@ -321,13 +342,14 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
 
         @Composable
         fun Inner(body: @Composable () -> Unit) = Box(modifier) { body() }
-//        Log.i("Render", "${initial::class.qualifiedName} Recomposed()/Composed()")
+//        Log.d("Render", "${initial::class.qualifiedName} Recomposed()/Composed()")
         Inner {
             // recompose on history change
-//            Log.i("Inner", "Recomposed()/Composed() ${history.peek()} - ${initial::class.qualifiedName}")
+//            Log.d("Inner", "Recomposed()/Composed() ${history.peek()} - ${initial::class.qualifiedName}")
             CompositionLocalProvider(LocalController provides controller, LocalNavigator provides this) {
-                val current = history.peek()
-                CommonEffect(targetState = current.first, animation = current.second, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
+                val record = history.peek()
+                val animation = if (history.lastTransactionStatus == History.NavType.Forward) record.animation else history.getLastRemovedItem()?.animation ?: NavOptions.NavAnimation()
+                CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
                     saveableStateHolder.SaveableStateProvider(key = peek) {
                         content(LocalController.current as Controller<T>, peek)
                     }
@@ -392,15 +414,14 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
             items.clear()
             keys.mapTo(items) { key ->
                 CommonAnimationItemHolder(key) {
-                    val progress by transition.animateFloat(
-                        transitionSpec = { animationSpec }, label = "normal")
-                    { if (it == key) 1f else 0f }
-
-                    val shrinkProgress by transition.animateFloat(
-                        transitionSpec = { animationSpec }, label = "shrink")
-                    { if (it == key) 1f else 0.9f }
-
                     BoxWithConstraints {
+                        val progress by transition.animateFloat(
+                            transitionSpec = { animationSpec }, label = "normal")
+                        { if (it == key) 1f else 0f }
+
+                        val shrinkProgress by transition.animateFloat(
+                            transitionSpec = { animationSpec }, label = "shrink")
+                        { if (it == key) 1f else 0.9f }
                         val width = with(LocalDensity.current) { maxWidth.toPx() }
                         val internalModifier = getUpdatedModifier(width, progress, shrinkProgress, key)
                         Box(internalModifier) {
@@ -413,11 +434,9 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
             items.removeAll { it.key != transitionState.targetState }
         }
 
-        Box {
-            items.fastForEach {
-                key(it.key) {
-                    it.content()
-                }
+        items.fastForEach {
+            key(it.key) {
+                it.content()
             }
         }
     }

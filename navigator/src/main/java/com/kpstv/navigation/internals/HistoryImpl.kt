@@ -58,7 +58,7 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
         if (!backStack.isEmpty()) {
             val index = backStack.indexOfFirst { it.name == name }
             if (index != -1) {
-                for(i in backStack.count() -1 downTo if (inclusive) index else index+1) backStack.removeLast()
+                for(i in backStack.count() -1 downTo if (inclusive) index else minOf(index+1, backStack.lastIndex)) backStack.removeLast()
                 popInternal(name, inclusive)
                 return true
             }
