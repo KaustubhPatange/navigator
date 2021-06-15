@@ -70,7 +70,7 @@ jobs:
       # TODO: Write tests for bottom & tab navigation
       # TODO: Write tests for navigator-compose
       - name: Run Instrumented tests
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.9.0
         with:
           api-level: 29
-          script: ./gradlew runAllInstrumentedTest
+          script: ./gradlew runAllInstrumentedTest --stacktrace
