@@ -37,6 +37,7 @@ dependencies {
 
 - [Quick Setup & usage](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Setup)
 - [Hands on Tutorials](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials)
+  - [Navigating with arguments](#navigating-with-arguments)
   - [Navigating with animation](#navigating-with-animation)
   - [Navigate with single top instance & `popUpTo`](#navigate-with-single-top-instance-&-popUpTo)
 
