@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         navigator = ComposeNavigator(this, savedInstanceState)
         setContent {
+            navigator.saveableStateHolder = rememberSaveableStateHolder()
             ComposeTestAppTheme {
                 Surface(color = MaterialTheme.colors.background) {
                     StartScreen(navigator = navigator, route = Route.First("Hello world"))

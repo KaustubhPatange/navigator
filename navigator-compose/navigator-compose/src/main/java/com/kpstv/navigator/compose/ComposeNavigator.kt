@@ -145,6 +145,7 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
         private var lastRemoved: BackStackRecord<T>? = null
         internal var lastTransactionStatus = NavType.Forward
 
+        internal fun getInitialKey(): T = initial
 
         internal fun get(): List<BackStackRecord<T>> = backStack
 
@@ -256,10 +257,12 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
     private fun goBack(): History.BackStackRecord<out Parcelable>? {
         val last = backStackMap.lastValue()
         if (backStackMap.size > 1 && !last!!.canGoBack()) {
-            backStackMap.removeLastOrNull()
+            backStackMap.removeLastOrNull()?.let { saveableStateHolder.removeState(it.getInitialKey()) }
             return goBack()
         }
-        return last?.pop()
+        val popped = last?.pop()
+        popped?.let { saveableStateHolder.removeState(it.key) }
+        return popped
     }
 
     private fun canGoBack(): Boolean {
@@ -288,6 +291,7 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
     private fun isBackPressedEnabled() : Boolean = isBackPressedEnabled
 
     private val backStackMap = mutableMapOf<KClass<out Parcelable>, History<*>>()
+    public lateinit var saveableStateHolder: SaveableStateHolder
 
     init {
         activity.onBackPressedDispatcher.addCallback(backPressHandler)
@@ -338,7 +342,7 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
     public fun<T : Parcelable> Setup(modifier: Modifier = Modifier, initial: T, content: @Composable (controller: Controller<T>, dest: T) -> Unit) {
         val history = remember { fetchOrUpdateHistory(initial::class, initial) }
         val controller = remember { Controller(initial::class, this, history) }
-        val saveableStateHolder = rememberSaveableStateHolder()
+//        val saveableStateHolder = rememberSaveableStateHolder()
 
         @Composable
         fun Inner(body: @Composable () -> Unit) = Box(modifier) { body() }
