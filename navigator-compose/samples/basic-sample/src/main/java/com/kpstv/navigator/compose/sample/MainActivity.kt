@@ -10,7 +10,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
@@ -18,8 +17,6 @@ import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,7 +32,6 @@ import com.kpstv.navigator.compose.sample.ui.galleryItems
 import com.kpstv.navigator.compose.sample.ui.theme.ComposeTestAppTheme
 import com.kpstv.navigator.compose.*
 import com.kpstv.navigator.compose.sample.ui.MenuItem
-import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
 class MainActivity : ComponentActivity() {
@@ -44,20 +40,26 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         navigator = ComposeNavigator(this, savedInstanceState)
         setContent {
-            navigator.saveableStateHolder = rememberSaveableStateHolder()
             ComposeTestAppTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    StartScreen(navigator = navigator, route = Route.First("Hello world"))
+                    StartScreen(navigator = navigator, startRoute = StartRoute.First("Hello world"))
                 }
             }
         }
     }
 }
 
+sealed class StartRoute : Parcelable {
+    @Parcelize
+    data class First(val data: String) : StartRoute(), Route
+    @Parcelize
+    data class Second(val data: String) : StartRoute(), Route
+}
+
 @Composable
-fun StartScreen(navigator: ComposeNavigator, route: Route) {
-    navigator.Setup(initial = route) { controller, dest ->
-        val onChanged: (screen: Route) -> Unit = { value ->
+fun StartScreen(navigator: ComposeNavigator, startRoute: StartRoute) {
+    navigator.Setup(initial = startRoute) { controller, dest ->
+        val onChanged: (screen: StartRoute) -> Unit = { value ->
             controller.navigateTo(value) {
                 withAnimation {
                     enter = EnterAnimation.FadeIn
@@ -66,25 +68,25 @@ fun StartScreen(navigator: ComposeNavigator, route: Route) {
             }
         }
         when (dest) {
-            is Route.First -> FirstScreen(dest.data, onChanged)
-            is Route.Second -> SecondScreen()
+            is StartRoute.First -> FirstScreen(dest.data, onChanged)
+            is StartRoute.Second -> SecondScreen()
         }
     }
 }
 
-sealed class Route : Parcelable {
+sealed class FirstRoute : Parcelable {
     @Parcelize
-    data class First(val data: String) : Route()
+    object Primary : FirstRoute(), Route
     @Parcelize
-    data class Second(val data: String) : Route()
+    object Third : FirstRoute(), Route
 }
 
 @Composable
-fun FirstScreen(data: String, change: (Route) -> Unit) {
+fun FirstScreen(data: String, change: (StartRoute) -> Unit) {
     val navigator = findComposeNavigator()
-    navigator.Setup(initial = FirstRoute.Primary) { controller, dest ->
+    navigator.Setup(initial = FirstRoute.Primary as FirstRoute) { controller, dest ->
         when(dest) {
-            FirstRoute.Primary -> PrimaryFirst(data, change, { route ->
+            is FirstRoute.Primary -> PrimaryFirst(data, change, { route ->
                 controller.navigateTo(route) {
                     withAnimation {
                         enter = EnterAnimation.SlideInRight
@@ -92,20 +94,15 @@ fun FirstScreen(data: String, change: (Route) -> Unit) {
                     }
                 }
             })
-            FirstRoute.Third -> {
+            is FirstRoute.Third -> {
                 ThirdScreen()
             }
         }
     }
 }
 
-@Parcelize
-enum class FirstRoute : Parcelable {
-    Primary, Third
-}
-
 @Composable
-fun PrimaryFirst(data: String, change: (Route) -> Unit, change2: (FirstRoute) -> Unit) {
+fun PrimaryFirst(data: String, change: (StartRoute) -> Unit, change2: (FirstRoute) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -116,7 +113,7 @@ fun PrimaryFirst(data: String, change: (Route) -> Unit, change2: (FirstRoute) ->
 
         Text("First Screen: $data", color = Color.Black)
         Button(
-            onClick = { change.invoke(Route.Second("String")) },
+            onClick = { change.invoke(StartRoute.Second("String")) },
             modifier = Modifier.padding(top = 10.dp)
         ) {
             Text("Go to second screen")
@@ -130,20 +127,17 @@ fun PrimaryFirst(data: String, change: (Route) -> Unit, change2: (FirstRoute) ->
     }
 }
 
-sealed class BB : Parcelable {
-    @Parcelize
-    object Home : BB()
-}
-
 @Composable
 fun SecondScreen() {
     Column {
         // if the menu is moved inside the navigator scope then it'll too
         // undergo recomposition when destination is changed which looks
         // bad if animations are enabled.
-        val destination = remember { mutableStateOf(MenuItem.Home) }
+
+        val destination = remember { mutableStateOf(MenuItem.Home as MenuItem) }
         val controller = remember { mutableStateOf<ComposeNavigator.Controller<MenuItem>?>(null) }
-        findComposeNavigator().Setup(modifier = Modifier.weight(1f), initial = MenuItem.Home) { con, dest ->
+
+        findComposeNavigator().Setup(modifier = Modifier.weight(1f), initial = MenuItem.Home as MenuItem) { con, dest ->
             destination.value = dest
             controller.value = con
 
@@ -152,7 +146,7 @@ fun SecondScreen() {
                 .wrapContentSize(Alignment.TopStart)) {
                 when (dest) {
                     MenuItem.Home -> Gallery()
-                    else -> ReusableComponent(dest.name)
+                    else -> ReusableComponent(dest.toString())
                 }
             }
         }
@@ -210,14 +204,15 @@ fun Gallery() {
 
 sealed class GalleryRoute : Parcelable {
     @Parcelize
-    object Primary : GalleryRoute()
+    object Primary : GalleryRoute(), Route
     @Parcelize
-    data class Detail(val item: GalleryItem) : GalleryRoute()
+    data class Detail(val item: GalleryItem) : GalleryRoute(), Route
 }
 
 @Composable
 fun PrimaryGallery(onItemSelected: (GalleryItem) -> Unit) {
     val state = rememberLazyListState() // FIXME: Nested navigation doesn't save list state across process death.
+    Log.e("PrimaryGallery", "${state.firstVisibleItemIndex} - ${state.firstVisibleItemScrollOffset}")
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -282,7 +277,7 @@ fun ReusableComponent(text: String) {
 
 @Composable
 fun ThirdScreen() {
-    findComposeNavigator().Setup(initial = ThirdRoute.Third1) { controller, dest ->
+    findComposeNavigator().Setup(initial = ThirdRoute.Third1 as ThirdRoute) { controller, dest ->
         val onChanged: (ThirdRoute) -> Unit = { screen ->
             controller.navigateTo(screen) {
                 withAnimation {
@@ -292,15 +287,17 @@ fun ThirdScreen() {
             }
         }
         when(dest) {
-            ThirdRoute.Third1 -> ThirdScreen1(onChanged)
-            ThirdRoute.Third2 -> ThirdScreen2()
+            is ThirdRoute.Third1 -> ThirdScreen1(onChanged)
+            is ThirdRoute.Third2 -> ThirdScreen2()
         }
     }
 }
 
-@Parcelize
-enum class ThirdRoute : Parcelable {
-    Third1, Third2
+sealed class ThirdRoute : Parcelable {
+    @Parcelize
+    object Third1 : ThirdRoute(), Route
+    @Parcelize
+    object Third2 : ThirdRoute(), Route
 }
 
 @Composable

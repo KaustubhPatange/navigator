@@ -8,7 +8,7 @@ An implementation of [`navigator`](https://github.com/KaustubhPatange/navigator)
 
 - Handles forward, backward navigation supporting multiple backstack.
 - Automatically handles backpress events (to go up the stack).
-- No Fragments needed, pure @Composable navigation.
+- No Fragments needed, pure `@Composable` navigation.
 - The library also provides some built-in animations when navigating to other screens (check the sample app).
 - All the navigation states are preserved across configuration change & process death.
 

@@ -6,14 +6,12 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
@@ -23,17 +21,8 @@ import androidx.compose.ui.util.fastForEach
 import com.kpstv.navigator.compose.EnterAnimation.Companion.reverse
 import com.kpstv.navigator.compose.ExitAnimation.Companion.reverse
 import kotlinx.parcelize.Parcelize
-import java.io.Serializable
 import kotlin.IllegalArgumentException
 import kotlin.reflect.KClass
-
-private val LocalController = compositionLocalOf<ComposeNavigator.Controller<out Parcelable>> { throw Exception("NavController not set.") }
-private val LocalNavigator = compositionLocalOf<ComposeNavigator> { throw Exception("Compose Navigator not set.") }
-
-private fun<K, V> Map<K,V>.lastKey(): K? = keys.last()
-private fun<K, V> Map<K,V>.lastValue(): V? = get(keys.last())
-private fun<K, V> MutableMap<K,V>.removeLastOrNull(): V? = remove(keys.last())
-private fun<K, V> MutableMap<K, V>.bringToTop(key: K) = remove(key)?.let { put(key, it) }
 
 /**
  * Find the [ComposeNavigator] provided by the nearest CompositionLocalProvider.
@@ -46,6 +35,16 @@ public fun findComposeNavigator() : ComposeNavigator = LocalNavigator.current
  */
 @Composable
 public fun <T : Parcelable> findController() : ComposeNavigator.Controller<T> = LocalController.current as ComposeNavigator.Controller<T>
+
+/**
+ * Each destination must implement this interface to provide correct mechanism of SaveStateRegistry.
+ */
+public interface Route {
+    /**
+     * The key used for the SaveableStateProvider. It should be unique & of type that can be saved in a bundle.
+     */
+    public val saveableStateProviderKey: Any get() = this::class.qualifiedName!!
+}
 
 /**
  * @param singleTop Ensures that there will be only once instance of this destination in the stack.
@@ -124,7 +123,7 @@ public enum class ExitAnimation : Parcelable {
 /**
  * A navigator for Jetpack Compose.
  */
-public class ComposeNavigator(private val activity: ComponentActivity, private val savedInstanceState: Bundle?) {
+public class ComposeNavigator(private val activity: ComponentActivity, savedInstanceState: Bundle?) {
     private companion object {
         private const val HISTORY_SAVED_STATE = "compose_navigator:state:"
         private const val NAVIGATOR_SAVED_STATE_SUFFIX = "_compose_navigator"
@@ -143,7 +142,9 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
 
         private var backStack by mutableStateOf(listOf(BackStackRecord(initial)))
         private var lastRemoved: BackStackRecord<T>? = null
-        internal var lastTransactionStatus = NavType.Forward
+
+        internal var lastTransactionStatus: NavType = NavType.Forward
+        internal var isRestoredFromSavedInstance: Boolean = false
 
         internal fun getInitialKey(): T = initial
 
@@ -183,7 +184,7 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
             }
         }
 
-        internal fun restoreState(bundle: Bundle?) {
+        internal fun restoreState(bundle: Bundle?): String? {
             val name = "$HISTORY_SAVED_STATE${initial::class.qualifiedName}"
             bundle?.getBundle(name)?.let { inner ->
                 val keys: List<T> = inner.getParcelableArrayList(BackStackRecord<T>::key.name)!!
@@ -195,8 +196,12 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
                     lastRemoved = BackStackRecord(lastKey, lastAnimation)
                 }
 
+                isRestoredFromSavedInstance = true
                 backStack = keys.zip(animations).map { BackStackRecord(it.first, it.second) }
+
+                return name
             }
+            return null
         }
     }
 
@@ -215,7 +220,7 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
             var snapshot = ArrayList(history.get())
 
             val popOptions = current.popOptions
-            if (popOptions != null) { // recursive remove till pop options
+            if (popOptions != null) { // recursive remove till pop options // TODO: Remove saveableStateholder here as well.
                 val dest = if (popOptions.all)
                     snapshot.find { it.key == popOptions.dest }
                 else
@@ -257,11 +262,11 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
     private fun goBack(): History.BackStackRecord<out Parcelable>? {
         val last = backStackMap.lastValue()
         if (backStackMap.size > 1 && !last!!.canGoBack()) {
-            backStackMap.removeLastOrNull()?.let { saveableStateHolder.removeState(it.getInitialKey()) }
+            backStackMap.removeLastOrNull()?.let { saveableStateHolder.removeState((it.getInitialKey() as Route).saveableStateProviderKey) }
             return goBack()
         }
         val popped = last?.pop()
-        popped?.let { saveableStateHolder.removeState(it.key) }
+        popped?.let { saveableStateHolder.removeState((it.key as Route).saveableStateProviderKey) }
         return popped
     }
 
@@ -291,7 +296,8 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
     private fun isBackPressedEnabled() : Boolean = isBackPressedEnabled
 
     private val backStackMap = mutableMapOf<KClass<out Parcelable>, History<*>>()
-    public lateinit var saveableStateHolder: SaveableStateHolder
+    private lateinit var saveableStateHolder: SaveableStateHolder
+    private var savedState: Bundle? = null
 
     init {
         activity.onBackPressedDispatcher.addCallback(backPressHandler)
@@ -308,15 +314,16 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
                 }
             }
         })
+        // find correct state
+        savedState = savedInstanceState?.getBundle("${activity::class.qualifiedName}$NAVIGATOR_SAVED_STATE_SUFFIX")
     }
 
     private fun<T : Parcelable> fetchOrUpdateHistory(clazz: KClass<out Parcelable>, initial: T): History<T> {
         val present = backStackMap.containsKey(clazz)
         if (!present) {
-            // update from saved instance state
-            val bundle = savedInstanceState?.getBundle("${activity::class.qualifiedName}$NAVIGATOR_SAVED_STATE_SUFFIX")
+            // restore from saved state
             val history = History(initial)
-            history.restoreState(bundle)
+            savedState?.remove(history.restoreState(savedState))
             backStackMap[clazz] = history
             return history
         }
@@ -342,10 +349,20 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
     public fun<T : Parcelable> Setup(modifier: Modifier = Modifier, initial: T, content: @Composable (controller: Controller<T>, dest: T) -> Unit) {
         val history = remember { fetchOrUpdateHistory(initial::class, initial) }
         val controller = remember { Controller(initial::class, this, history) }
-//        val saveableStateHolder = rememberSaveableStateHolder()
+        if (!::saveableStateHolder.isInitialized) saveableStateHolder = rememberSaveableStateHolder() // is this ok
 
         @Composable
         fun Inner(body: @Composable () -> Unit) = Box(modifier) { body() }
+
+        @Composable
+        fun<T: Parcelable> Compose(key: T, content: @Composable () -> Unit) {
+            if (key is Route) {
+                saveableStateHolder.SaveableStateProvider(key = key.saveableStateProviderKey) { content() }
+            } else {
+                throw TypeNotPresentException(Route::class.qualifiedName, Throwable("The destination $key must implement \"ScreenRoute\" interface."))
+            }
+        }
+
 //        Log.d("Render", "${initial::class.qualifiedName} Recomposed()/Composed()")
         Inner {
             // recompose on history change
@@ -354,10 +371,19 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
                 val record = history.peek()
                 val animation = if (history.lastTransactionStatus == History.NavType.Forward) record.animation else history.getLastRemovedItem()?.animation ?: NavOptions.NavAnimation()
                 CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
-                    saveableStateHolder.SaveableStateProvider(key = peek) {
-                        content(LocalController.current as Controller<T>, peek)
-                    }
+                    Compose(peek) { content(LocalController.current as Controller<T>, peek) }
                 }
+
+                // TODO: Waiting for #191059138
+                /*if (history.isRestoredFromSavedInstance) {
+                    Log.e("Inner", "Restored from saved instance: $record")
+                    Compose(record.key) { content(LocalController.current as Controller<T>, record.key) }
+                } else {
+                    Log.e("Inner", "Normal invocation: $record")
+                    CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
+                        Compose(peek) { content(LocalController.current as Controller<T>, peek) }
+                    }
+                }*/
             }
             LaunchedEffect(key1 = history.get(), block = {
                 backPressHandler.isEnabled = canGoBack() // update if back press is enabled or not.
@@ -449,4 +475,18 @@ public class ComposeNavigator(private val activity: ComponentActivity, private v
         val key: T,
         val content: @Composable () -> Unit
     )
+}
+
+private val LocalController = compositionLocalOf<ComposeNavigator.Controller<out Parcelable>> { throw Exception("NavController not set.") }
+private val LocalNavigator = compositionLocalOf<ComposeNavigator> { throw Exception("Compose Navigator not set.") }
+
+private fun<K, V> Map<K,V>.lastKey(): K? = keys.last()
+private fun<K, V> Map<K,V>.lastValue(): V? = get(keys.last())
+private fun<K, V> MutableMap<K,V>.removeLastOrNull(): V? = remove(keys.last())
+private fun<K, V> MutableMap<K, V>.bringToTop(key: K) = remove(key)?.let { put(key, it) }
+
+private fun<T> Bundle.consumeKey(key: String): T? {
+    val item = get(key) as T
+    remove(key)
+    return item
 }

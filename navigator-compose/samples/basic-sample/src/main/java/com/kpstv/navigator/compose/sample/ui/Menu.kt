@@ -19,11 +19,22 @@ import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kpstv.navigator.compose.Route
 import kotlinx.parcelize.Parcelize
 
-@Parcelize
-enum class MenuItem : Parcelable {
-    Home, Favourite, Settings
+sealed class MenuItem : Parcelable {
+    @Parcelize
+    object Home : MenuItem(), Route {
+        override fun toString() = "Home"
+    }
+    @Parcelize
+    object Favourite : MenuItem(), Route {
+        override fun toString() = "Favourite"
+    }
+    @Parcelize
+    object Settings : MenuItem(), Route {
+        override fun toString() = "Settings"
+    }
 }
 
 interface Menu {
@@ -51,7 +62,7 @@ interface Menu {
         }
 
         @Composable
-        private fun MenuItem(item: MenuItem, isSelected: Boolean, onClick: (MenuItem) -> Unit) {
+        fun MenuItem(item: MenuItem, isSelected: Boolean, onClick: (MenuItem) -> Unit) {
             val color = MaterialTheme.colors
 
             Surface(
@@ -70,7 +81,7 @@ interface Menu {
                     Text(
                         modifier = Modifier.fillMaxWidth().padding(3.dp),
                         text = AnnotatedString(
-                            text = item.name,
+                            text = item.toString(),
                             paragraphStyle = ParagraphStyle(
                                 textAlign = TextAlign.Center
                             )
