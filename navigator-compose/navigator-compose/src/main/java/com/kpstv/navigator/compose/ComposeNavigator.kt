@@ -37,16 +37,6 @@ public fun findComposeNavigator() : ComposeNavigator = LocalNavigator.current
 public fun <T : Parcelable> findController() : ComposeNavigator.Controller<T> = LocalController.current as ComposeNavigator.Controller<T>
 
 /**
- * Each destination must implement this interface to provide correct mechanism of SaveStateRegistry.
- */
-public interface Route {
-    /**
-     * The key used for the SaveableStateProvider. It should be unique & of type that can be saved in a bundle.
-     */
-    public val saveableStateProviderKey: Any get() = this::class.qualifiedName!!
-}
-
-/**
  * @param singleTop Ensures that there will be only once instance of this destination in the stack.
  *                  If there would be a previous one, then it would be brought front.
  */
@@ -121,15 +111,42 @@ public enum class ExitAnimation : Parcelable {
 }
 
 /**
- * A navigator for Jetpack Compose.
+ * A navigator for managing navigation in Jetpack Compose.
  */
-public class ComposeNavigator(private val activity: ComponentActivity, savedInstanceState: Bundle?) {
-    private companion object {
+public class ComposeNavigator private constructor(private val activity: ComponentActivity, savedInstanceState: Bundle?) {
+    public companion object {
         private const val HISTORY_SAVED_STATE = "compose_navigator:state:"
         private const val NAVIGATOR_SAVED_STATE_SUFFIX = "_compose_navigator"
+
+        /**
+         * Creates a new builder for [ComposeNavigator].
+         */
+        public fun with(activity: ComponentActivity, savedInstanceState: Bundle?) : Builder = Builder(activity, savedInstanceState)
     }
 
-    //TODO: A builder to set custom Animation Spec, Make primary destination feature which will be navigated automatically when backstack becomes empty...
+    public class Builder internal constructor(activity: ComponentActivity, savedInstanceState: Bundle?) {
+        private val navigator = ComposeNavigator(activity, savedInstanceState)
+
+        /**
+         * This will disable Navigator's internal back press logic if set to `False` which you then have to manually
+         * handle in Activity's `onBackPressed()`.
+         */
+        public fun setDefaultBackPressEnabled(value: Boolean): Builder {
+            if (!value) {
+                navigator.backPressHandler.remove()
+            }
+            return this
+        }
+
+        /**
+         * Returns the configured instance of [ComposeNavigator].
+         */
+        public fun initialize() : ComposeNavigator = navigator
+
+        // TODO: Option to set custom Animation Spec (if needed).
+    }
+
+    //TODO: Make primary destination feature which will be navigated automatically when backstack becomes empty.
     internal class History<T : Parcelable> internal constructor(private val initial: T) {
         companion object {
             private const val LAST_REMOVED_ITEM_KEY = "history:last_item:key"
@@ -144,7 +161,6 @@ public class ComposeNavigator(private val activity: ComponentActivity, savedInst
         private var lastRemoved: BackStackRecord<T>? = null
 
         internal var lastTransactionStatus: NavType = NavType.Forward
-        internal var isRestoredFromSavedInstance: Boolean = false
 
         internal fun getInitialKey(): T = initial
 
@@ -196,7 +212,6 @@ public class ComposeNavigator(private val activity: ComponentActivity, savedInst
                     lastRemoved = BackStackRecord(lastKey, lastAnimation)
                 }
 
-                isRestoredFromSavedInstance = true
                 backStack = keys.zip(animations).map { BackStackRecord(it.first, it.second) }
 
                 return name
@@ -217,10 +232,10 @@ public class ComposeNavigator(private val activity: ComponentActivity, savedInst
          */
         public fun navigateTo(destination: T, options: NavOptions<T>.() -> Unit = {}) {
             val current = NavOptions<T>().apply(options)
-            var snapshot = ArrayList(history.get())
+            val snapshot = ArrayList(history.get())
 
             val popOptions = current.popOptions
-            if (popOptions != null) { // recursive remove till pop options // TODO: Remove saveableStateholder here as well.
+            if (popOptions != null) { // recursive remove till pop options
                 val dest = if (popOptions.all)
                     snapshot.find { it.key == popOptions.dest }
                 else
@@ -228,12 +243,18 @@ public class ComposeNavigator(private val activity: ComponentActivity, savedInst
                 val index = snapshot.indexOf(dest)
                 if (index != -1) {
                     val clamp = if (popOptions.inclusive) index else minOf(index + 1, snapshot.lastIndex)
-                    snapshot = ArrayList(snapshot.subList(0, clamp))
+                    for(i in snapshot.size - 1 downTo clamp) {
+                        val removed = snapshot.removeLast()
+                        navigator.saveableStateHolder.removeState(removed.key)
+                    }
                 }
             }
             if (current.singleTop) { // remove duplicates
-                snapshot.removeAll { it.key == destination}
+                val items = snapshot.filter { it.key == destination}
+                snapshot.removeAll(items)
+                items.forEach { navigator.saveableStateHolder.removeState(it.key) }
             }
+
             snapshot.add(History.BackStackRecord(destination, current.animationOptions))
 
             if (!navigator.backStackMap.containsKey(key)) {
@@ -259,17 +280,25 @@ public class ComposeNavigator(private val activity: ComponentActivity, savedInst
         public fun goBack(): T? = navigator.goBack()?.key as? T
     }
 
+    /**
+     * Recursive reverse call to [History.canGoBack] to identify if back navigation is possible or not.
+     *
+     * If possible then the [History.pop] will be called to remove the last item from the backstack.
+     */
     private fun goBack(): History.BackStackRecord<out Parcelable>? {
         val last = backStackMap.lastValue()
         if (backStackMap.size > 1 && !last!!.canGoBack()) {
-            backStackMap.removeLastOrNull()?.let { saveableStateHolder.removeState((it.getInitialKey() as Route).saveableStateProviderKey) }
+            backStackMap.removeLastOrNull()?.let { saveableStateHolder.removeState(it.getInitialKey()) }
             return goBack()
         }
         val popped = last?.pop()
-        popped?.let { saveableStateHolder.removeState((it.key as Route).saveableStateProviderKey) }
+        popped?.let { saveableStateHolder.removeState(it.key) }
         return popped
     }
 
+    /**
+     * Recursive reverse call to [History.canGoBack] to identify if back navigation is possible or not.
+     */
     private fun canGoBack(): Boolean {
         val last = backStackMap.lastValue()
         if (backStackMap.size > 1) {
@@ -288,12 +317,11 @@ public class ComposeNavigator(private val activity: ComponentActivity, savedInst
 
     private val backPressHandler = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            if (isBackPressedEnabled()) goBack()
+            if (!shouldSuppressBackPress()) goBack()
         }
     }
 
-    @JvmName("isBackEnabled")
-    private fun isBackPressedEnabled() : Boolean = isBackPressedEnabled
+    private fun shouldSuppressBackPress() : Boolean = suppressBackPress
 
     private val backStackMap = mutableMapOf<KClass<out Parcelable>, History<*>>()
     private lateinit var saveableStateHolder: SaveableStateHolder
@@ -331,9 +359,12 @@ public class ComposeNavigator(private val activity: ComponentActivity, savedInst
     }
 
     /**
-     * Should back button enqueue a back navigation operation.
+     * When enabled, the back navigation will be disabled & no destinations will be popped from the history.
+     *
+     * This is different from [shouldSuppressBackPress] where if set to `False` then you need to manually handle
+     * Activity's `onBackPressed()` otherwise the application will `finish()`.
      */
-    public var isBackPressedEnabled: Boolean = true
+    public var suppressBackPress: Boolean = false
 
     /**
      * An entry to the navigation composable.
@@ -354,15 +385,6 @@ public class ComposeNavigator(private val activity: ComponentActivity, savedInst
         @Composable
         fun Inner(body: @Composable () -> Unit) = Box(modifier) { body() }
 
-        @Composable
-        fun<T: Parcelable> Compose(key: T, content: @Composable () -> Unit) {
-            if (key is Route) {
-                saveableStateHolder.SaveableStateProvider(key = key.saveableStateProviderKey) { content() }
-            } else {
-                throw TypeNotPresentException(Route::class.qualifiedName, Throwable("The destination $key must implement \"ScreenRoute\" interface."))
-            }
-        }
-
 //        Log.d("Render", "${initial::class.qualifiedName} Recomposed()/Composed()")
         Inner {
             // recompose on history change
@@ -370,20 +392,11 @@ public class ComposeNavigator(private val activity: ComponentActivity, savedInst
             CompositionLocalProvider(LocalController provides controller, LocalNavigator provides this) {
                 val record = history.peek()
                 val animation = if (history.lastTransactionStatus == History.NavType.Forward) record.animation else history.getLastRemovedItem()?.animation ?: NavOptions.NavAnimation()
-                CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
-                    Compose(peek) { content(LocalController.current as Controller<T>, peek) }
-                }
-
-                // TODO: Waiting for #191059138
-                /*if (history.isRestoredFromSavedInstance) {
-                    Log.e("Inner", "Restored from saved instance: $record")
-                    Compose(record.key) { content(LocalController.current as Controller<T>, record.key) }
-                } else {
-                    Log.e("Inner", "Normal invocation: $record")
                     CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
-                        Compose(peek) { content(LocalController.current as Controller<T>, peek) }
+                    saveableStateHolder.SaveableStateProvider(key = peek) {
+                        content(LocalController.current as Controller<T>, peek)
                     }
-                }*/
+                }
             }
             LaunchedEffect(key1 = history.get(), block = {
                 backPressHandler.isEnabled = canGoBack() // update if back press is enabled or not.
@@ -477,16 +490,10 @@ public class ComposeNavigator(private val activity: ComponentActivity, savedInst
     )
 }
 
-private val LocalController = compositionLocalOf<ComposeNavigator.Controller<out Parcelable>> { throw Exception("NavController not set.") }
-private val LocalNavigator = compositionLocalOf<ComposeNavigator> { throw Exception("Compose Navigator not set.") }
+private val LocalController = compositionLocalOf<ComposeNavigator.Controller<out Parcelable>> { throw Exception("NavController not set. Did you forgot to call \"Navigator.Setup\"?") }
+private val LocalNavigator = compositionLocalOf<ComposeNavigator> { throw Exception("Compose Navigator not set. Did you forgot to call \"Navigator.Setup\"?") }
 
 private fun<K, V> Map<K,V>.lastKey(): K? = keys.last()
 private fun<K, V> Map<K,V>.lastValue(): V? = get(keys.last())
 private fun<K, V> MutableMap<K,V>.removeLastOrNull(): V? = remove(keys.last())
 private fun<K, V> MutableMap<K, V>.bringToTop(key: K) = remove(key)?.let { put(key, it) }
-
-private fun<T> Bundle.consumeKey(key: String): T? {
-    val item = get(key) as T
-    remove(key)
-    return item
-}

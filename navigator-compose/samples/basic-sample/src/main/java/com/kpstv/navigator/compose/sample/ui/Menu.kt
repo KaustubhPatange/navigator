@@ -13,26 +13,26 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kpstv.navigator.compose.Route
 import kotlinx.parcelize.Parcelize
 
 sealed class MenuItem : Parcelable {
-    @Parcelize
-    object Home : MenuItem(), Route {
+    @Immutable @Parcelize
+    data class Home(private val noArg: String = "") : MenuItem() {
         override fun toString() = "Home"
     }
-    @Parcelize
-    object Favourite : MenuItem(), Route {
+    @Immutable @Parcelize
+    data class Favourite(private val noArg: String = "") : MenuItem() {
         override fun toString() = "Favourite"
     }
-    @Parcelize
-    object Settings : MenuItem(), Route {
+    @Immutable @Parcelize
+    data class Settings(private val noArg: String = "") : MenuItem() {
         override fun toString() = "Settings"
     }
 }
@@ -40,7 +40,7 @@ sealed class MenuItem : Parcelable {
 interface Menu {
 
     data class State(
-        val menuItems: List<MenuItem> = listOf(MenuItem.Home, MenuItem.Favourite, MenuItem.Settings),
+        val menuItems: List<MenuItem> = listOf(MenuItem.Home(), MenuItem.Favourite(), MenuItem.Settings()),
         val currentSelection: MenuItem
     )
 
@@ -74,9 +74,9 @@ interface Menu {
                 ) {
                     Icon(contentDescription = "icon", modifier= Modifier.fillMaxWidth().padding(top = 8.dp),
                         imageVector = when(item) {
-                            MenuItem.Home -> Icons.Default.Home
-                            MenuItem.Favourite -> Icons.Default.Favorite
-                            MenuItem.Settings -> Icons.Default.Settings
+                            is MenuItem.Home -> Icons.Default.Home
+                            is MenuItem.Favourite -> Icons.Default.Favorite
+                            is MenuItem.Settings -> Icons.Default.Settings
                         })
                     Text(
                         modifier = Modifier.fillMaxWidth().padding(3.dp),
@@ -99,5 +99,5 @@ interface Menu {
 @Preview
 @Composable
 fun PreviewMenu() {
-    Menu.Content(state = Menu.State(currentSelection = MenuItem.Home), onMenuItemClicked = {})
+    Menu.Content(state = Menu.State(currentSelection = MenuItem.Home()), onMenuItemClicked = {})
 }
