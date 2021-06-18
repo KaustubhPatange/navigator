@@ -37,6 +37,14 @@ jobs:
       - run: echo ${{ steps.write_file.outputs.filePath }}
       - run: echo signing.secretKeyRingFile=${{ steps.write_file.outputs.filePath }} >> local.properties
 
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
       # Publish libraries to local maven
       - name: Publishing libraries to local maven
         run: |
