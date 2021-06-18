@@ -50,7 +50,6 @@ class BasicMultiStackTests {
         }
         // Simulate configuration change or process death
         activityRule.scenario.recreate()
-        activityRule.scenario.moveToState(Lifecycle.State.STARTED)
         activityRule.scenario.with main@{
             // Check for the first Navigator fragment.
             assert(getNavigator().getCurrentFragment().matchClass(NavigatorFragment::class))

@@ -22,11 +22,6 @@ class FragmentNavigatorTests {
     @get:Rule
     val activity = ActivityScenarioRule(TestMainActivity::class.java)
 
-    @Before
-    fun init() {
-        activity.scenario.moveToState(Lifecycle.State.STARTED)
-    }
-
     @Test
     fun NavigateToFirstFragmentAndVerify() {
         activity.with {
