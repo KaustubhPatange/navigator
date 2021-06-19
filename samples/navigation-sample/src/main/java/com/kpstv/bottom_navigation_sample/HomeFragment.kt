@@ -38,7 +38,6 @@ class HomeFragment : ValueFragment(R.layout.fragment_home), FragmentNavigator.Tr
                 SecondFragment::class
             )
             override val fragmentNavigationTransition: Animation = Animation.SlideHorizontally
-            override val fragmentViewRetentionType: ViewRetention = ViewRetention.RETAIN
         })
     }
 
@@ -66,8 +65,9 @@ class FirstFragment : ValueFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         return ScrollView(requireContext()).apply {
+            id = R.id.scrollViewer
             addView(
                 TextView(requireContext()).apply {
                     layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT).apply {

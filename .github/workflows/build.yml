@@ -70,4 +70,16 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
+          arch: x86
+          avd-name: test
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          profile: Nexus 6
           script: ./gradlew runAllInstrumentedTest
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: test-results
+          path: |
+            navigator/build/reports/androidTests/
+            navigator-base-navigation/build/reports/androidTests/

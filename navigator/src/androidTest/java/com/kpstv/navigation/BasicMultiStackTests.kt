@@ -16,11 +16,6 @@ class BasicMultiStackTests {
     @get:Rule
     val activityRule = ActivityScenarioRule(TestMainActivity::class.java)
 
-    @Before
-    fun init() {
-        activityRule.scenario.moveToState(Lifecycle.State.STARTED)
-    }
-
     @Test
     fun SimpleCompleteMultiStackTest() {
         activityRule.with main@{
