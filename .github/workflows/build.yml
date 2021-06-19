@@ -4,10 +4,12 @@ on:
     paths-ignore:
       - "README.md"
       - "navigator-compose/**"
+      - ".github/workflows/build-compose.yml"
       - "docs"
   pull_request:
     paths-ignore:
       - "README.md"
+      - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"
       - "docs"
 jobs:

@@ -2,14 +2,16 @@ name: CI
 on:
   push:
     paths:
+      - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"
-    paths-ignore:
-      - "navigator-compose/README.md"
   pull_request:
     paths:
+      - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"
-    paths-ignore:
-      - "navigator-compose/README.md"
+
+defaults:
+  run:
+    working-directory: ./navigator-compose
 
 jobs:
   buildAndTestJob:
@@ -20,9 +22,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: chmod +x gradlew
 
-      # Set all the properties
+      - run: |
+          chmod +x gradlew
+          chmod +x run_test.sh
+
+      # Setting all the properties
       - name: Setting properties
         run: |
           echo signing.keyId=${{ secrets.KEY_ID }} >> local.properties
@@ -36,20 +41,26 @@ jobs:
           fileName: "key.gpg"
           encodedString: ${{ secrets.KEY_GPG }}
       - run: echo ${{ steps.write_file.outputs.filePath }}
-      - run: echo signing.secretKeyRingFile=${{ steps.write_file.outputs.filePath }} >> local.properties
+      - name: Setting up properties
+        run: |
+          echo signing.secretKeyRingFile=${{ steps.write_file.outputs.filePath }} >> local.properties
+
+          echo org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8 > gradle.properties
+          echo android.useAndroidX=true >> gradle.properties
+          echo android.enableJetifier=true >> gradle.properties
+          echo kotlin.code.style=official >> gradle.properties
 
       - uses: actions/cache@v2
         with:
           path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+            navigator-compose/.gradle/caches
+            navigator-compose/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('navigator-compose/*.gradle*') }}-${{ hashFiles('navigator-compose/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
 
       # Publishing library
       - name: Publishing libraries to local maven
-        run: |
-          ./gradlew navigator-compose:publishReleasePublicationToMavenLocal
+        run: ./gradlew navigator-compose:publishReleasePublicationToMavenLocal
 
       - name: Build samples
         run: |
@@ -60,4 +71,4 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: ./gradlew navigator-compose:connectedAndroidTest
+          script: ./navigator-compose/run_test.sh
