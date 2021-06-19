@@ -1,0 +1,63 @@
+name: CI
+on:
+  push:
+    paths:
+      - "navigator-compose/**"
+    paths-ignore:
+      - "navigator-compose/README.md"
+  pull_request:
+    paths:
+      - "navigator-compose/**"
+    paths-ignore:
+      - "navigator-compose/README.md"
+
+jobs:
+  buildAndTestJob:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: chmod +x gradlew
+
+      # Set all the properties
+      - name: Setting properties
+        run: |
+          echo signing.keyId=${{ secrets.KEY_ID }} >> local.properties
+          echo signing.password=${{ secrets.PASSWORD }} >> local.properties
+          echo ossrhUsername=${{ secrets.OSSRH_USERNAME }} >> local.properties
+          echo ossrhPassword=${{ secrets.OSSRH_PASSWORD }} >> local.properties
+      - name: Creating key.gpg
+        id: write_file
+        uses: timheuer/base64-to-file@v1.0.3
+        with:
+          fileName: "key.gpg"
+          encodedString: ${{ secrets.KEY_GPG }}
+      - run: echo ${{ steps.write_file.outputs.filePath }}
+      - run: echo signing.secretKeyRingFile=${{ steps.write_file.outputs.filePath }} >> local.properties
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      # Publishing library
+      - name: Publishing libraries to local maven
+        run: |
+          ./gradlew navigator-compose:publishReleasePublicationToMavenLocal
+
+      - name: Build samples
+        run: |
+          ./gradlew samples:basic-sample:assembleDebug
+
+      # Test samples or code
+      - name: Run Instrumented tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          script: ./gradlew navigator-compose:connectedAndroidTest

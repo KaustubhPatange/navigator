@@ -41,6 +41,11 @@ android {
         kotlinCompilerExtensionVersion compose_version
         kotlinCompilerVersion '1.4.32'
     }
+
+    packagingOptions {
+        exclude 'META-INF/AL2.0'
+        exclude 'META-INF/LGPL2.1'
+    }
 }
 
 dependencies {
@@ -51,12 +56,11 @@ dependencies {
     implementation "androidx.compose.ui:ui-util:$compose_version"
     implementation 'androidx.activity:activity-compose:1.3.0-beta01'
 
-    /* TODO: Add tests when compose reaches stable
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
-   */
+    debugImplementation "androidx.compose.ui:ui-test-manifest:1.0.0-beta09"
 }
 
 ext {

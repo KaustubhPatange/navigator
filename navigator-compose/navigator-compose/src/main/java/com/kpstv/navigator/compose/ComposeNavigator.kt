@@ -61,7 +61,7 @@ public data class NavOptions<T : Parcelable>(
      *            this will recursively pop till the first one in the backstack. Otherwise, the last
      *            added one will be chosen.
      */
-    public data class PopUpOptions<T : Parcelable>(internal var dest: T, var inclusive: Boolean = true, var all: Boolean = false)
+    public data class PopUpOptions<T: Parcelable>(internal var dest: T, var inclusive: Boolean = true, var all: Boolean = false)
 
     /**
      * Pop up to the destination. Additional parameters can be set through [options] DSL.
@@ -267,6 +267,12 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         /**
+         * @return A snapshot of all the keys associated with the current navigation backStack in the
+         * ascending order where the last one being the current screen.
+         */
+        public fun getAllHistory(): List<T> = history.get().map { it.key }
+
+        /**
          * @return If it safe to go back i.e up the stack. If false then it means the current composable
          *         is the last screen. This also means that the backstack is empty.
          */
@@ -323,7 +329,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
     private fun shouldSuppressBackPress() : Boolean = suppressBackPress
 
-    private val backStackMap = mutableMapOf<KClass<out Parcelable>, History<*>>()
+    internal val backStackMap = mutableMapOf<KClass<out Parcelable>, History<*>>()
     private lateinit var saveableStateHolder: SaveableStateHolder
     private var savedState: Bundle? = null
 

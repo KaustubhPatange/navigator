@@ -2,7 +2,7 @@ apply plugin: 'io.codearte.nexus-staging'
 
 buildscript {
     ext {
-        compose_version = '1.0.0-beta08'
+        compose_version = '1.0.0-beta09'
         versions = [
                 "navigator_compose": "0.1-alpha06"
         ]

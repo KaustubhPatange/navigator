@@ -91,6 +91,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
             history.clearUpTo(historyOptions.name, historyOptions.inclusive)
         }
 
+//        fm.restoreBackStack(tagName)
         fm.commit {
             if (animation is AnimationDefinition.Custom)
                 CustomAnimation(fm, containerView).set(this, animation, clazz)

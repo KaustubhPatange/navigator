@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Navigator Compose Test</string>
+    <string name="go_to_second">Go to second</string>
+    <string name="go_to_third">Go to third</string>
+    <string name="second_screen">Second Screen</string>
+    <string name="detail_screen">Item with name %s &amp; age %d is displayed</string>
+</resources>
