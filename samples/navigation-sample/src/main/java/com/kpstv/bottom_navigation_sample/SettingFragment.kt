@@ -6,7 +6,6 @@ import android.widget.Toast
 import com.kpstv.bottom_navigation_sample.databinding.FragmentSettingBinding
 import com.kpstv.navigation.Destination
 import com.kpstv.navigation.FragmentNavigator
-import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.ValueFragment
 
 class SettingFragment : ValueFragment(R.layout.fragment_setting), FragmentNavigator.Transmitter, FragmentNavigator.Navigation.Callbacks {
@@ -17,8 +16,7 @@ class SettingFragment : ValueFragment(R.layout.fragment_setting), FragmentNaviga
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentSettingBinding.bind(view)
-        navigator = Navigator.with(this, savedInstanceState)
-            .setNavigator(FragmentNavigator::class)
+        navigator = FragmentNavigator.with(this, savedInstanceState)
             .initialize(binding.myContainer, Destination.of(SettingFragment1::class))
     }
 

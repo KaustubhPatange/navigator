@@ -28,8 +28,7 @@ class HomeFragment : ValueFragment(R.layout.fragment_home), FragmentNavigator.Tr
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentHomeBinding.bind(view).also { viewBinding = it }
-        navigator = Navigator.with(this, savedInstanceState)
-            .setNavigator(FragmentNavigator::class)
+        navigator = FragmentNavigator.with(this, savedInstanceState)
             .initialize(binding.container)
         tabController = navigator.install(object: FragmentNavigator.TabNavigation() {
             override val tabLayoutId: Int = R.id.tabLayout

@@ -23,7 +23,7 @@ internal typealias FragClazz = KClass<out Fragment>
 internal typealias DialogFragClazz = KClass<out Fragment>
 
 @Suppress("unused")
-class FragmentNavigator internal constructor(private val fm: FragmentManager, private val containerView: FrameLayout) : Navigator {
+class FragmentNavigator internal constructor(private val fm: FragmentManager, private val containerView: FrameLayout) {
 
     /**
      * @param args Pass arguments extended from [BaseArgs].
@@ -91,7 +91,6 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
             history.clearUpTo(historyOptions.name, historyOptions.inclusive)
         }
 
-//        fm.restoreBackStack(tagName)
         fm.commit {
             if (animation is AnimationDefinition.Custom)
                 CustomAnimation(fm, containerView).set(this, animation, clazz)
@@ -139,7 +138,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
      *
      * @return True means it is safe to [goBack].
      */
-    override fun canGoBack(): Boolean {
+    fun canGoBack(): Boolean {
         val count = getBackStackCount() // or history count if that's something should be done.
         if (count == 0) {
             val fragment = getCurrentFragment() ?: return false
@@ -163,7 +162,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
      *
      * @return True if the entry is removed.
      */
-    override fun goBack(): Boolean {
+    fun goBack(): Boolean {
         val currentFragment = getCurrentFragment()
 
         // Dialog fragment
@@ -288,13 +287,17 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
             RECREATE,
 
             /**
-             * The fragment's view will not be destroyed once the current selection fragment is changed.
+             * The fragment's view will not be destroyed once the current selection fragment is changed. This is
+             * done by properly invoking [FragmentTransaction.show] & [FragmentTransaction.hide] call at appropriate
+             * time i.e hiding the fragment in the container
              *
-             * This is done via hiding the fragment in the container. Since it does not replace the underlying fragment
-             * the old fragment will not go through the lifecycle changes. Hence no [onPause], [onStop], [onDestroyView]
-             * & so on will be called.
+             * Since it does not replace the underlying fragment the old fragment will not go through the lifecycle
+             * changes. Hence no [onPause], [onStop], [onDestroyView] & so on will be called.
              *
              * The only way to rely on view state changes is to listen [ViewStateFragment.onViewStateChanged].
+             *
+             * Note: It is always ideal to use RECREATE (default) mode, use this mode only when you know what you
+             * are doing.
              */
             RETAIN
         }
@@ -441,6 +444,20 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
     }
 
     companion object {
+        /**
+         * Returns a builder for creating an instance of [FragmentNavigator].
+         */
+        fun with(activity: FragmentActivity, savedInstanceState: Bundle?): Builder {
+            return Builder(activity.supportFragmentManager, savedInstanceState).apply { set(activity) }
+        }
+
+        /**
+         * Returns a builder for creating an instance of[FragmentNavigator].
+         */
+        fun with(fragment: Fragment, savedInstanceState: Bundle?) : Builder {
+            return Builder(fragment.childFragmentManager, savedInstanceState).apply { set(fragment, fragment.parentFragmentManager) }
+        }
+
         internal fun getCurrentVisibleFragment(fm: FragmentManager, containerView: FrameLayout): Fragment? {
             val fragment = fm.findFragmentById(containerView.id)
             if (fragment != null) {

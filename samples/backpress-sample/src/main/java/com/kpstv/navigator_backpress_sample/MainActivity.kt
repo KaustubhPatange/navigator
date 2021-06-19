@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.kpstv.navigation.Destination
 import com.kpstv.navigation.FragmentNavigator
-import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.canFinish
 
 class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
@@ -26,8 +25,7 @@ class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
             background = R.color.palette1,
             nextColor = R.color.palette2,
         )
-        navigator = Navigator.with(this, savedInstanceState)
-            .setNavigator(FragmentNavigator::class)
+        navigator = FragmentNavigator.with(this, savedInstanceState)
             .initialize(findViewById(R.id.container), Destination.of(FirstFragment::class to args))
     }
     

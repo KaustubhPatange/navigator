@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
  * Determines if it's safe to `finish()` by ensuring the backstack to be completely
  * empty.
  */
-fun Navigator.canFinish() : Boolean {
+fun FragmentNavigator.canFinish() : Boolean {
     if (canGoBack()) {
         goBack()
         return false

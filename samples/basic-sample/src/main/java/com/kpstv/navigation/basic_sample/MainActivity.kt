@@ -18,8 +18,7 @@ class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        navigator = Navigator.with(this, savedInstanceState)
-            .setNavigator(FragmentNavigator::class)
+        navigator = FragmentNavigator.with(this, savedInstanceState)
             .initialize(findViewById(R.id.container), Destination.of(MainFragment::class))
 
         viewModel.navigation.observe(this) { option ->

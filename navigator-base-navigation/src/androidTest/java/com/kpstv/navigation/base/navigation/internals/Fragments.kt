@@ -3,7 +3,6 @@ package com.kpstv.navigation.base.navigation.internals
 import android.os.Bundle
 import android.view.View
 import com.kpstv.navigation.FragmentNavigator
-import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.ValueFragment
 import com.kpstv.navigator.test.FirstFragment
 import com.kpstv.navigator.test.NavigatorFragment
@@ -20,8 +19,7 @@ class TestNavigationFragment : ValueFragment(R.layout.activity_main), FragmentNa
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        navigator = Navigator.with(this, savedInstanceState)
-            .setNavigator(FragmentNavigator::class)
+        navigator = FragmentNavigator.with(this, savedInstanceState)
             .initialize(view.findViewById(R.id.my_container))
         val custom = Custom3Navigation(
             fragments = mapOf(

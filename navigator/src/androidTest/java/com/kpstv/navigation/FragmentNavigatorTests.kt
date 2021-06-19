@@ -289,8 +289,7 @@ class FragmentNavigatorTests {
     fun TestIfInitialDestinationsAreWorking() {
         activity.with {
             val initials = Destination.of(listOf(FirstFragment::class, SecondFragment::class, ThirdFragment::class))
-            val navigator = Navigator.with(this, null)
-                .setNavigator(FragmentNavigator::class)
+            val navigator = FragmentNavigator.with(this, null)
                 .initialize(findViewById(com.kpstv.navigation.test.R.id.my_container), initials)
 
             // Check current fragment

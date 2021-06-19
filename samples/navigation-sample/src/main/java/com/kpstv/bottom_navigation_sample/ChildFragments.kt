@@ -7,7 +7,6 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.kpstv.navigation.FragmentNavigator
-import com.kpstv.navigation.Navigator
 import com.kpstv.navigation.ValueFragment
 
 open class AbstractFragment : ValueFragment(R.layout.fragment_abstract), FragmentNavigator.Navigation.Callbacks {
