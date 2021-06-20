@@ -11,6 +11,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/navigator-compose" />
+            <option value="$PROJECT_DIR$/navigator-compose-lint" />
             <option value="$PROJECT_DIR$/samples" />
             <option value="$PROJECT_DIR$/samples/basic-sample" />
           </set>

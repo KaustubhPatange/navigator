@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kpstv.navigator">
+    package="com.kpstv.navigation">
 
     <application
         android:allowBackup="true"
@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ComposeTestApp">
         <activity
-            android:name="com.kpstv.navigator.compose.sample.MainActivity"
+            android:name="com.kpstv.navigation.compose.sample.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.ComposeTestApp.NoActionBar">

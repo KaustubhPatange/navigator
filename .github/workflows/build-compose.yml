@@ -66,6 +66,10 @@ jobs:
         run: |
           ./gradlew samples:basic-sample:assembleDebug
 
+      - name: Run Unit tests
+        run: |
+          ./gradlew navigator-compose-lint:test
+
       # Test samples or code
       - name: Run Instrumented tests
         uses: reactivecircus/android-emulator-runner@v2
