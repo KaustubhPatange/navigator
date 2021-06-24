@@ -39,9 +39,10 @@ dependencies {
 
 - [Quick Setup & usage](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Setup)
 - [Hands on Tutorials](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials)
-  - [Navigating with arguments](#navigating-with-arguments)
-  - [Navigating with animation](#navigating-with-animation)
-  - [Navigate with single top instance & `popUpTo`](#navigate-with-single-top-instance-&-popUpTo)
+  - [Navigating with arguments](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigating-with-arguments)
+  - [Navigating with animation](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigating-with-animation)
+  - [Navigate with single top instance & `popUpTo`](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigate-with-single-top-instance-&-popUpTo)
+  - [Implementing Nested Navigation](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#implementing-nested-navigation)
 
 ## License
 
