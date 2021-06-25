@@ -21,7 +21,6 @@ import androidx.compose.ui.util.fastForEach
 import com.kpstv.navigation.compose.EnterAnimation.Companion.reverse
 import com.kpstv.navigation.compose.ExitAnimation.Companion.reverse
 import kotlinx.parcelize.Parcelize
-import kotlin.IllegalArgumentException
 import kotlin.reflect.KClass
 
 /**
@@ -119,6 +118,7 @@ public enum class ExitAnimation : Parcelable {
  * A navigator for managing navigation in Jetpack Compose.
  */
 public class ComposeNavigator private constructor(private val activity: ComponentActivity, savedInstanceState: Bundle?) {
+
     public companion object {
         private const val HISTORY_SAVED_STATE = "compose_navigator:state:"
         private const val NAVIGATOR_SAVED_STATE_SUFFIX = "_compose_navigator"
@@ -372,8 +372,8 @@ public class ComposeNavigator private constructor(private val activity: Componen
     /**
      * When enabled, the back navigation will be disabled & no destinations will be popped from the history.
      *
-     * This is different from [shouldSuppressBackPress] where if set to `False` then you need to manually handleM
-     * Activity's `onBackPressed()` otherwise the application will `finish()`.
+     * This is different from [Builder.setDefaultBackPressEnabled] where if set to `False` then you need to manually handle
+     * Activity's `onBackPressed()` logic.
      */
     public var suppressBackPress: Boolean = false
 
@@ -403,7 +403,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             CompositionLocalProvider(LocalController provides controller, LocalNavigator provides this) {
                 val record = history.peek()
                 val animation = if (history.lastTransactionStatus == History.NavType.Forward) record.animation else history.getLastRemovedItem()?.animation ?: NavOptions.NavAnimation()
-                    CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
+                CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
                     saveableStateHolder.SaveableStateProvider(key = peek) {
                         content(LocalController.current as Controller<T>, peek)
                     }
