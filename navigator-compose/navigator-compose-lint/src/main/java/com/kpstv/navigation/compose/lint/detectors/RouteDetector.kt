@@ -45,7 +45,7 @@ class RouteDetector : Detector(), Detector.UastScanner {
         private const val COMPOSE_ROUTE_CLASS = "com.kpstv.navigation.compose.Route"
         val PROHIBIT_OBJECT_CLASS_ISSUE = Issue.create(
             id = "prohibitObjectClass",
-            briefDescription = "The Route must not contain `object` or `class` as SaveableStateProvider functionality does not work when the app is restored from process death",
+            briefDescription = "The Route must not contain `object` or `class` as SaveableStateProvider functionality does not work when the app is restored from process death.",
             explanation = """
                 The "Route" sealed class must not use an `object` or `class` to represent a no-arg destination.
                 If you want to do so then use a `data` class with a single `private` variable that has a default value.

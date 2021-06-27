@@ -1,7 +1,6 @@
 package com.kpstv.navigation.compose.sample
 
 import android.os.Bundle
-import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -53,11 +52,15 @@ sealed class StartRoute : Route {
     data class First(val data: String) : StartRoute()
     @Immutable @Parcelize
     data class Second(private val noArgPlaceholder: String = "") : StartRoute()
+    companion object {
+        val key = StartRoute::class
+    }
 }
 
 @Composable
 fun StartScreen(navigator: ComposeNavigator, startRoute: StartRoute) {
-    navigator.Setup(initial = startRoute) { controller, dest ->
+    val s = StartRoute::class
+    navigator.Setup(key = StartRoute.key, initial = startRoute) { controller, dest ->
         val onChanged: (screen: StartRoute) -> Unit = { value ->
             controller.navigateTo(value) {
                 withAnimation {
@@ -78,12 +81,15 @@ sealed class FirstRoute : Route {
     data class Primary(private val noArg: String = "") : FirstRoute()
     @Immutable @Parcelize
     data class Third(private val noArg: String = "") : FirstRoute()
+    companion object {
+        val key = FirstRoute::class
+    }
 }
 
 @Composable
 fun FirstScreen(data: String, change: (StartRoute) -> Unit) {
     val navigator = findComposeNavigator()
-    navigator.Setup(initial = FirstRoute.Primary() as FirstRoute) { controller, dest ->
+    navigator.Setup(key = FirstRoute.key, initial = FirstRoute.Primary()) { controller, dest ->
         when(dest) {
             is FirstRoute.Primary -> PrimaryFirst(data, change, { route ->
                 controller.navigateTo(route) {
@@ -136,7 +142,7 @@ fun SecondScreen() {
         val destination = remember { mutableStateOf(MenuItem.Home() as MenuItem) }
         val controller = remember { mutableStateOf<ComposeNavigator.Controller<MenuItem>?>(null) }
 
-        findComposeNavigator().Setup(modifier = Modifier.weight(1f), initial = MenuItem.Home() as MenuItem) { con, dest ->
+        findComposeNavigator().Setup(modifier = Modifier.weight(1f), key = MenuItem.key, initial = MenuItem.Home()) { con, dest ->
             destination.value = dest
             controller.value = con
 
@@ -153,9 +159,9 @@ fun SecondScreen() {
             state = Menu.State(currentSelection = destination.value),
             onMenuItemClicked = { menuItem ->
                 controller.value?.navigateTo(menuItem) {
-                    if (menuItem is MenuItem.Home) {
+                   // if (menuItem is MenuItem.Home) {
                         singleTop = true
-                    }
+                    //}
                     withAnimation {
                         when (destination.value) {
                             is MenuItem.Home -> {
@@ -186,7 +192,7 @@ fun SecondScreen() {
 @Composable
 fun Gallery() {
     val navigator = findComposeNavigator()
-    navigator.Setup(initial = GalleryRoute.Primary() as GalleryRoute) { controller, dest ->
+    navigator.Setup(key = GalleryRoute.key, initial = GalleryRoute.Primary()) { controller, dest ->
         when(dest) {
             is GalleryRoute.Primary -> PrimaryGallery {
                 controller.navigateTo(GalleryRoute.Detail(it)) {
@@ -206,6 +212,9 @@ sealed class GalleryRoute : Route {
     data class Primary(private val noArg: String = "") : GalleryRoute()
     @Immutable @Parcelize
     data class Detail(val item: GalleryItem) : GalleryRoute()
+    companion object {
+        val key = GalleryRoute::class
+    }
 }
 
 @Composable
@@ -275,7 +284,7 @@ fun ReusableComponent(text: String) {
 
 @Composable
 fun ThirdScreen() {
-    findComposeNavigator().Setup(initial = ThirdRoute.Third1() as ThirdRoute) { controller, dest ->
+    findComposeNavigator().Setup(key = ThirdRoute.key, initial = ThirdRoute.Third1() as ThirdRoute) { controller, dest ->
         val onChanged: (ThirdRoute) -> Unit = { screen ->
             controller.navigateTo(screen) {
                 withAnimation {
@@ -296,11 +305,14 @@ sealed class ThirdRoute : Route {
     data class Third1(private val noArg: String = "") : ThirdRoute()
     @Immutable @Parcelize
     data class Third2(private val noArg: String = "") : ThirdRoute()
+    companion object {
+        val key = ThirdRoute::class
+    }
 }
 
 @Composable
 fun ThirdScreen1(change: (ThirdRoute) -> Unit) {
-    val controller = findController<ThirdRoute>()
+    val controller = findController(ThirdRoute.key)
     val navigator = findComposeNavigator()
     Column(
         modifier = Modifier

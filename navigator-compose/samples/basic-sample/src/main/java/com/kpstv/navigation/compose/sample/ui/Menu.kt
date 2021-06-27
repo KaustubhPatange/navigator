@@ -1,6 +1,5 @@
 package com.kpstv.navigation.compose.sample.ui
 
-import android.os.Parcelable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +34,10 @@ sealed class MenuItem : Route {
     @Immutable @Parcelize
     data class Settings(private val noArg: String = "") : MenuItem() {
         override fun toString() = "Settings"
+        companion object { val key = Settings::class }
+    }
+    companion object {
+        val key = MenuItem::class
     }
 }
 

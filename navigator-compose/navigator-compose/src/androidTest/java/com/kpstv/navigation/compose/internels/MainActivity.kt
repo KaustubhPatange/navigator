@@ -48,25 +48,31 @@ public sealed class StartRoute : Route {
     public data class Second(private val noArg: String = "") : StartRoute()
     @Parcelize
     public data class Third(private val noArg: String = "") : StartRoute()
+    @Parcelize public data class Forth(private val noArg: String = "") : StartRoute()
+    internal companion object {
+        val key = StartRoute::class
+    }
 }
 
 @Composable
 public fun StartScreen(navigator: ComposeNavigator) {
-    navigator.Setup(initial = StartRoute.First(stringResource(R.string.app_name)) as StartRoute) { controller, dest ->
+    navigator.Setup(key = StartRoute.key, initial = StartRoute.First(stringResource(R.string.app_name)) as StartRoute) { controller, dest ->
         when(dest) {
             is StartRoute.First -> StartFirstScreen(
                 data = dest.data,
                 goToSecond = { controller.navigateTo(StartRoute.Second()) },
-                goToThird = { controller.navigateTo(StartRoute.Third()) }
+                goToThird = { controller.navigateTo(StartRoute.Third()) },
+                goToForth = { controller.navigateTo(StartRoute.Forth()) }
             )
             is StartRoute.Second -> StartSecondScreen()
             is StartRoute.Third -> ThirdScreen()
+            is StartRoute.Forth -> MultipleStackScreen()
         }
     }
 }
 
 @Composable
-public fun StartFirstScreen(data: String, goToSecond: () -> Unit, goToThird: () -> Unit) {
+public fun StartFirstScreen(data: String, goToSecond: () -> Unit, goToThird: () -> Unit, goToForth: () -> Unit) {
     Column {
         Text(data)
         Button(onClick = { goToSecond.invoke() }) {
@@ -75,12 +81,15 @@ public fun StartFirstScreen(data: String, goToSecond: () -> Unit, goToThird: () 
         Button(onClick = { goToThird.invoke() }) {
             Text(text = stringResource(id = R.string.go_to_third))
         }
+        Button(onClick = { goToForth.invoke() }) {
+            Text(text = stringResource(id = R.string.go_to_forth))
+        }
     }
 }
 
 @Composable
 public fun StartSecondScreen() {
-    val controller = findController<StartRoute>()
+    val controller = findController(StartRoute.key)
     Column {
         Text(text = stringResource(id = R.string.second_screen))
         IconButton(onClick = { controller.goBack() }, Modifier.testTag("icon_button")) {
@@ -104,12 +113,15 @@ public sealed class ThirdRoute : Route {
     public data class Primary(private val noArg: String = "") : ThirdRoute()
     @Parcelize
     public data class Secondary(val item: GalleryItem) : ThirdRoute()
+    internal companion object {
+        val key = ThirdRoute::class
+    }
 }
 
 @Composable
 public fun ThirdScreen() {
     val navigator = findComposeNavigator()
-    navigator.Setup(initial = ThirdRoute.Primary() as ThirdRoute) { controller, dest ->
+    navigator.Setup(key = ThirdRoute.key, initial = ThirdRoute.Primary() as ThirdRoute) { controller, dest ->
         when(dest) {
             is ThirdRoute.Primary -> ThirdPrimaryScreen { controller.navigateTo(ThirdRoute.Secondary(it)) }
             is ThirdRoute.Secondary -> ThirdSecondaryScreen(dest.item)

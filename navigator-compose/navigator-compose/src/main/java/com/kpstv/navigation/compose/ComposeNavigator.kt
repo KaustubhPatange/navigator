@@ -30,22 +30,30 @@ import kotlin.reflect.KClass
 public fun findComposeNavigator() : ComposeNavigator = LocalNavigator.current
 
 /**
- * Find the [ComposeNavigator.Controller] provided by the nearest CompositionLocalProvider.
+ * Find & remember the [ComposeNavigator.Controller] provided by the nearest CompositionLocalProvider for [key].
  */
 @Composable
-public fun <T : Route> findController() : ComposeNavigator.Controller<T> = LocalController.current as ComposeNavigator.Controller<T>
+public fun <T : Route> findController(key: KClass<T>): ComposeNavigator.Controller<T> {
+    return rememberComposable {
+        getLocalController(key).current ?: throw Exception("Could not find Controller for key \"${key.qualifiedName}\". Did you forgot to call \"Navigator.Setup\"?")
+    }
+}
+
 
 /**
  * Destination must implement this interface to identify as Key for the root
  */
 public interface Route : Parcelable
 
-/**
- * @param singleTop Ensures that there will be only once instance of this destination in the stack.
- *                  If there would be a previous one, then it would be brought front.
- */
 public data class NavOptions<T : Route>(
-    var singleTop: Boolean = false,
+    /**
+     * Ensures that there will be only once instance of this destination in the backstack.
+     *
+     * This works different compared to the traditional Fragment system where the
+     * backstack will be popped till the instance is found in the `FragmentTransaction`.
+     * Here it'll directly remove all of the instances from history.
+     */
+    public var singleTop: Boolean = false,
     internal var popOptions: PopUpOptions<T>? = null,
     internal var animationOptions: NavAnimation = NavAnimation()
 ) {
@@ -144,6 +152,14 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         /**
+         * Specify the animation spec that should be used when transitioning between screens.
+         */
+        public fun setAnimationSpec(spec: FiniteAnimationSpec<Float>): Builder {
+            navigator.animationSpec = spec
+            return this
+        }
+
+        /**
          * Returns the configured instance of [ComposeNavigator].
          */
         public fun initialize() : ComposeNavigator = navigator
@@ -152,7 +168,10 @@ public class ComposeNavigator private constructor(private val activity: Componen
     }
 
     //TODO: Make primary destination feature which will be navigated automatically when backstack becomes empty.
-    internal class History<T : Route> internal constructor(private val initial: T) {
+    /**
+     * @param associateKey A parent key for this [key]. This means [associateKey] has setup navigation for this [key].
+     */
+    internal class History<T : Route> internal constructor(private val key: KClass<T>, internal val associateKey: KClass<out Route>?, internal val initial: T) {
         companion object {
             private const val LAST_REMOVED_ITEM_KEY = "history:last_item:key"
             private const val LAST_REMOVED_ITEM_ANIMATION = "history:last_item:animation"
@@ -166,8 +185,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
         private var lastRemoved: BackStackRecord<T>? = null
 
         internal var lastTransactionStatus: NavType = NavType.Forward
-
-        internal fun getInitialKey(): T = initial
 
         internal fun get(): List<BackStackRecord<T>> = backStack
 
@@ -200,13 +217,13 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     putParcelable(LAST_REMOVED_ITEM_KEY, lastRemoved?.key)
                     putParcelable(LAST_REMOVED_ITEM_ANIMATION, lastRemoved?.animation)
                 }
-                val name = "$HISTORY_SAVED_STATE${initial::class.qualifiedName}"
+                val name = "$HISTORY_SAVED_STATE${key.qualifiedName}"
                 outState.putBundle(name, bundle)
             }
         }
 
         internal fun restoreState(bundle: Bundle?): String? {
-            val name = "$HISTORY_SAVED_STATE${initial::class.qualifiedName}"
+            val name = "$HISTORY_SAVED_STATE${key.qualifiedName}"
             bundle?.getBundle(name)?.let { inner ->
                 val keys: List<T> = inner.getParcelableArrayList(BackStackRecord<T>::key.name)!!
                 val animations: List<NavOptions.NavAnimation> = inner.getParcelableArrayList(BackStackRecord<T>::animation.name)!!
@@ -230,7 +247,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
      *
      * This should be used to handle forward as well as backward navigation.
      */
-    public class Controller<T : Route> internal constructor(private val key: KClass<out Route>, private val navigator: ComposeNavigator, private val history: History<T>) {
+    public class Controller<T : Route> internal constructor(internal val key: KClass<out Route>, private val navigator: ComposeNavigator, private val history: History<T>) {
 
         /**
          * Navigate to other destination composable. Additional parameters can be set through [options] DSL.
@@ -299,18 +316,30 @@ public class ComposeNavigator private constructor(private val activity: Componen
     private fun goBack(): History.BackStackRecord<out Route>? {
         val last = backStackMap.lastValue()
         if (backStackMap.size > 1 && !last!!.canGoBack()) {
-            backStackMap.removeLastOrNull()?.let { saveableStateHolder.removeState(it.getInitialKey()) }
+            backStackMap.removeLastOrNull()?.let { saveableStateHolder.removeState(it.initial) }
             return goBack()
         }
         val popped = last?.pop()
         popped?.let { saveableStateHolder.removeState(it.key) }
+        last?.let { _ ->
+            val currentLastKey = last.get().last().key::class
+            var associateKey: KClass<out Route>? = null
+            backStackMap.forEach call@{ (key, history) ->
+                if (history.associateKey == currentLastKey) {
+                    associateKey = key
+                    return@call
+                }
+            }
+            associateKey?.let { backStackMap.bringToTop(it) }
+        }
+
         return popped
     }
 
     /**
      * Recursive reverse call to [History.canGoBack] to identify if back navigation is possible or not.
      */
-    private fun canGoBack(): Boolean {
+    internal fun canGoBack(): Boolean {
         val last = backStackMap.lastValue()
         if (backStackMap.size > 1) {
             val aggregate = backStackMap.values.sumOf { it.get().size }
@@ -334,8 +363,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
     private fun shouldSuppressBackPress() : Boolean = suppressBackPress
 
-    internal val backStackMap = mutableMapOf<KClass<out Parcelable>, History<*>>()
+    internal val backStackMap = mutableMapOf<KClass<out Route>, History<*>>()
     private lateinit var saveableStateHolder: SaveableStateHolder
+    private var animationSpec: FiniteAnimationSpec<Float> = tween(durationMillis = 300)
     private var savedState: Bundle? = null
 
     init {
@@ -357,16 +387,16 @@ public class ComposeNavigator private constructor(private val activity: Componen
         savedState = savedInstanceState?.getBundle("${activity::class.qualifiedName}$NAVIGATOR_SAVED_STATE_SUFFIX")
     }
 
-    private fun<T : Route> fetchOrUpdateHistory(clazz: KClass<out Route>, initial: T): History<T> {
-        val present = backStackMap.containsKey(clazz)
+    private fun<T : Route> fetchOrUpdateHistory(key: KClass<T>, associateKey: KClass<out Route>?, initial: T): History<T> {
+        val present = backStackMap.containsKey(key)
         if (!present) {
             // restore from saved state
-            val history = History(initial)
+            val history = History(key, associateKey, initial)
             savedState?.remove(history.restoreState(savedState))
-            backStackMap[clazz] = history
+            backStackMap[key] = history
             return history
         }
-        return (backStackMap[clazz] as History<T>)
+        return (backStackMap[key] as History<T>)
     }
 
     /**
@@ -383,29 +413,36 @@ public class ComposeNavigator private constructor(private val activity: Componen
      * Destinations should be managed within [content]. [content] is composable lambda that receives two parameters,
      * [Controller] which is used to manage navigation & [T] which is the current destination.
      *
+     * @param key Will be used for uniquely identifying this Route in the composition tree.
      * @param initial The start destination for the navigation.
      *
      * @see Controller
      */
     @Composable
-    public fun<T : Route> Setup(modifier: Modifier = Modifier, initial: T, content: @Composable (controller: Controller<T>, dest: T) -> Unit) {
-        val history = remember { fetchOrUpdateHistory(initial::class, initial) }
-        val controller = remember { Controller(initial::class, this, history) }
+    public fun<T : Route> Setup(modifier: Modifier = Modifier, key: KClass<T>, initial: T, content: @Composable (controller: Controller<T>, dest: T) -> Unit) {
+        val associateKey = remember {
+            if (backStackMap.isNotEmpty()) {
+                backStackMap.lastValue()!!.get().last().key::class
+            } else null
+        }
+        val history = remember { fetchOrUpdateHistory(key, associateKey, initial) }
+        val controller = remember { Controller(key, this, history)}
+        val compositionLocalScope = rememberComposable { getLocalController(key) }
         if (!::saveableStateHolder.isInitialized) saveableStateHolder = rememberSaveableStateHolder() // is this ok
 
         @Composable
         fun Inner(body: @Composable () -> Unit) = Box(modifier) { body() }
 
-//        Log.d("Render", "${initial::class.qualifiedName} Recomposed()/Composed()")
+//        android.util.Log.d("Render", "${key.qualifiedName} Recomposed()/Composed()") TODO: Make sure there is no twice key in the backStack
         Inner {
             // recompose on history change
-//            Log.d("Inner", "Recomposed()/Composed() ${history.peek()} - ${initial::class.qualifiedName}")
-            CompositionLocalProvider(LocalController provides controller, LocalNavigator provides this) {
+//            android.util.Log.d("Inner", "Recomposed()/Composed() ${history.peek()} - ${key.qualifiedName}")
+            CompositionLocalProvider(compositionLocalScope provides controller, LocalNavigator provides this) {
                 val record = history.peek()
                 val animation = if (history.lastTransactionStatus == History.NavType.Forward) record.animation else history.getLastRemovedItem()?.animation ?: NavOptions.NavAnimation()
                 CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
                     saveableStateHolder.SaveableStateProvider(key = peek) {
-                        content(LocalController.current as Controller<T>, peek)
+                        content(controller, peek)
                     }
                 }
             }
@@ -420,7 +457,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
         targetState: T,
         animation: NavOptions.NavAnimation,
         isBackward: Boolean = false, // if triggered on back press.
-        animationSpec: FiniteAnimationSpec<Float> = tween(durationMillis = 300),
         content: @Composable (T) -> Unit
     ) {
         val animationSnapShot = animation.copy()
@@ -501,10 +537,34 @@ public class ComposeNavigator private constructor(private val activity: Componen
     )
 }
 
-private val LocalController = compositionLocalOf<ComposeNavigator.Controller<out Route>> { throw Exception("NavController not set. Did you forgot to call \"Navigator.Setup\"?") }
-private val LocalNavigator = compositionLocalOf<ComposeNavigator> { throw Exception("Compose Navigator not set. Did you forgot to call \"Navigator.Setup\"?") }
+private val compositionLocalScopeList = arrayListOf<ProvidableCompositionLocal<*>>() // for memoization
+@Composable
+private fun<T: Route> getLocalController(key: KClass<T>): ProvidableCompositionLocal<ComposeNavigator.Controller<T>?> {
+    compositionLocalScopeList.asReversed().forEach { scope ->
+        val controller = scope.current as? ComposeNavigator.Controller<*>
+        if (controller?.key == key) return scope as ProvidableCompositionLocal<ComposeNavigator.Controller<T>?>
+    }
+    val scope = compositionLocalOf<ComposeNavigator.Controller<T>?> { null }
+    compositionLocalScopeList.add(scope)
+    return scope
+}
+
+private val LocalNavigator = staticCompositionLocalOf<ComposeNavigator> { throw Exception("Compose Navigator not set. Did you forgot to call \"Navigator.Setup\"?") }
 
 private fun<K, V> Map<K,V>.lastKey(): K? = keys.last()
 private fun<K, V> Map<K,V>.lastValue(): V? = get(keys.last())
 private fun<K, V> MutableMap<K,V>.removeLastOrNull(): V? = remove(keys.last())
 private fun<K, V> MutableMap<K, V>.bringToTop(key: K) = remove(key)?.let { put(key, it) }
+
+/**
+ * Remember the value produced by @[Composable] that does not have a [Unit] return type.
+ */
+@Composable
+private inline fun <T> rememberComposable(calculation: @Composable () -> T): T {
+    var internal: T? = null
+    if (internal == null) {
+        val value = calculation()
+        internal = remember { value }
+    }
+    return internal!!
+}
