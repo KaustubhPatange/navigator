@@ -139,12 +139,11 @@ fun SecondScreen() {
         // undergo recomposition when destination is changed which looks
         // bad if animations are enabled.
 
+        val controller = rememberController<MenuItem>()
         val destination = remember { mutableStateOf(MenuItem.Home() as MenuItem) }
-        val controller = remember { mutableStateOf<ComposeNavigator.Controller<MenuItem>?>(null) }
 
-        findComposeNavigator().Setup(modifier = Modifier.weight(1f), key = MenuItem.key, initial = MenuItem.Home()) { con, dest ->
+        findComposeNavigator().Setup(modifier = Modifier.weight(1f), controller = controller, key = MenuItem.key, initial = MenuItem.Home()) { _, dest ->
             destination.value = dest
-            controller.value = con
 
             Box(modifier = Modifier
                 .weight(1f)
@@ -158,7 +157,7 @@ fun SecondScreen() {
         Menu.Content(
             state = Menu.State(currentSelection = destination.value),
             onMenuItemClicked = { menuItem ->
-                controller.value?.navigateTo(menuItem) {
+                controller.navigateTo(menuItem) {
                    // if (menuItem is MenuItem.Home) {
                         singleTop = true
                     //}
