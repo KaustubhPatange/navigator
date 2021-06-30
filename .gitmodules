@@ -1,3 +1,6 @@
 [submodule "docs"]
 	path = docs
 	url = https://github.com/KaustubhPatange/navigator.wiki.git
+[submodule "navigator-compose/samples/compose-samples"]
+	path = navigator-compose/samples/compose-samples
+	url = https://github.com/KaustubhPatange/compose-samples.git

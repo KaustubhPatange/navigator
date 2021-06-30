@@ -34,6 +34,7 @@ dependencies {
 ## Samples
 
 - [Basic sample](/samples/basic-sample) - Demonstrates forward & backward navigation with animations as well as setup of Bottom Navigation supporting multiple backstack.
+- [JetNews](https://github.com/KaustubhPatange/compose-samples) - A fork from official samples which uses `navigator-compose` for Navigation.
 
 ## Tutorials
 

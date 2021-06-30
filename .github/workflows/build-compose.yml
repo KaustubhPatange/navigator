@@ -1,10 +1,14 @@
 name: CI
 on:
   push:
+    branches:
+      - master
     paths:
       - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"
   pull_request:
+    branches:
+      - master
     paths:
       - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"
