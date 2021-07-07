@@ -36,7 +36,9 @@ class MainActivity : ComponentActivity() {
     private lateinit var navigator: ComposeNavigator
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        navigator = ComposeNavigator.with(this, savedInstanceState).initialize()
+        navigator = ComposeNavigator.with(this, savedInstanceState)
+            .registerTransitions(SlideWithFadeRightTransition, SlideWithFadeLeftTransition)
+            .initialize()
         setContent {
             ComposeTestAppTheme {
                 Surface(color = MaterialTheme.colors.background) {
@@ -59,13 +61,12 @@ sealed class StartRoute : Route {
 
 @Composable
 fun StartScreen(navigator: ComposeNavigator, startRoute: StartRoute) {
-    val s = StartRoute::class
     navigator.Setup(key = StartRoute.key, initial = startRoute) { controller, dest ->
         val onChanged: (screen: StartRoute) -> Unit = { value ->
             controller.navigateTo(value) {
                 withAnimation {
-                    enter = EnterAnimation.FadeIn
-                    exit = ExitAnimation.FadeOut
+                    target = Fade
+                    current = Fade
                 }
             }
         }
@@ -94,8 +95,8 @@ fun FirstScreen(data: String, change: (StartRoute) -> Unit) {
             is FirstRoute.Primary -> PrimaryFirst(data, change, { route ->
                 controller.navigateTo(route) {
                     withAnimation {
-                        enter = EnterAnimation.SlideInRight
-                        exit = ExitAnimation.FadeOut
+                        target = SlideRight
+                        current = Fade
                     }
                 }
             })
@@ -164,20 +165,20 @@ fun SecondScreen() {
                     withAnimation {
                         when (destination.value) {
                             is MenuItem.Home -> {
-                                enter = EnterAnimation.SlideInRight
-                                exit = ExitAnimation.SlideOutLeft
+                                target = SlideRight
+                                current = SlideLeft
                             }
                             is MenuItem.Settings -> {
-                                enter = EnterAnimation.SlideInLeft
-                                exit = ExitAnimation.SlideOutRight
+                                target = SlideLeft
+                                current = SlideRight
                             }
                             is MenuItem.Favourite -> {
                                 if (menuItem is MenuItem.Home) {
-                                    enter = EnterAnimation.SlideInLeft
-                                    exit = ExitAnimation.SlideOutRight
+                                    target = SlideLeft
+                                    current = SlideRight
                                 } else {
-                                    enter = EnterAnimation.SlideInRight
-                                    exit = ExitAnimation.SlideOutLeft
+                                    target = SlideRight
+                                    current = SlideLeft
                                 }
                             }
                         }
@@ -196,8 +197,8 @@ fun Gallery() {
             is GalleryRoute.Primary -> PrimaryGallery {
                 controller.navigateTo(GalleryRoute.Detail(it)) {
                     withAnimation {
-                        enter = EnterAnimation.FadeIn
-                        exit = ExitAnimation.FadeOut
+                        target = Fade
+                        current = Fade
                     }
                 }
             }
@@ -287,8 +288,8 @@ fun ThirdScreen() {
         val onChanged: (ThirdRoute) -> Unit = { screen ->
             controller.navigateTo(screen) {
                 withAnimation {
-                    enter = EnterAnimation.ShrinkIn
-                    exit = ExitAnimation.ShrinkOut
+                    target = SlideWithFadeRight
+                    current = SlideWithFadeLeft
                 }
             }
         }
@@ -320,7 +321,7 @@ fun ThirdScreen1(change: (ThirdRoute) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Third Screen 1\n\nBack navigation is suppressed for this screen & can only be triggered by pressing the icon below.",
+        Text("Third Screen 1\n\nBack navigation is suppressed for this screen & can only be triggered by pressing the icon below.\n\nBehold! This button has a custom transition defined.",
             modifier = Modifier.padding(20.dp),
             textAlign = TextAlign.Center)
         Button(

@@ -15,11 +15,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.util.fastForEach
-import com.kpstv.navigation.compose.EnterAnimation.Companion.reverse
-import com.kpstv.navigation.compose.ExitAnimation.Companion.reverse
 import kotlinx.coroutines.flow.*
 import kotlinx.parcelize.Parcelize
 import kotlin.reflect.KClass
@@ -74,13 +71,13 @@ public data class NavOptions<T : Route>(
     internal var animationOptions: NavAnimation = NavAnimation()
 ) {
     /**
-     * @param enter Set the enter transition for the destination composable.
-     * @param exit Set the exit transition for the current composable.
+     * @param target Set the transition for the target destination composable.
+     * @param current Set the transition for the current destination composable.
      */
     @Parcelize
     public data class NavAnimation(
-        var enter: EnterAnimation = EnterAnimation.None,
-        var exit: ExitAnimation = ExitAnimation.None
+        var target: TransitionKey = None,
+        var current: TransitionKey = None
     ) : Parcelable
 
     /**
@@ -99,44 +96,51 @@ public data class NavOptions<T : Route>(
     }
 
     /**
-     * Customize enter & exit animations through [options] DSL.
+     * Customize transition for this navigation. You have to specify the transition for
+     * target & current destination.
+     *
+     * Suppose "A" is the final destination & "B" is the current destination. So when
+     * navigating from A -> B, forward transition will be played on "A" and backward
+     * transition will be played on "B" & vice-versa.
      */
     public fun withAnimation(options: NavAnimation.() -> Unit = {}) {
         animationOptions = NavAnimation().apply(options)
     }
 }
 
+/**
+ * A key to uniquely identify transition.
+ */
 @Parcelize
-public enum class EnterAnimation : Parcelable {
-    None, FadeIn, SlideInRight, SlideInLeft, ShrinkIn;
-    internal companion object {
-        internal fun EnterAnimation.reverse() : ExitAnimation {
-            return when(this) {
-                FadeIn -> ExitAnimation.FadeOut
-                SlideInRight -> ExitAnimation.SlideOutRight
-                SlideInLeft -> ExitAnimation.SlideOutLeft
-                ShrinkIn -> ExitAnimation.ShrinkOut
-                else -> ExitAnimation.None
-            }
-        }
-    }
+public data class TransitionKey(internal val key: String) : Parcelable // "class" so that IDE can show appropriate suggestions.
+
+/**
+ * Interface to define custom transition.
+ *
+ * - An optional [key] to define so that ComposeNavigator can identify this transition.
+ * - [forwardTransition] - Define the forward transition that'll be used when navigating to the target destination.
+ * - [backwardTransition] - Define the backward transition that'll be used when navigating from the target
+ *                          destination to the previous one (usually on back press).
+ */
+public abstract class NavigatorTransition {
+    public open val key: TransitionKey = TransitionKey(this::class.javaObjectType.name) // let's return the binary name
+    public abstract val forwardTransition: ComposeTransition
+    public abstract val backwardTransition: ComposeTransition
+
+    public open val animationSpec: FiniteAnimationSpec<Float> = tween(durationMillis = 300)
 }
 
-@Parcelize
-public enum class ExitAnimation : Parcelable {
-    None, FadeOut, SlideOutRight, SlideOutLeft, ShrinkOut;
-    internal companion object {
-        internal fun ExitAnimation.reverse() : EnterAnimation {
-            return when(this) {
-                FadeOut -> EnterAnimation.FadeIn
-                SlideOutRight -> EnterAnimation.SlideInRight
-                SlideOutLeft -> EnterAnimation.SlideInLeft
-                ShrinkOut -> EnterAnimation.ShrinkIn
-                else -> EnterAnimation.None
-            }
-        }
-    }
+/**
+ * Transition are implemented by customizing the [Modifier].
+ */
+public fun interface ComposeTransition {
+    public fun invoke(modifier: Modifier, width: Int, height: Int, progress: Float): Modifier
 }
+
+public val None: TransitionKey get() = NoneTransition.key
+public val Fade: TransitionKey get() = FadeTransition.key
+public val SlideRight: TransitionKey get() = SlideRightTransition.key
+public val SlideLeft: TransitionKey get() = SlideLeftTransition.key
 
 /**
  * A navigator for managing navigation in Jetpack Compose.
@@ -156,6 +160,11 @@ public class ComposeNavigator private constructor(private val activity: Componen
     public class Builder internal constructor(activity: ComponentActivity, savedInstanceState: Bundle?) {
         private val navigator = ComposeNavigator(activity, savedInstanceState)
 
+        init {
+            // Register pre-built transitions
+            registerTransitions(NoneTransition, FadeTransition, SlideRightTransition, SlideLeftTransition)
+        }
+
         /**
          * This will disable Navigator's internal back press logic if set to `False` which you then have to manually
          * handle in Activity's `onBackPressed()`.
@@ -168,10 +177,11 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         /**
-         * Specify the animation spec that should be used when transitioning between screens.
+         * Register custom transitions. This will allow you to set custom transition when
+         * navigating to target destination.
          */
-        public fun setAnimationSpec(spec: FiniteAnimationSpec<Float>): Builder {
-            navigator.animationSpec = spec
+        public fun registerTransitions(vararg transitions: NavigatorTransition): Builder {
+            navigator.navigatorTransitions.addAll(transitions)
             return this
         }
 
@@ -179,8 +189,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
          * Returns the configured instance of [ComposeNavigator].
          */
         public fun initialize() : ComposeNavigator = navigator
-
-        // TODO: Option to set custom Animation Spec (if needed).
     }
 
     //TODO: Make primary destination feature which will be navigated automatically when backstack becomes empty.
@@ -398,7 +406,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
     internal val backStackMap = mutableMapOf<KClass<out Route>, History<*>>()
     private lateinit var saveableStateHolder: SaveableStateHolder
-    private var animationSpec: FiniteAnimationSpec<Float> = tween(durationMillis = 300)
+    private val navigatorTransitions: ArrayList<NavigatorTransition> = arrayListOf()
     private var savedState: Bundle? = null
 
     init {
@@ -493,38 +501,31 @@ public class ComposeNavigator private constructor(private val activity: Componen
         isBackward: Boolean = false, // if triggered on back press.
         content: @Composable (T) -> Unit
     ) {
-        val animationSnapShot = animation.copy()
         val items = remember { mutableStateListOf<CommonAnimationItemHolder<T>>() }
         val transitionState = remember { MutableTransitionState(targetState) }
         val targetChanged = (targetState != transitionState.targetState)
         transitionState.targetState = targetState
         val transition = updateTransition(transitionState, label = "transition")
 
-        if (isBackward) {
-            animationSnapShot.enter = animation.exit.reverse()
-            animationSnapShot.exit = animation.enter.reverse()
+        val enterAnimation = remember(animation) { navigatorTransitions.find { it.key == animation.target } ?: throw IllegalArgumentException("Could not find the enter animation \"${animation.target.key}\". Did you forgot to register it?") }
+        val exitAnimation = remember(animation) { navigatorTransitions.find { it.key == animation.current } ?: throw IllegalArgumentException("Could not find the enter animation \"${animation.target.key}\". Did you forgot to register it?") }
+
+        fun getAnimationSpec(key: T): FiniteAnimationSpec<Float> {
+            return if (key == targetState) {
+                if (!isBackward) enterAnimation.animationSpec else exitAnimation.animationSpec
+            } else {
+                if (!isBackward) exitAnimation.animationSpec else enterAnimation.animationSpec
+            }
         }
 
-        fun getUpdatedModifier(width: Float, progress: Float, shrinkProgress: Float, key: T): Modifier { // for target 0-1 else 1-0
-            return if (key == targetState) { // enter transition
-                when(animationSnapShot.enter) {
-                    EnterAnimation.FadeIn -> Modifier.graphicsLayer { this.alpha = progress }
-                    EnterAnimation.SlideInRight -> Modifier.graphicsLayer { this.translationX = width + (-1) * width * progress }
-                    EnterAnimation.SlideInLeft -> Modifier.graphicsLayer { this.translationX = width * (1 - progress) * (-1) }
-                    EnterAnimation.ShrinkIn -> Modifier.graphicsLayer { this.alpha = progress; this.scaleX = (1 * shrinkProgress); this.scaleY = (1 * shrinkProgress) }
-                    EnterAnimation.None -> Modifier
-                    else -> throw IllegalArgumentException("Could not find this animation.")
-                }
-            } else { // exit transition
-                when(animationSnapShot.exit) {
-                    ExitAnimation.FadeOut -> Modifier.graphicsLayer { this.alpha = progress }
-                    ExitAnimation.SlideOutLeft -> Modifier.graphicsLayer { this.translationX = (-1) * width * (1 - progress) }
-                    ExitAnimation.SlideOutRight -> Modifier.graphicsLayer { this.translationX = width * (1 - progress) }
-                    ExitAnimation.ShrinkOut -> Modifier.graphicsLayer { this.alpha = progress; this.scaleX = shrinkProgress; this.scaleY = shrinkProgress }
-                    ExitAnimation.None -> Modifier
-                    else -> throw IllegalArgumentException("Could not find this animation.")
-                }
+        fun getUpdatedModifier(width: Int, height: Int, progress: Float, key: T): Modifier {
+            val predicate = if (!isBackward) key == targetState else key != targetState
+            val composeTransition = if (predicate) {
+                if (!isBackward) enterAnimation.forwardTransition else enterAnimation.backwardTransition
+            } else {
+                if (!isBackward) exitAnimation.forwardTransition else exitAnimation.backwardTransition
             }
+            return composeTransition.invoke(Modifier, width, height, if (!isBackward) progress else 1 - progress)
         }
 
         if (targetChanged || items.isEmpty()) {
@@ -539,15 +540,15 @@ public class ComposeNavigator private constructor(private val activity: Componen
             keys.mapTo(items) { key ->
                 CommonAnimationItemHolder(key) {
                     BoxWithConstraints {
+                        val animationSpec = getAnimationSpec(key)
+
                         val progress by transition.animateFloat(
                             transitionSpec = { animationSpec }, label = "normal")
                         { if (it == key) 1f else 0f }
 
-                        val shrinkProgress by transition.animateFloat(
-                            transitionSpec = { animationSpec }, label = "shrink")
-                        { if (it == key) 1f else 0.9f }
-                        val width = with(LocalDensity.current) { maxWidth.toPx() }
-                        val internalModifier = getUpdatedModifier(width, progress, shrinkProgress, key)
+                        val width = with(LocalDensity.current) { maxWidth.toPx().toInt() }
+                        val height = with(LocalDensity.current) { maxHeight.toPx().toInt() }
+                        val internalModifier = getUpdatedModifier(width, height, progress, key)
                         Box(internalModifier) {
                             content(key)
                         }
