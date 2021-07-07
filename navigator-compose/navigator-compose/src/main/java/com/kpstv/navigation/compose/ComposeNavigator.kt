@@ -99,7 +99,7 @@ public data class NavOptions<T : Route>(
      * Customize transition for this navigation. You have to specify the transition for
      * target & current destination.
      *
-     * Suppose "A" is the final destination & "B" is the current destination. So when
+     * Suppose "A" is the target destination & "B" is the current destination. So when
      * navigating from A -> B, forward transition will be played on "A" and backward
      * transition will be played on "B" & vice-versa.
      */
