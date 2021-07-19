@@ -3,10 +3,10 @@ apply plugin: 'io.codearte.nexus-staging'
 buildscript {
     ext {
         kotlin_version = '1.5.10'
-        lintVersion = '30.1.0-alpha02'
-        compose_version = '1.0.0-rc01'
+        lintVersion = '30.1.0-alpha03'
+        compose_version = '1.0.0-rc02'
         versions = [
-                "navigator_compose": "0.1-alpha12"
+                "navigator_compose": "0.1-alpha13"
         ]
     }
     repositories {
@@ -15,7 +15,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.0-alpha02'
+        classpath 'com.android.tools.build:gradle:7.1.0-alpha03'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0"
     }

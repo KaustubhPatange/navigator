@@ -82,10 +82,10 @@ dependencies {
 
 If you would like me to add your app in the list, let me know through issues.
 
-|                                                                                                               | Name                                                                                 |
-| ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| <img width="32px" src="https://github.com/KaustubhPatange/Moviesy/raw/master/web/images/icon.png" />          | [**Moviesy**](https://kaustubhpatange.github.io/Moviesy) - Client app for YTS movies |
-| <img width="32x" src="https://github.com/KaustubhPatange/XClipper/raw/master/XClipper.Web/images/icon.png" /> | [**XClipper**]() - _not published_                                                   |
+|                                                                                                               | Name                                                                                                  |
+| ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| <img width="32px" src="https://github.com/KaustubhPatange/Moviesy/raw/master/web/images/icon.png" />          | [**Moviesy**](https://kaustubhpatange.github.io/Moviesy) - Client app for YTS movies                  |
+| <img width="32x" src="https://github.com/KaustubhPatange/XClipper/raw/master/XClipper.Web/images/icon.png" /> | [**XClipper**](https://github.com/KaustubhPatange/XClipper) - Clipboard manager for Android & Windows |
 
 ## License
 
