@@ -32,7 +32,6 @@ class AnimationDefinition {
      * Runs a custom circular reveal animation.
      *
      * @param fromTarget Start from the coordinates specified by the View or manually by [Rect]. Default is from the Center.
-     * @param delayMillis Time in milliseconds to wait until the animation should start.
      *
      * @see [View.getLocalVisibleRect]
      * @see [View.getGlobalVisibleRect]
@@ -40,7 +39,6 @@ class AnimationDefinition {
     @Parcelize
     data class CircularReveal(
         val fromTarget: Rect? = null,
-        val delayMillis: Long = 0
     ) : NavAnimation(), Parcelable
 
     /**

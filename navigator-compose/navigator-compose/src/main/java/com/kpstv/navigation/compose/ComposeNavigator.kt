@@ -11,6 +11,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -602,3 +604,25 @@ private inline fun <T> rememberComposable(calculation: @Composable () -> T): T {
     }
     return internal.value!!
 }
+
+/*
+public class Inline {
+    @Composable
+    public fun Test() {
+        println("Hello world")
+    }
+}
+
+@Composable
+public fun Set(content: @Composable Inline.(dest: String) -> Unit) {
+    content(Inline(), "")
+}
+
+@Composable
+public fun JJJ() {
+    Set { dest ->
+        Test()
+        println("Hello world - 123")
+    }
+}
+*/

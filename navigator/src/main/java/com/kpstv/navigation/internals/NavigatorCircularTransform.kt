@@ -78,17 +78,17 @@ internal class NavigatorCircularTransform(
 
                     val target = payload.fromTarget ?: Rect(0, 0, containerView.width, containerView.height)
 
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        if (!f.isRemoving) {
-                            if (f.requireView().isLaidOut) {
+                    if (!f.isRemoving) {
+                        if (f.requireView().isLaidOut) {
+                            f.childFragmentManager.executePendingTransactions()
+                            performRestCircularTransform(overlayView, target)
+                        } else {
+                            f.requireView().doOnLaidOut {
+                                f.childFragmentManager.executePendingTransactions()
                                 performRestCircularTransform(overlayView, target)
-                            } else {
-                                f.requireView().doOnLaidOut {
-                                    performRestCircularTransform(overlayView, target)
-                                }
                             }
-                        } else containerView.removeView(overlayView)
-                    }, payload.delayMillis)
+                        }
+                    } else containerView.removeView(overlayView)
                 }
             }, false)
         } else {
@@ -102,13 +102,7 @@ internal class NavigatorCircularTransform(
                     fm.unregisterFragmentLifecycleCallbacks(this)
 
                     val target = payload.fromTarget ?: Rect(0, 0, containerView.width, containerView.height)
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        if (!f.isRemoving) {
-                            performReverseCircularTransform(overlayView, target)
-                        } else {
-                            containerView.removeView(overlayView)
-                        }
-                    }, payload.delayMillis)
+                    performReverseCircularTransform(overlayView, target)
                 }
             }, false)
         }

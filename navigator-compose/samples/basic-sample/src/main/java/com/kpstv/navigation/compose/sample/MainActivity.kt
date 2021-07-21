@@ -49,11 +49,11 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-sealed class StartRoute : Route {
+sealed interface StartRoute : Route {
     @Immutable @Parcelize
-    data class First(val data: String) : StartRoute()
+    data class First(val data: String) : StartRoute
     @Immutable @Parcelize
-    data class Second(private val noArgPlaceholder: String = "") : StartRoute()
+    data class Second(private val noArgPlaceholder: String = "") : StartRoute
     companion object {
         val key = StartRoute::class
     }
@@ -77,11 +77,11 @@ fun StartScreen(navigator: ComposeNavigator, startRoute: StartRoute) {
     }
 }
 
-sealed class FirstRoute : Route {
+sealed interface FirstRoute : Route {
     @Immutable @Parcelize
-    data class Primary(private val noArg: String = "") : FirstRoute()
+    data class Primary(private val noArg: String = "") : FirstRoute
     @Immutable @Parcelize
-    data class Third(private val noArg: String = "") : FirstRoute()
+    data class Third(private val noArg: String = "") : FirstRoute
     companion object {
         val key = FirstRoute::class
     }
@@ -92,14 +92,14 @@ fun FirstScreen(data: String, change: (StartRoute) -> Unit) {
     val navigator = findComposeNavigator()
     navigator.Setup(key = FirstRoute.key, initial = FirstRoute.Primary()) { controller, dest ->
         when(dest) {
-            is FirstRoute.Primary -> PrimaryFirst(data, change, { route ->
+            is FirstRoute.Primary -> PrimaryFirst(data, change) { route ->
                 controller.navigateTo(route) {
                     withAnimation {
                         target = SlideRight
                         current = Fade
                     }
                 }
-            })
+            }
             is FirstRoute.Third -> {
                 ThirdScreen()
             }
@@ -207,11 +207,11 @@ fun Gallery() {
     }
 }
 
-sealed class GalleryRoute : Route {
+sealed interface GalleryRoute : Route {
     @Immutable @Parcelize
-    data class Primary(private val noArg: String = "") : GalleryRoute()
+    data class Primary(private val noArg: String = "") : GalleryRoute
     @Immutable @Parcelize
-    data class Detail(val item: GalleryItem) : GalleryRoute()
+    data class Detail(val item: GalleryItem) : GalleryRoute
     companion object {
         val key = GalleryRoute::class
     }
@@ -300,11 +300,11 @@ fun ThirdScreen() {
     }
 }
 
-sealed class ThirdRoute : Route {
+sealed interface ThirdRoute : Route {
     @Immutable @Parcelize
-    data class Third1(private val noArg: String = "") : ThirdRoute()
+    data class Third1(private val noArg: String = "") : ThirdRoute
     @Immutable @Parcelize
-    data class Third2(private val noArg: String = "") : ThirdRoute()
+    data class Third2(private val noArg: String = "") : ThirdRoute
     companion object {
         val key = ThirdRoute::class
     }
