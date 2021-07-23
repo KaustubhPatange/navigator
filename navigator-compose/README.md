@@ -46,6 +46,14 @@ dependencies {
   - [Navigate with single top instance & `popUpTo`](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigate-with-single-top-instance-&-popUpTo)
   - [Implementing Nested Navigation](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#implementing-nested-navigation)
 
+## Apps using `navigator-compose`
+
+If you would like me to add your app in the list, let me know through issues.
+
+|                                                                                                                                                    | Name                                                                                          |
+| -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| <img width="32px" src="https://raw.githubusercontent.com/KaustubhPatange/Gear-VPN/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" /> | [**Gear VPN**](https://github.com/KaustubhPatange/Gear-VPN) - Free, Secure & Open sourced VPN |
+
 ## License
 
 - [The Apache License Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
