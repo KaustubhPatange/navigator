@@ -160,6 +160,7 @@ public final class com/kpstv/navigation/FragmentNavigator$NavOptions {
 }
 
 public abstract class com/kpstv/navigation/FragmentNavigator$Navigation {
+	public fun <init> ()V
 	public fun getFragmentNavigationTransition ()Lcom/kpstv/navigation/FragmentNavigator$Navigation$Animation;
 	public fun getFragmentViewRetentionType ()Lcom/kpstv/navigation/FragmentNavigator$Navigation$ViewRetention;
 	public fun getSelectedFragmentId ()I
