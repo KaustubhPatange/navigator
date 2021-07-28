@@ -1,0 +1,9 @@
+public final class com/kpstv/navigation/RailNavigationController {
+	public final fun select (ILcom/kpstv/navigation/BaseArgs;)V
+	public static synthetic fun select$default (Lcom/kpstv/navigation/RailNavigationController;ILcom/kpstv/navigation/BaseArgs;ILjava/lang/Object;)V
+}
+
+public final class com/kpstv/navigation/RailNavigationKt {
+	public static final fun install (Lcom/kpstv/navigation/FragmentNavigator;Lcom/kpstv/navigation/FragmentNavigator$RailNavigation;)Lcom/kpstv/navigation/RailNavigationController;
+}
+

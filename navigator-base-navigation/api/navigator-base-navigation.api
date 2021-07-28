@@ -1,0 +1,48 @@
+public final class com/kpstv/navigation/base/navigation/internals/ActivityNavigationLifecycle : android/app/Application$ActivityLifecycleCallbacks {
+	public fun <init> (Landroidx/fragment/app/FragmentActivity;Lcom/kpstv/navigation/base/navigation/internals/CommonNavigationImpl;)V
+	public fun onActivityCreated (Landroid/app/Activity;Landroid/os/Bundle;)V
+	public fun onActivityDestroyed (Landroid/app/Activity;)V
+	public fun onActivityPaused (Landroid/app/Activity;)V
+	public fun onActivityResumed (Landroid/app/Activity;)V
+	public fun onActivitySaveInstanceState (Landroid/app/Activity;Landroid/os/Bundle;)V
+	public fun onActivityStarted (Landroid/app/Activity;)V
+	public fun onActivityStopped (Landroid/app/Activity;)V
+}
+
+public abstract class com/kpstv/navigation/base/navigation/internals/CommonNavigationImpl : com/kpstv/navigation/base/navigation/internals/CommonLifecycleCallbacks {
+	public static final field Companion Lcom/kpstv/navigation/base/navigation/internals/CommonNavigationImpl$Companion;
+	public fun <init> (Lcom/kpstv/navigation/FragmentNavigator;Ljava/util/Map;Lcom/kpstv/navigation/FragmentNavigator$Navigation;Lcom/kpstv/navigation/base/navigation/internals/CommonNavigationImpl$SaveStateKeys;)V
+	public fun onCreate (Landroid/os/Bundle;)V
+	public abstract fun onNavigationSelectionChange (I)V
+	public fun onSaveInstanceState (Landroid/os/Bundle;)V
+	public final fun onSelectNavItem (ILcom/kpstv/navigation/BaseArgs;)Z
+	public static synthetic fun onSelectNavItem$default (Lcom/kpstv/navigation/base/navigation/internals/CommonNavigationImpl;ILcom/kpstv/navigation/BaseArgs;ILjava/lang/Object;)Z
+	public abstract fun setUpNavigationViewCallbacks (I)V
+}
+
+public final class com/kpstv/navigation/base/navigation/internals/CommonNavigationImpl$Companion {
+}
+
+public final class com/kpstv/navigation/base/navigation/internals/CommonNavigationImpl$SaveStateKeys {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/kpstv/navigation/base/navigation/internals/CommonNavigationImpl$SaveStateKeys;
+	public static synthetic fun copy$default (Lcom/kpstv/navigation/base/navigation/internals/CommonNavigationImpl$SaveStateKeys;Ljava/lang/String;ILjava/lang/Object;)Lcom/kpstv/navigation/base/navigation/internals/CommonNavigationImpl$SaveStateKeys;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKeyIndex ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/kpstv/navigation/base/navigation/internals/CustomsKt {
+	public static final fun getOwner (Lcom/kpstv/navigation/FragmentNavigator;)Ljava/lang/Object;
+	public static final fun getSaveInstanceState (Lcom/kpstv/navigation/FragmentNavigator;)Landroid/os/Bundle;
+}
+
+public final class com/kpstv/navigation/base/navigation/internals/FragmentNavigationLifecycle : androidx/fragment/app/FragmentManager$FragmentLifecycleCallbacks {
+	public fun <init> (Landroidx/fragment/app/Fragment;Lcom/kpstv/navigation/base/navigation/internals/CommonNavigationImpl;Lkotlin/jvm/functions/Function2;)V
+	public fun onFragmentDestroyed (Landroidx/fragment/app/FragmentManager;Landroidx/fragment/app/Fragment;)V
+	public fun onFragmentSaveInstanceState (Landroidx/fragment/app/FragmentManager;Landroidx/fragment/app/Fragment;Landroid/os/Bundle;)V
+	public fun onFragmentViewDestroyed (Landroidx/fragment/app/FragmentManager;Landroidx/fragment/app/Fragment;)V
+}
+

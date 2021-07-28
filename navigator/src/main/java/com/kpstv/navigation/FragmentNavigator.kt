@@ -229,7 +229,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
         ADD
     }
 
-    abstract class Navigation {
+    abstract class Navigation internal constructor() {
         /**
          * Set the first selected fragment. Defaults to the first Id from the navigation fragments.
          *

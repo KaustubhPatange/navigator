@@ -1,16 +1,17 @@
 apply plugin: 'io.codearte.nexus-staging'
+apply plugin: 'binary-compatibility-validator'
 
 buildscript {
     ext.kotlin_version = "1.5.10"
     ext.fragment_version = "1.3.4"
     ext.lintVersion = '30.0.0-alpha10'
     ext.versions = [
-            "navigator": '0.1-alpha28', // published
-            "navigator_extensions": "0.5", // published
-            "navigator_base_navigation": "0.1-alpha11", // published // if this is changed also update bottom & tab navigation library as well.
-            "navigator_bottom_navigation": "0.1-alpha17", // published
-            "navigator_tab_navigation": "0.1-alpha11", // published
-            "navigator_rail_navigation": "0.1-alpha01" // published
+            "navigator": '0.1-alpha29', // published
+            "navigator_extensions": "0.6", // published
+            "navigator_base_navigation": "0.1-alpha12", // published // if this is changed also update bottom & tab navigation library as well.
+            "navigator_bottom_navigation": "0.1-alpha18", // published
+            "navigator_tab_navigation": "0.1-alpha12", // published
+            "navigator_rail_navigation": "0.1-alpha02" // published
     ]
 
     repositories {
@@ -21,6 +22,7 @@ buildscript {
         classpath "com.android.tools.build:gradle:4.2.0"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0"
+        classpath "org.jetbrains.kotlinx:binary-compatibility-validator:0.6.0"
     }
 }
 

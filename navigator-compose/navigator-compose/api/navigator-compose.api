@@ -1,0 +1,129 @@
+public final class com/kpstv/navigation/compose/ComposeNavigator {
+	public static final field $stable I
+	public static final field Companion Lcom/kpstv/navigation/compose/ComposeNavigator$Companion;
+	public synthetic fun <init> (Landroidx/activity/ComponentActivity;Landroid/os/Bundle;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun Setup (Landroidx/compose/ui/Modifier;Lkotlin/reflect/KClass;Lcom/kpstv/navigation/compose/Route;Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
+	public final fun getSuppressBackPress ()Z
+	public final fun setSuppressBackPress (Z)V
+}
+
+public final class com/kpstv/navigation/compose/ComposeNavigator$Builder {
+	public static final field $stable I
+	public final fun initialize ()Lcom/kpstv/navigation/compose/ComposeNavigator;
+	public final fun registerTransitions ([Lcom/kpstv/navigation/compose/NavigatorTransition;)Lcom/kpstv/navigation/compose/ComposeNavigator$Builder;
+	public final fun setDefaultBackPressEnabled (Z)Lcom/kpstv/navigation/compose/ComposeNavigator$Builder;
+}
+
+public final class com/kpstv/navigation/compose/ComposeNavigator$Companion {
+	public final fun with (Landroidx/activity/ComponentActivity;Landroid/os/Bundle;)Lcom/kpstv/navigation/compose/ComposeNavigator$Builder;
+}
+
+public final class com/kpstv/navigation/compose/ComposeNavigator$Controller {
+	public static final field $stable I
+	public final fun canGoBack ()Z
+	public final fun getAllHistory ()Ljava/util/List;
+	public final fun getCurrentAsFlow ()Lkotlinx/coroutines/flow/StateFlow;
+	public final fun goBack ()Lcom/kpstv/navigation/compose/Route;
+	public final fun navigateTo (Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun navigateTo$default (Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+}
+
+public final class com/kpstv/navigation/compose/ComposeNavigatorKt {
+	public static final fun findComposeNavigator (Landroidx/compose/runtime/Composer;I)Lcom/kpstv/navigation/compose/ComposeNavigator;
+	public static final fun findController (Lkotlin/reflect/KClass;Landroidx/compose/runtime/Composer;I)Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;
+	public static final fun rememberController (Landroidx/compose/runtime/Composer;I)Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;
+}
+
+public abstract interface class com/kpstv/navigation/compose/ComposeTransition {
+	public abstract fun invoke (Landroidx/compose/ui/Modifier;IIF)Landroidx/compose/ui/Modifier;
+}
+
+public final class com/kpstv/navigation/compose/DefaultTransitionsKt {
+	public static final fun getFade ()Lcom/kpstv/navigation/compose/TransitionKey;
+	public static final fun getNone ()Lcom/kpstv/navigation/compose/TransitionKey;
+	public static final fun getSlideLeft ()Lcom/kpstv/navigation/compose/TransitionKey;
+	public static final fun getSlideRight ()Lcom/kpstv/navigation/compose/TransitionKey;
+}
+
+public final class com/kpstv/navigation/compose/NavOptions {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (ZLcom/kpstv/navigation/compose/NavOptions$PopUpOptions;Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;)V
+	public synthetic fun <init> (ZLcom/kpstv/navigation/compose/NavOptions$PopUpOptions;Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Z
+	public final fun copy (ZLcom/kpstv/navigation/compose/NavOptions$PopUpOptions;Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;)Lcom/kpstv/navigation/compose/NavOptions;
+	public static synthetic fun copy$default (Lcom/kpstv/navigation/compose/NavOptions;ZLcom/kpstv/navigation/compose/NavOptions$PopUpOptions;Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;ILjava/lang/Object;)Lcom/kpstv/navigation/compose/NavOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSingleTop ()Z
+	public fun hashCode ()I
+	public final fun popUpTo (Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun popUpTo$default (Lcom/kpstv/navigation/compose/NavOptions;Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun setSingleTop (Z)V
+	public fun toString ()Ljava/lang/String;
+	public final fun withAnimation (Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun withAnimation$default (Lcom/kpstv/navigation/compose/NavOptions;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+}
+
+public final class com/kpstv/navigation/compose/NavOptions$NavAnimation : android/os/Parcelable {
+	public static final field $stable I
+	public static final field CREATOR Landroid/os/Parcelable$Creator;
+	public fun <init> ()V
+	public fun <init> (Lcom/kpstv/navigation/compose/TransitionKey;Lcom/kpstv/navigation/compose/TransitionKey;)V
+	public synthetic fun <init> (Lcom/kpstv/navigation/compose/TransitionKey;Lcom/kpstv/navigation/compose/TransitionKey;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/kpstv/navigation/compose/TransitionKey;
+	public final fun component2 ()Lcom/kpstv/navigation/compose/TransitionKey;
+	public final fun copy (Lcom/kpstv/navigation/compose/TransitionKey;Lcom/kpstv/navigation/compose/TransitionKey;)Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;
+	public static synthetic fun copy$default (Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;Lcom/kpstv/navigation/compose/TransitionKey;Lcom/kpstv/navigation/compose/TransitionKey;ILjava/lang/Object;)Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;
+	public fun describeContents ()I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCurrent ()Lcom/kpstv/navigation/compose/TransitionKey;
+	public final fun getTarget ()Lcom/kpstv/navigation/compose/TransitionKey;
+	public fun hashCode ()I
+	public final fun setCurrent (Lcom/kpstv/navigation/compose/TransitionKey;)V
+	public final fun setTarget (Lcom/kpstv/navigation/compose/TransitionKey;)V
+	public fun toString ()Ljava/lang/String;
+	public fun writeToParcel (Landroid/os/Parcel;I)V
+}
+
+public final class com/kpstv/navigation/compose/NavOptions$PopUpOptions {
+	public static final field $stable I
+	public fun <init> (Lcom/kpstv/navigation/compose/Route;ZZ)V
+	public synthetic fun <init> (Lcom/kpstv/navigation/compose/Route;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component2 ()Z
+	public final fun component3 ()Z
+	public final fun copy (Lcom/kpstv/navigation/compose/Route;ZZ)Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;
+	public static synthetic fun copy$default (Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;Lcom/kpstv/navigation/compose/Route;ZZILjava/lang/Object;)Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAll ()Z
+	public final fun getInclusive ()Z
+	public fun hashCode ()I
+	public final fun setAll (Z)V
+	public final fun setInclusive (Z)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class com/kpstv/navigation/compose/NavigatorTransition {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun getAnimationSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public abstract fun getBackwardTransition ()Lcom/kpstv/navigation/compose/ComposeTransition;
+	public abstract fun getForwardTransition ()Lcom/kpstv/navigation/compose/ComposeTransition;
+	public fun getKey ()Lcom/kpstv/navigation/compose/TransitionKey;
+}
+
+public abstract interface class com/kpstv/navigation/compose/Route : android/os/Parcelable {
+}
+
+public final class com/kpstv/navigation/compose/TransitionKey : android/os/Parcelable {
+	public static final field $stable I
+	public static final field CREATOR Landroid/os/Parcelable$Creator;
+	public fun <init> (Ljava/lang/String;)V
+	public final fun copy (Ljava/lang/String;)Lcom/kpstv/navigation/compose/TransitionKey;
+	public static synthetic fun copy$default (Lcom/kpstv/navigation/compose/TransitionKey;Ljava/lang/String;ILjava/lang/Object;)Lcom/kpstv/navigation/compose/TransitionKey;
+	public fun describeContents ()I
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun writeToParcel (Landroid/os/Parcel;I)V
+}
+

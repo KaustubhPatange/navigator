@@ -1,0 +1,345 @@
+public final class com/kpstv/navigation/AnimationDefinition {
+}
+
+public final class com/kpstv/navigation/AnimationDefinition$CircularReveal : com/kpstv/navigation/NavAnimation, android/os/Parcelable {
+	public static final field CREATOR Landroid/os/Parcelable$Creator;
+	public fun <init> ()V
+	public fun <init> (Landroid/graphics/Rect;)V
+	public synthetic fun <init> (Landroid/graphics/Rect;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Landroid/graphics/Rect;
+	public final fun copy (Landroid/graphics/Rect;)Lcom/kpstv/navigation/AnimationDefinition$CircularReveal;
+	public static synthetic fun copy$default (Lcom/kpstv/navigation/AnimationDefinition$CircularReveal;Landroid/graphics/Rect;ILjava/lang/Object;)Lcom/kpstv/navigation/AnimationDefinition$CircularReveal;
+	public fun describeContents ()I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFromTarget ()Landroid/graphics/Rect;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun writeToParcel (Landroid/os/Parcel;I)V
+}
+
+public class com/kpstv/navigation/AnimationDefinition$Custom : com/kpstv/navigation/NavAnimation {
+	public fun <init> (IIII)V
+	public synthetic fun <init> (IIIIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getCurrentExiting ()I
+	public final fun getCurrentReturning ()I
+	public final fun getDestinationEntering ()I
+	public final fun getDestinationExiting ()I
+}
+
+public final class com/kpstv/navigation/AnimationDefinition$Fade : com/kpstv/navigation/AnimationDefinition$Custom {
+	public static final field INSTANCE Lcom/kpstv/navigation/AnimationDefinition$Fade;
+}
+
+public final class com/kpstv/navigation/AnimationDefinition$None : com/kpstv/navigation/NavAnimation {
+	public static final field INSTANCE Lcom/kpstv/navigation/AnimationDefinition$None;
+}
+
+public final class com/kpstv/navigation/AnimationDefinition$Shared : com/kpstv/navigation/NavAnimation {
+	public fun <init> (Ljava/util/Map;IIII)V
+	public synthetic fun <init> (Ljava/util/Map;IIIIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/Map;
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun component4 ()I
+	public final fun component5 ()I
+	public final fun copy (Ljava/util/Map;IIII)Lcom/kpstv/navigation/AnimationDefinition$Shared;
+	public static synthetic fun copy$default (Lcom/kpstv/navigation/AnimationDefinition$Shared;Ljava/util/Map;IIIIILjava/lang/Object;)Lcom/kpstv/navigation/AnimationDefinition$Shared;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCurrentExiting ()I
+	public final fun getDestinationEntering ()I
+	public final fun getElements ()Ljava/util/Map;
+	public final fun getSharedElementEntering ()I
+	public final fun getSharedElementExiting ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/kpstv/navigation/AnimationDefinition$SlideInBottom : com/kpstv/navigation/AnimationDefinition$Custom {
+	public static final field INSTANCE Lcom/kpstv/navigation/AnimationDefinition$SlideInBottom;
+}
+
+public final class com/kpstv/navigation/AnimationDefinition$SlideInLeft : com/kpstv/navigation/AnimationDefinition$Custom {
+	public static final field INSTANCE Lcom/kpstv/navigation/AnimationDefinition$SlideInLeft;
+}
+
+public final class com/kpstv/navigation/AnimationDefinition$SlideInRight : com/kpstv/navigation/AnimationDefinition$Custom {
+	public static final field INSTANCE Lcom/kpstv/navigation/AnimationDefinition$SlideInRight;
+}
+
+public final class com/kpstv/navigation/AnimationDefinition$SlideInTop : com/kpstv/navigation/AnimationDefinition$Custom {
+	public static final field INSTANCE Lcom/kpstv/navigation/AnimationDefinition$SlideInTop;
+}
+
+public final class com/kpstv/navigation/AnimationDefinition$Zoom : com/kpstv/navigation/AnimationDefinition$Custom {
+	public static final field INSTANCE Lcom/kpstv/navigation/AnimationDefinition$Zoom;
+}
+
+public class com/kpstv/navigation/BaseArgs : android/os/Parcelable {
+	public static final field CREATOR Landroid/os/Parcelable$Creator;
+	public fun <init> ()V
+	public fun describeContents ()I
+	public fun writeToParcel (Landroid/os/Parcel;I)V
+}
+
+public final class com/kpstv/navigation/Destination {
+	public static final field Companion Lcom/kpstv/navigation/Destination$Companion;
+	public static final synthetic fun box-impl (Ljava/util/Map;)Lcom/kpstv/navigation/Destination;
+	public static fun constructor-impl (Ljava/util/Map;)Ljava/util/Map;
+	public static synthetic fun constructor-impl$default (Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)Ljava/util/Map;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/util/Map;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/util/Map;Ljava/util/Map;)Z
+	public final fun getFragments ()Ljava/util/Map;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/util/Map;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/util/Map;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/util/Map;
+}
+
+public final class com/kpstv/navigation/Destination$Companion {
+	public final fun of-d3kkc4s (Ljava/util/List;)Ljava/util/Map;
+	public final fun of-d3kkc4s (Lkotlin/Pair;)Ljava/util/Map;
+	public final fun of-d3kkc4s (Lkotlin/reflect/KClass;)Ljava/util/Map;
+}
+
+public final class com/kpstv/navigation/FragmentNavigator {
+	public static final field Companion Lcom/kpstv/navigation/FragmentNavigator$Companion;
+	public final fun canGoBack ()Z
+	public final fun getContainerView ()Landroid/widget/FrameLayout;
+	public final fun getCurrentFragment ()Landroidx/fragment/app/Fragment;
+	public final fun getFragmentManager ()Landroidx/fragment/app/FragmentManager;
+	public final fun getHistory ()Lcom/kpstv/navigation/History;
+	public final fun goBack ()Z
+	public final fun navigateTo (Lkotlin/reflect/KClass;Lcom/kpstv/navigation/FragmentNavigator$NavOptions;)V
+	public static synthetic fun navigateTo$default (Lcom/kpstv/navigation/FragmentNavigator;Lkotlin/reflect/KClass;Lcom/kpstv/navigation/FragmentNavigator$NavOptions;ILjava/lang/Object;)V
+	public final fun show (Lkotlin/reflect/KClass;Lcom/kpstv/navigation/BaseArgs;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun show$default (Lcom/kpstv/navigation/FragmentNavigator;Lkotlin/reflect/KClass;Lcom/kpstv/navigation/BaseArgs;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+}
+
+public abstract class com/kpstv/navigation/FragmentNavigator$BottomNavigation : com/kpstv/navigation/FragmentNavigator$Navigation {
+	public fun <init> ()V
+	public abstract fun getBottomNavigationFragments ()Ljava/util/Map;
+	public abstract fun getBottomNavigationViewId ()I
+	public fun onBottomNavigationSelectionChanged (I)V
+}
+
+public final class com/kpstv/navigation/FragmentNavigator$Builder {
+	public static final field Companion Lcom/kpstv/navigation/FragmentNavigator$Builder$Companion;
+	public final fun initialize-8TicQV4 (Landroid/widget/FrameLayout;Ljava/util/Map;)Lcom/kpstv/navigation/FragmentNavigator;
+	public static synthetic fun initialize-8TicQV4$default (Lcom/kpstv/navigation/FragmentNavigator$Builder;Landroid/widget/FrameLayout;Ljava/util/Map;ILjava/lang/Object;)Lcom/kpstv/navigation/FragmentNavigator;
+}
+
+public final class com/kpstv/navigation/FragmentNavigator$Builder$Companion {
+}
+
+public final class com/kpstv/navigation/FragmentNavigator$Companion {
+	public final fun with (Landroidx/fragment/app/Fragment;Landroid/os/Bundle;)Lcom/kpstv/navigation/FragmentNavigator$Builder;
+	public final fun with (Landroidx/fragment/app/FragmentActivity;Landroid/os/Bundle;)Lcom/kpstv/navigation/FragmentNavigator$Builder;
+}
+
+public final class com/kpstv/navigation/FragmentNavigator$NavOptions {
+	public fun <init> ()V
+	public fun <init> (Lcom/kpstv/navigation/BaseArgs;Lcom/kpstv/navigation/FragmentNavigator$TransactionType;Lcom/kpstv/navigation/NavAnimation;ZLcom/kpstv/navigation/HistoryOptions;)V
+	public synthetic fun <init> (Lcom/kpstv/navigation/BaseArgs;Lcom/kpstv/navigation/FragmentNavigator$TransactionType;Lcom/kpstv/navigation/NavAnimation;ZLcom/kpstv/navigation/HistoryOptions;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/kpstv/navigation/BaseArgs;
+	public final fun component2 ()Lcom/kpstv/navigation/FragmentNavigator$TransactionType;
+	public final fun component3 ()Lcom/kpstv/navigation/NavAnimation;
+	public final fun component4 ()Z
+	public final fun component5 ()Lcom/kpstv/navigation/HistoryOptions;
+	public final fun copy (Lcom/kpstv/navigation/BaseArgs;Lcom/kpstv/navigation/FragmentNavigator$TransactionType;Lcom/kpstv/navigation/NavAnimation;ZLcom/kpstv/navigation/HistoryOptions;)Lcom/kpstv/navigation/FragmentNavigator$NavOptions;
+	public static synthetic fun copy$default (Lcom/kpstv/navigation/FragmentNavigator$NavOptions;Lcom/kpstv/navigation/BaseArgs;Lcom/kpstv/navigation/FragmentNavigator$TransactionType;Lcom/kpstv/navigation/NavAnimation;ZLcom/kpstv/navigation/HistoryOptions;ILjava/lang/Object;)Lcom/kpstv/navigation/FragmentNavigator$NavOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnimation ()Lcom/kpstv/navigation/NavAnimation;
+	public final fun getArgs ()Lcom/kpstv/navigation/BaseArgs;
+	public final fun getHistoryOptions ()Lcom/kpstv/navigation/HistoryOptions;
+	public final fun getRemember ()Z
+	public final fun getTransaction ()Lcom/kpstv/navigation/FragmentNavigator$TransactionType;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class com/kpstv/navigation/FragmentNavigator$Navigation {
+	public fun getFragmentNavigationTransition ()Lcom/kpstv/navigation/FragmentNavigator$Navigation$Animation;
+	public fun getFragmentViewRetentionType ()Lcom/kpstv/navigation/FragmentNavigator$Navigation$ViewRetention;
+	public fun getSelectedFragmentId ()I
+}
+
+public class com/kpstv/navigation/FragmentNavigator$Navigation$Animation {
+	public fun <init> (II)V
+	public final fun getEnter ()I
+	public final fun getExit ()I
+}
+
+public final class com/kpstv/navigation/FragmentNavigator$Navigation$Animation$Fade : com/kpstv/navigation/FragmentNavigator$Navigation$Animation {
+	public static final field INSTANCE Lcom/kpstv/navigation/FragmentNavigator$Navigation$Animation$Fade;
+}
+
+public final class com/kpstv/navigation/FragmentNavigator$Navigation$Animation$None : com/kpstv/navigation/FragmentNavigator$Navigation$Animation {
+	public static final field INSTANCE Lcom/kpstv/navigation/FragmentNavigator$Navigation$Animation$None;
+}
+
+public final class com/kpstv/navigation/FragmentNavigator$Navigation$Animation$SlideHorizontally : com/kpstv/navigation/FragmentNavigator$Navigation$Animation {
+	public static final field INSTANCE Lcom/kpstv/navigation/FragmentNavigator$Navigation$Animation$SlideHorizontally;
+}
+
+public final class com/kpstv/navigation/FragmentNavigator$Navigation$Animation$SlideVertically : com/kpstv/navigation/FragmentNavigator$Navigation$Animation {
+	public static final field INSTANCE Lcom/kpstv/navigation/FragmentNavigator$Navigation$Animation$SlideVertically;
+}
+
+public abstract interface class com/kpstv/navigation/FragmentNavigator$Navigation$Callbacks {
+	public abstract fun onReselected ()V
+	public abstract fun onSelected ()V
+}
+
+public final class com/kpstv/navigation/FragmentNavigator$Navigation$Callbacks$DefaultImpls {
+	public static fun onReselected (Lcom/kpstv/navigation/FragmentNavigator$Navigation$Callbacks;)V
+	public static fun onSelected (Lcom/kpstv/navigation/FragmentNavigator$Navigation$Callbacks;)V
+}
+
+public final class com/kpstv/navigation/FragmentNavigator$Navigation$Transition : java/lang/Enum {
+	public static final field FADE Lcom/kpstv/navigation/FragmentNavigator$Navigation$Transition;
+	public static final field NONE Lcom/kpstv/navigation/FragmentNavigator$Navigation$Transition;
+	public static final field SLIDE Lcom/kpstv/navigation/FragmentNavigator$Navigation$Transition;
+	public static fun valueOf (Ljava/lang/String;)Lcom/kpstv/navigation/FragmentNavigator$Navigation$Transition;
+	public static fun values ()[Lcom/kpstv/navigation/FragmentNavigator$Navigation$Transition;
+}
+
+public final class com/kpstv/navigation/FragmentNavigator$Navigation$ViewRetention : java/lang/Enum {
+	public static final field RECREATE Lcom/kpstv/navigation/FragmentNavigator$Navigation$ViewRetention;
+	public static final field RETAIN Lcom/kpstv/navigation/FragmentNavigator$Navigation$ViewRetention;
+	public static fun valueOf (Ljava/lang/String;)Lcom/kpstv/navigation/FragmentNavigator$Navigation$ViewRetention;
+	public static fun values ()[Lcom/kpstv/navigation/FragmentNavigator$Navigation$ViewRetention;
+}
+
+public abstract class com/kpstv/navigation/FragmentNavigator$RailNavigation : com/kpstv/navigation/FragmentNavigator$Navigation {
+	public fun <init> ()V
+	public abstract fun getRailNavigationFragments ()Ljava/util/Map;
+	public abstract fun getRailNavigationViewId ()I
+	public fun onRailNavigationSelectionChanged (I)V
+}
+
+public abstract class com/kpstv/navigation/FragmentNavigator$TabNavigation : com/kpstv/navigation/FragmentNavigator$Navigation {
+	public fun <init> ()V
+	public abstract fun getTabLayoutId ()I
+	public abstract fun getTabNavigationFragments ()Ljava/util/List;
+	public fun onTabNavigationSelectionChanged (I)V
+}
+
+public final class com/kpstv/navigation/FragmentNavigator$TransactionType : java/lang/Enum {
+	public static final field ADD Lcom/kpstv/navigation/FragmentNavigator$TransactionType;
+	public static final field REPLACE Lcom/kpstv/navigation/FragmentNavigator$TransactionType;
+	public static fun valueOf (Ljava/lang/String;)Lcom/kpstv/navigation/FragmentNavigator$TransactionType;
+	public static fun values ()[Lcom/kpstv/navigation/FragmentNavigator$TransactionType;
+}
+
+public abstract interface class com/kpstv/navigation/FragmentNavigator$Transmitter {
+	public abstract fun getNavigator ()Lcom/kpstv/navigation/FragmentNavigator;
+}
+
+public abstract interface class com/kpstv/navigation/History {
+	public abstract fun clearAll ()Z
+	public abstract fun clearUpTo (Ljava/lang/String;Z)Z
+	public abstract fun clearUpTo (Lkotlin/reflect/KClass;ZZ)Z
+	public abstract fun count ()I
+	public abstract fun getAllBackStackName (Lkotlin/reflect/KClass;)Ljava/util/List;
+	public abstract fun getBackStackName (Lkotlin/reflect/KClass;)Ljava/lang/String;
+	public abstract fun getTopBackStackName (Lkotlin/reflect/KClass;)Ljava/lang/String;
+	public abstract fun isEmpty ()Z
+	public abstract fun pop ()Z
+}
+
+public final class com/kpstv/navigation/History$DefaultImpls {
+	public static synthetic fun clearUpTo$default (Lcom/kpstv/navigation/History;Ljava/lang/String;ZILjava/lang/Object;)Z
+	public static synthetic fun clearUpTo$default (Lcom/kpstv/navigation/History;Lkotlin/reflect/KClass;ZZILjava/lang/Object;)Z
+}
+
+public abstract class com/kpstv/navigation/HistoryOptions {
+}
+
+public final class com/kpstv/navigation/HistoryOptions$ClearHistory : com/kpstv/navigation/HistoryOptions {
+	public static final field INSTANCE Lcom/kpstv/navigation/HistoryOptions$ClearHistory;
+}
+
+public final class com/kpstv/navigation/HistoryOptions$None : com/kpstv/navigation/HistoryOptions {
+	public static final field INSTANCE Lcom/kpstv/navigation/HistoryOptions$None;
+}
+
+public final class com/kpstv/navigation/HistoryOptions$PopToBackStack : com/kpstv/navigation/HistoryOptions {
+	public fun <init> (Ljava/lang/String;Z)V
+	public synthetic fun <init> (Ljava/lang/String;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Z
+	public final fun copy (Ljava/lang/String;Z)Lcom/kpstv/navigation/HistoryOptions$PopToBackStack;
+	public static synthetic fun copy$default (Lcom/kpstv/navigation/HistoryOptions$PopToBackStack;Ljava/lang/String;ZILjava/lang/Object;)Lcom/kpstv/navigation/HistoryOptions$PopToBackStack;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInclusive ()Z
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/kpstv/navigation/HistoryOptions$PopToFragment : com/kpstv/navigation/HistoryOptions {
+	public fun <init> (Lkotlin/reflect/KClass;Z)V
+	public synthetic fun <init> (Lkotlin/reflect/KClass;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lkotlin/reflect/KClass;
+	public final fun component2 ()Z
+	public final fun copy (Lkotlin/reflect/KClass;Z)Lcom/kpstv/navigation/HistoryOptions$PopToFragment;
+	public static synthetic fun copy$default (Lcom/kpstv/navigation/HistoryOptions$PopToFragment;Lkotlin/reflect/KClass;ZILjava/lang/Object;)Lcom/kpstv/navigation/HistoryOptions$PopToFragment;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAll ()Z
+	public final fun getClazz ()Lkotlin/reflect/KClass;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/kpstv/navigation/HistoryOptions$SingleTopInstance : com/kpstv/navigation/HistoryOptions {
+	public static final field INSTANCE Lcom/kpstv/navigation/HistoryOptions$SingleTopInstance;
+}
+
+public class com/kpstv/navigation/NavAnimation {
+}
+
+public final class com/kpstv/navigation/SimpleNavigator {
+	public static final field Companion Lcom/kpstv/navigation/SimpleNavigator$Companion;
+	public final fun pop ()Z
+	public final fun show (Lkotlin/reflect/KClass;Lcom/kpstv/navigation/BaseArgs;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun show$default (Lcom/kpstv/navigation/SimpleNavigator;Lkotlin/reflect/KClass;Lcom/kpstv/navigation/BaseArgs;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+}
+
+public final class com/kpstv/navigation/SimpleNavigator$Companion {
+}
+
+public class com/kpstv/navigation/ValueFragment : com/kpstv/navigation/internals/ViewStateFragment {
+	public static final field Companion Lcom/kpstv/navigation/ValueFragment$Companion;
+	public fun <init> ()V
+	public fun <init> (I)V
+	public fun getForceBackPress ()Z
+	public final fun getParentNavigator ()Lcom/kpstv/navigation/FragmentNavigator;
+	public final fun getSimpleNavigator ()Lcom/kpstv/navigation/SimpleNavigator;
+	public final fun goBack ()V
+	public fun onBackPressed ()Z
+	public fun onSaveInstanceState (Landroid/os/Bundle;)V
+	public fun onStop ()V
+	public fun onViewCreated (Landroid/view/View;Landroid/os/Bundle;)V
+}
+
+public final class com/kpstv/navigation/ValueFragment$Companion {
+	public final fun createArgKey (Lcom/kpstv/navigation/BaseArgs;)Ljava/lang/String;
+	public final fun createArgKey (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public class com/kpstv/navigation/internals/ViewStateFragment : androidx/fragment/app/Fragment {
+	public fun onDestroyView ()V
+	public fun onViewCreated (Landroid/view/View;Landroid/os/Bundle;)V
+	public fun onViewStateChanged (Lcom/kpstv/navigation/internals/ViewStateFragment$ViewState;)V
+}
+
+public final class com/kpstv/navigation/internals/ViewStateFragment$ViewState : java/lang/Enum {
+	public static final field BACKGROUND Lcom/kpstv/navigation/internals/ViewStateFragment$ViewState;
+	public static final field FOREGROUND Lcom/kpstv/navigation/internals/ViewStateFragment$ViewState;
+	public static final field UNDEFINED Lcom/kpstv/navigation/internals/ViewStateFragment$ViewState;
+	public static fun valueOf (Ljava/lang/String;)Lcom/kpstv/navigation/internals/ViewStateFragment$ViewState;
+	public static fun values ()[Lcom/kpstv/navigation/internals/ViewStateFragment$ViewState;
+}
+

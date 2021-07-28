@@ -13,8 +13,8 @@ import androidx.fragment.app.FragmentManager
  * A fragment that notifies view state change through [onViewStateChanged] callback.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-open class ViewStateFragment(@LayoutRes id: Int) : Fragment(id) {
-    constructor() : this(0)
+open class ViewStateFragment internal constructor(@LayoutRes id: Int) : Fragment(id) {
+    internal constructor() : this(0)
 
     /**
      * Notifies when the [View] associated with this [Fragment] goes to [ViewState.BACKGROUND]

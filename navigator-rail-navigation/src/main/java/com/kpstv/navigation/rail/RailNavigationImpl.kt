@@ -8,7 +8,7 @@ import com.kpstv.navigation.base.navigation.internals.CommonNavigationImpl
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction1
 
-class RailNavigationImpl(
+internal class RailNavigationImpl(
     navigator: FragmentNavigator,
     internal val navView: NavigationRailView,
     private val onNavSelectionChange: KFunction1<Int, Unit>,

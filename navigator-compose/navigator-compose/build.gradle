@@ -35,6 +35,7 @@ android {
         freeCompilerArgs += ['-Xexplicit-api=strict']
     }
     buildFeatures {
+        buildConfig = false
         compose true
     }
     composeOptions {

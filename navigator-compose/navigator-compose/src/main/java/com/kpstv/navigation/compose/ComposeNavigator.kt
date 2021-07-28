@@ -139,11 +139,6 @@ public fun interface ComposeTransition {
     public fun invoke(modifier: Modifier, width: Int, height: Int, progress: Float): Modifier
 }
 
-public val None: TransitionKey get() = NoneTransition.key
-public val Fade: TransitionKey get() = FadeTransition.key
-public val SlideRight: TransitionKey get() = SlideRightTransition.key
-public val SlideLeft: TransitionKey get() = SlideLeftTransition.key
-
 /**
  * A navigator for managing navigation in Jetpack Compose.
  */
@@ -163,7 +158,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
         private val navigator = ComposeNavigator(activity, savedInstanceState)
 
         init {
-            // Register pre-built transitions
+            // Register built-in transitions
             registerTransitions(NoneTransition, FadeTransition, SlideRightTransition, SlideLeftTransition)
         }
 
@@ -193,7 +188,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
         public fun initialize() : ComposeNavigator = navigator
     }
 
-    //TODO: Make primary destination feature which will be navigated automatically when backstack becomes empty.
     /**
      * [associateKey] A parent key for this [key]. This means [associateKey] has setup navigation for this [key].
      */
@@ -604,25 +598,3 @@ private inline fun <T> rememberComposable(calculation: @Composable () -> T): T {
     }
     return internal.value!!
 }
-
-/*
-public class Inline {
-    @Composable
-    public fun Test() {
-        println("Hello world")
-    }
-}
-
-@Composable
-public fun Set(content: @Composable Inline.(dest: String) -> Unit) {
-    content(Inline(), "")
-}
-
-@Composable
-public fun JJJ() {
-    Set { dest ->
-        Test()
-        println("Hello world - 123")
-    }
-}
-*/

@@ -1,0 +1,5 @@
+public final class com/kpstv/navigation/NavigatorExtensionsKt {
+	public static final fun autoChildElevation (Lcom/kpstv/navigation/FragmentNavigator;)V
+	public static final fun canFinish (Lcom/kpstv/navigation/FragmentNavigator;)Z
+}
+

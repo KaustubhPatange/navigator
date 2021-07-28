@@ -51,6 +51,15 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
 
+      - name: Check binary compatibility
+        run: |
+          ./gradlew navigator:apiCheck
+          ./gradlew navigator-extensions:apiCheck
+          ./gradlew navigator-base-navigation:apiCheck
+          ./gradlew navigator-bottom-navigation:apiCheck
+          ./gradlew navigator-tab-navigation:apiCheck
+          ./gradlew navigator-rail-navigation:apiCheck
+
       # Publish libraries to local maven
       - name: Publishing libraries to local maven
         run: |

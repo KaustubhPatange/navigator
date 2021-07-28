@@ -12,6 +12,8 @@ android {
         minSdkVersion 21
     }
 
+    buildFeatures.buildConfig = false
+
     buildTypes {
         release {
             minifyEnabled false

@@ -15,6 +15,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures.buildConfig = false
+
     buildTypes {
         release {
             minifyEnabled false

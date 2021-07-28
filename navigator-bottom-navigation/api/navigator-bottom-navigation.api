@@ -1,0 +1,9 @@
+public final class com/kpstv/navigation/BottomNavigationController {
+	public final fun select (ILcom/kpstv/navigation/BaseArgs;)V
+	public static synthetic fun select$default (Lcom/kpstv/navigation/BottomNavigationController;ILcom/kpstv/navigation/BaseArgs;ILjava/lang/Object;)V
+}
+
+public final class com/kpstv/navigation/BottomNavigationKt {
+	public static final fun install (Lcom/kpstv/navigation/FragmentNavigator;Lcom/kpstv/navigation/FragmentNavigator$BottomNavigation;)Lcom/kpstv/navigation/BottomNavigationController;
+}
+

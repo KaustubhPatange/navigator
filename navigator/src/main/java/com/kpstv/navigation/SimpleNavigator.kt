@@ -17,7 +17,7 @@ internal typealias DialogDismissListener = (dialog : DialogFragment) -> Unit
  * @see <a href="https://github.com/KaustubhPatange/navigator/wiki/Quick-Tutorials#navigate-to-a-bottomsheet-or-dialog-fragment">Navigate to a BottomSheet or Dialog Fragment</a>
  */
 class SimpleNavigator internal constructor(private val context: Context, private val fm: FragmentManager, private val history: HistoryImpl) {
-    constructor(context: Context, fm: FragmentManager) : this(context, fm, HistoryImpl(fm))
+    internal constructor(context: Context, fm: FragmentManager) : this(context, fm, HistoryImpl(fm))
 
     private val dismissListeners = HashMap<String, DialogDismissListener>()
     /**

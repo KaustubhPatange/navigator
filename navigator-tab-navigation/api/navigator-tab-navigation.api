@@ -1,0 +1,9 @@
+public final class com/kpstv/navigation/TabNavigationController {
+	public final fun select (ILcom/kpstv/navigation/BaseArgs;)V
+	public static synthetic fun select$default (Lcom/kpstv/navigation/TabNavigationController;ILcom/kpstv/navigation/BaseArgs;ILjava/lang/Object;)V
+}
+
+public final class com/kpstv/navigation/TabNavigationKt {
+	public static final fun install (Lcom/kpstv/navigation/FragmentNavigator;Lcom/kpstv/navigation/FragmentNavigator$TabNavigation;)Lcom/kpstv/navigation/TabNavigationController;
+}
+

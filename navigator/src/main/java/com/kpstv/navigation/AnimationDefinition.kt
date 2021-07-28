@@ -12,14 +12,14 @@ import kotlinx.android.parcel.Parcelize
  * A generic base animation class which will be used for animating fragment transaction.
  * Use [AnimationDefinition] to specify a animation.
  */
-open class NavAnimation
+open class NavAnimation internal constructor()
 
 /**
  * Some default sets of animations Navigator provides out of the box.
  *
  * @see <a href="https://github.com/KaustubhPatange/navigator/wiki/Quick-Tutorials#navigation-with-animation">Navigation with animation</a>
  */
-class AnimationDefinition {
+class AnimationDefinition private constructor() {
     object None : NavAnimation()
     object Fade : Custom(R.anim.navigator_fade_in, R.anim.navigator_fade_out, R.anim.navigator_fade_in, R.anim.navigator_fade_out)
     object Zoom : Custom(R.animator.navigator_scale_in_visible, R.animator.navigator_scale_out_gone, R.animator.navigator_scale_out_visible, R.animator.navigator_scale_in_gone)
