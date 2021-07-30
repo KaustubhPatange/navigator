@@ -11,14 +11,15 @@ import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.flow.*
 import kotlinx.parcelize.Parcelize
 import kotlin.reflect.KClass
@@ -56,9 +57,14 @@ public fun <T : Route> rememberController(): ComposeNavigator.Controller<T> {
 }
 
 /**
- * Destination must implement this interface to identify as Key for the root
+ * Destination must implement this interface to identify as Key for the root.
  */
 public interface Route : Parcelable
+
+/**
+ * Destination must implement this interface to identify as Route for Dialog.
+ */
+public interface DialogRoute : Route
 
 public data class NavOptions<T : Route>(
     /**
@@ -197,12 +203,51 @@ public class ComposeNavigator private constructor(private val activity: Componen
             private const val LAST_REMOVED_ITEM_ANIMATION = "history:last_item:animation"
         }
         internal enum class NavType { Forward, Backward }
+        internal class DialogHistory {
+            private companion object {
+                private val SAVESTATE_BACKSTACK = "${DialogHistory::class.qualifiedName}_backstack"
+            }
+            private val backStack = mutableStateListOf<DialogRoute>()
+
+            internal fun isEmpty(): Boolean = backStack.isEmpty()
+            internal fun add(route: DialogRoute) {
+                backStack.add(route)
+            }
+            internal fun remove(route: KClass<out DialogRoute>): DialogRoute? {
+                val last = backStack.findLast { it::class == route }
+                last?.let { backStack.remove(it) }
+                return last
+            }
+            internal fun peek(): DialogRoute? = backStack.lastOrNull()
+            internal fun pop(): DialogRoute? {
+                if (!isEmpty()) {
+                    val peek = peek()
+                    backStack.removeLast()
+                    return peek
+                }
+                return null
+            }
+            internal fun get(key: KClass<out DialogRoute>): DialogRoute? = backStack.findLast { it::class == key }
+            internal fun count() = backStack.size
+
+            internal fun saveState(outState: Bundle) {
+                outState.putParcelableArrayList(SAVESTATE_BACKSTACK, ArrayList(backStack))
+            }
+            internal fun restoreState(bundle: Bundle?) {
+                val backStackArrayList = bundle?.getParcelableArrayList<DialogRoute>(SAVESTATE_BACKSTACK) ?: return
+                backStack.addAll(backStackArrayList)
+                bundle.remove(SAVESTATE_BACKSTACK) // restore once then clear
+                android.util.Log.e("DialogHistory", "State: ${backStack.toList()}")
+            }
+        }
 
         // TODO: Wait for Kotlin 1.5.20 (KT-42652). Make this parcelable for saving states.
         internal data class BackStackRecord<T: Route>(val key: T, val animation: NavOptions.NavAnimation = NavOptions.NavAnimation())
 
         private var current: BackStackRecord<T> = BackStackRecord(initial)
         private var backStack by mutableStateOf(listOf(current))
+
+        internal val dialogHistory = DialogHistory()
 
         internal var lastTransactionStatus: NavType = NavType.Forward
 
@@ -237,6 +282,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     putParcelableArrayList(BackStackRecord<T>::animation.name, ArrayList(backStack.map { it.animation }))
                     putParcelable(LAST_REMOVED_ITEM_KEY, current.key)
                     putParcelable(LAST_REMOVED_ITEM_ANIMATION, current.animation)
+                    dialogHistory.saveState(this)
                 }
                 val name = "$HISTORY_SAVED_STATE${key.qualifiedName}"
                 outState.putBundle(name, bundle)
@@ -249,12 +295,14 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 val keys: List<T> = inner.getParcelableArrayList(BackStackRecord<T>::key.name)!!
                 val animations: List<NavOptions.NavAnimation> = inner.getParcelableArrayList(BackStackRecord<T>::animation.name)!!
 
+
                 val lastKey: T? = inner.getParcelable(LAST_REMOVED_ITEM_KEY)
                 val lastAnimation: NavOptions.NavAnimation? = inner.getParcelable(LAST_REMOVED_ITEM_ANIMATION)
                 if (lastKey != null && lastAnimation != null) {
                     current = BackStackRecord(lastKey, lastAnimation)
                 }
 
+                dialogHistory.restoreState(inner)
                 backStack = keys.zip(animations).map { BackStackRecord(it.first, it.second) }
 
                 return name
@@ -274,16 +322,25 @@ public class ComposeNavigator private constructor(private val activity: Componen
         private var history: History<T>? = null
 
         private val currentFlow = MutableStateFlow<T?>(null)
+        private val dialogCreateStack = arrayListOf<KClass<out DialogRoute>>()
 
         internal fun setup(key: KClass<out Route>, navigator: ComposeNavigator, history: History<T>) {
             this.key = key; this.navigator = navigator; this.history = history
         }
 
         /**
+         * When there are multiple dialogs to show on the screen each dialog content composable
+         * will be stacked upon one another.
+         *
+         * This behavior is disabled by default but can be enabled when set to true.
+         */
+        public var enableDialogOverlay: Boolean = false
+
+        /**
          * Navigate to other destination composable. Additional parameters can be set through [options] DSL.
          */
         public fun navigateTo(destination: T, options: NavOptions<T>.() -> Unit = {}) {
-            val navigator = navigator // TODO: Implement this logic with Kotlin contracts when opt out of experimental.
+            val navigator = navigator
             val history = history
             checkNotNull(navigator) { "Cannot navigate when navigator is not set." }
             checkNotNull(history) { "Cannot navigate when navigator is not set." }
@@ -342,7 +399,71 @@ public class ComposeNavigator private constructor(private val activity: Componen
          *
          * @return The removed key.
          */
-        public fun goBack(): T? = navigator?.goBack()?.key as? T
+        public fun goBack(): T? = navigator?.goBack() as? T
+
+        /**
+         * Setup a composable that will be displayed in the [Dialog] with the backStack functionality.
+         *
+         * @param key Key associated with the dialog usually a data class.
+         * @param dialogProperties [DialogProperties] to customize dialog.
+         * @param content The composable body of the dialog which supplies two arguments.
+         *               `dialogRoute` which is passed throw showDialog() & `dismiss` lambda
+         *                which can be called to dismiss current dialog.
+         */
+        @Composable
+        public fun<T : DialogRoute> CreateDialog(key: KClass<T>, dialogProperties: DialogProperties = DialogProperties(), content: @Composable (dialogRoute: T, dismiss: () -> Unit) -> Unit) {
+            if (LocalInspectionMode.current) return
+
+            val history = history
+            checkNotNull(history) { "Cannot create dialog when navigator is not set." }
+
+            @Composable
+            fun Inner(peek: DialogRoute) {
+                val dismiss = { history.dialogHistory.remove(key) }
+                Dialog(onDismissRequest = { dismiss() }, properties = dialogProperties) {
+                    content(peek as T, dismiss)
+                }
+            }
+
+            if (!history.dialogHistory.isEmpty()) {
+                if (enableDialogOverlay) {
+                    history.dialogHistory.get(key)?.let { Inner(it) }
+                } else {
+                    val peek = remember(history.dialogHistory.count()) { history.dialogHistory.peek()!! }
+                    if (peek::class == key) { Inner(peek) }
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                dialogCreateStack.add(key)
+//                android.util.Log.e("CreateDialog", "Key $key - Added; Content: $dialogCreateStack")
+            }
+        }
+
+        /**
+         * Show a dialog which was created before using [CreateDialog].
+         */
+        public fun<T : DialogRoute> showDialog(key: T) {
+            val history = history
+            checkNotNull(history) { "Cannot show dialog when navigator is not set." }
+
+            if (!dialogCreateStack.contains(key::class)) {
+                throw IllegalStateException("Dialog with the key \"${key::class.qualifiedName}\" is not present in the backStack. Did you forgot to create Dialog using \"controller.CreateDialog(...)\".")
+            }
+            history.dialogHistory.add(key)
+        }
+
+        /**
+         * Dismiss an ongoing dialog which is currently being shown or was in the backStack.
+         *
+         * @param key The key that was used to [CreateDialog].
+         * @throws IllegalStateException When the dialog associated with the [key] does not exist in the backstack.
+         */
+        public fun closeDialog(key: KClass<out DialogRoute>): DialogRoute {
+            val history = history
+            checkNotNull(history) { "Cannot close dialog when navigator is not set." }
+            return history.dialogHistory.remove(key) ?: throw IllegalStateException("Dialog with key \"$key\" does not exist in the backstack to close.")
+        }
     }
 
     /**
@@ -350,11 +471,16 @@ public class ComposeNavigator private constructor(private val activity: Componen
      *
      * If possible then the [History.pop] will be called to remove the last item from the backstack.
      */
-    private fun goBack(): History.BackStackRecord<out Route>? {
+    private fun goBack(): Route? {
         val last = backStackMap.lastValue()
         if (backStackMap.size > 1 && !last!!.canGoBack()) {
             backStackMap.removeLastOrNull()?.let { saveableStateHolder.removeState(it.initial) }
             return goBack()
+        }
+
+        // dialog
+        if (last != null) {
+            last.dialogHistory.pop()?.let { return it } // Do we need to remove the key from saveableStateHolder?
         }
         val popped = last?.pop()
         popped?.let { saveableStateHolder.removeState(it.key) }
@@ -370,7 +496,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             associateKey?.let { backStackMap.bringToTop(it) }
         }
 
-        return popped
+        return popped?.key
     }
 
     /**
