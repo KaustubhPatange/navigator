@@ -227,6 +227,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 }
                 return null
             }
+            internal fun get(): List<DialogRoute> = backStack
             internal fun get(key: KClass<out DialogRoute>): DialogRoute? = backStack.findLast { it::class == key }
             internal fun count() = backStack.size
 
@@ -386,6 +387,13 @@ public class ComposeNavigator private constructor(private val activity: Componen
          */
         public fun getAllHistory(): List<T> = history?.get()?.map { it.key } ?: emptyList()
 
+        /**
+         * @return A snapshot of all the dialog routes that this controller has created & being actively
+         *         present in the backstack in the ascending order where the last one being the current
+         *         dialog shown on the screen.
+         */
+        public fun getAllDialogHistory(): List<DialogRoute> = history?.dialogHistory?.get() ?: emptyList()
+
         public fun getCurrentAsFlow(): StateFlow<T?> = currentFlow
 
         /**
@@ -436,7 +444,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
             LaunchedEffect(Unit) {
                 dialogCreateStack.add(key)
-//                android.util.Log.e("CreateDialog", "Key $key - Added; Content: $dialogCreateStack")
             }
         }
 

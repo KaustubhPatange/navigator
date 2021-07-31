@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -38,17 +39,37 @@ import kotlinx.parcelize.Parcelize
 
 class MainActivity : ComponentActivity() {
     private lateinit var navigator: ComposeNavigator
+    private lateinit var controller: ComposeNavigator.Controller<StartRoute>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         navigator = ComposeNavigator.with(this, savedInstanceState)
             .registerTransitions(SlideWithFadeRightTransition, SlideWithFadeLeftTransition)
             .initialize()
+
         setContent {
+            controller = rememberController()
             ComposeTestAppTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    StartScreen(navigator = navigator, startRoute = StartRoute.First("Hello world"))
+                    StartScreen(
+                        navigator = navigator,
+                        controller = controller,
+                        startRoute = StartRoute.First("Hello world")
+                    )
                 }
             }
+        }
+    }
+
+    override fun onBackPressed() {
+        // Show the dialog when navigation history contains 1 item
+        // & close the dialog when dialog history contains the close dialog.
+        if (controller.getAllHistory().count() > 1 ||
+            controller.getAllDialogHistory().lastOrNull() is CloseDialog
+        ) {
+            super.onBackPressed()
+        } else {
+            controller.showDialog(CloseDialog)
         }
     }
 }
@@ -66,9 +87,22 @@ sealed interface StartRoute : Route {
     }
 }
 
+@Parcelize
+object CloseDialog : DialogRoute
+
 @Composable
-fun StartScreen(navigator: ComposeNavigator, startRoute: StartRoute) {
-    navigator.Setup(key = StartRoute.key, initial = startRoute) { controller, dest ->
+fun StartScreen(
+    navigator: ComposeNavigator,
+    controller: ComposeNavigator.Controller<StartRoute>,
+    startRoute: StartRoute
+) {
+    val activity = LocalContext.current as MainActivity
+
+    navigator.Setup(
+        key = StartRoute.key,
+        initial = startRoute,
+        controller = controller
+    ) { _, dest ->
         val onChanged: (screen: StartRoute) -> Unit = { value ->
             controller.navigateTo(value) {
                 withAnimation {
@@ -80,6 +114,27 @@ fun StartScreen(navigator: ComposeNavigator, startRoute: StartRoute) {
         when (dest) {
             is StartRoute.First -> FirstScreen(dest.data, onChanged)
             is StartRoute.Second -> SecondScreen()
+        }
+
+        controller.CreateDialog(key = CloseDialog::class) { _, dismiss ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colors.background)
+                    .padding(15.dp)
+            ) {
+                Text("Do you want to close the app?", fontSize = 16.sp)
+                Spacer(modifier = Modifier.height(20.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Button(onClick = dismiss) {
+                        Text("Cancel")
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    Button(onClick = { activity.finish() }) {
+                        Text("Yes")
+                    }
+                }
+            }
         }
     }
 }
@@ -307,7 +362,13 @@ fun FavouriteMenuItem() {
     /* try uncommenting the below line to enable dialog overlays */
 //    controller.enableDialogOverlay = true
 
-    Column(modifier = Modifier.fillMaxSize().background(Color.Black), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Button(onClick = { controller.showDialog(FirstDialog) }) {
             Text("Show a dialog")
         }
