@@ -130,9 +130,9 @@ public fun ThirdScreen() {
 }
 
 @Composable
-public fun ThirdPrimaryScreen(onNavigateToDetail: (GalleryItem) -> Unit) {
+public fun ThirdPrimaryScreen(modifier: Modifier = Modifier, onNavigateToDetail: (GalleryItem) -> Unit) {
     val state = rememberLazyListState()
-    LazyColumn(state = state, modifier = Modifier.testTag("lazy_column")) {
+    LazyColumn(state = state, modifier = modifier.testTag("lazy_column")) {
         items(galleryItems) { item ->
             Column(modifier = Modifier
                 .clickable {

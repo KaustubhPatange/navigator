@@ -9,6 +9,9 @@ on:
       - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"
 
+env:
+  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=false -Dkotlin.incremental=false"
+
 defaults:
   run:
     working-directory: ./navigator-compose

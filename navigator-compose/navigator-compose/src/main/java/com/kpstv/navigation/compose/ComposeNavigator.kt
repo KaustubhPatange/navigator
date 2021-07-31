@@ -479,16 +479,15 @@ public class ComposeNavigator private constructor(private val activity: Componen
      * If possible then the [History.pop] will be called to remove the last item from the backstack.
      */
     private fun goBack(): Route? {
-        val last = backStackMap.lastValue()
+        val last = backStackMap.lastValue()?.also { last ->
+            last.dialogHistory.pop()?.let { return it } // dialog always first
+        }
+
         if (backStackMap.size > 1 && !last!!.canGoBack()) {
             backStackMap.removeLastOrNull()?.let { saveableStateHolder.removeState(it.initial) }
             return goBack()
         }
 
-        // dialog
-        if (last != null) {
-            last.dialogHistory.pop()?.let { return it } // Do we need to remove the key from saveableStateHolder?
-        }
         val popped = last?.pop()
         popped?.let { saveableStateHolder.removeState(it.key) }
         last?.let { _ ->

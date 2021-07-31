@@ -6,4 +6,9 @@
     <string name="go_to_second_bottom">Go to second_bottom</string>
     <string name="second_screen">Second Screen</string>
     <string name="detail_screen">Item with name %s &amp; age %d is displayed</string>
+    <string name="detail_dialog">Item: %1$s, Age: %2$d</string>
+    <string name="go_back">Go back</string>
+    <string name="close">Close</string>
+    <string name="show_dialog">Show dialog</string>
+    <string name="choose_item">Choose an item</string>
 </resources>

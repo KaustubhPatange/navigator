@@ -12,6 +12,10 @@ on:
       - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"
       - "docs"
+
+env:
+  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=false -Dkotlin.incremental=false"
+
 jobs:
   buildJob:
     runs-on: macos-latest
