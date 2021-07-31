@@ -1,16 +1,12 @@
 name: build
 on:
   push:
-    branches:
-      - master
     paths-ignore:
       - "README.md"
       - "navigator-compose/**"
       - ".github/workflows/build-compose.yml"
       - "docs"
   pull_request:
-    branches:
-      - master
     paths-ignore:
       - "README.md"
       - ".github/workflows/build-compose.yml"

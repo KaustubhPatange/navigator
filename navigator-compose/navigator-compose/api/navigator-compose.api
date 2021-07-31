@@ -20,12 +20,18 @@ public final class com/kpstv/navigation/compose/ComposeNavigator$Companion {
 
 public final class com/kpstv/navigation/compose/ComposeNavigator$Controller {
 	public static final field $stable I
+	public final fun CreateDialog (Lkotlin/reflect/KClass;Landroidx/compose/ui/window/DialogProperties;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
 	public final fun canGoBack ()Z
+	public final fun closeDialog (Lkotlin/reflect/KClass;)Lcom/kpstv/navigation/compose/DialogRoute;
+	public final fun getAllDialogHistory ()Ljava/util/List;
 	public final fun getAllHistory ()Ljava/util/List;
 	public final fun getCurrentAsFlow ()Lkotlinx/coroutines/flow/StateFlow;
+	public final fun getEnableDialogOverlay ()Z
 	public final fun goBack ()Lcom/kpstv/navigation/compose/Route;
 	public final fun navigateTo (Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun navigateTo$default (Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun setEnableDialogOverlay (Z)V
+	public final fun showDialog (Lcom/kpstv/navigation/compose/DialogRoute;)V
 }
 
 public final class com/kpstv/navigation/compose/ComposeNavigatorKt {
@@ -43,6 +49,9 @@ public final class com/kpstv/navigation/compose/DefaultTransitionsKt {
 	public static final fun getNone ()Lcom/kpstv/navigation/compose/TransitionKey;
 	public static final fun getSlideLeft ()Lcom/kpstv/navigation/compose/TransitionKey;
 	public static final fun getSlideRight ()Lcom/kpstv/navigation/compose/TransitionKey;
+}
+
+public abstract interface class com/kpstv/navigation/compose/DialogRoute : com/kpstv/navigation/compose/Route {
 }
 
 public final class com/kpstv/navigation/compose/NavOptions {

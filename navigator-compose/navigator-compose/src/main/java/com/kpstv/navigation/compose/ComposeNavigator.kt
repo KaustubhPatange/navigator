@@ -382,14 +382,14 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         /**
-         * @return A snapshot of all the keys associated with the current navigation backStack in the
+         * @return A snapshot of all the keys (or empty list) associated with the current navigation backStack in the
          *         ascending order where the last one being the current screen.
          */
         public fun getAllHistory(): List<T> = history?.get()?.map { it.key } ?: emptyList()
 
         /**
-         * @return A snapshot of all the dialog routes that this controller has created & being actively
-         *         present in the backstack in the ascending order where the last one being the current
+         * @return A snapshot of all the dialog routes (or empty list) that this controller has created & being actively
+         *         present in the backStack in the ascending order where the last one being the current
          *         dialog shown on the screen.
          */
         public fun getAllDialogHistory(): List<DialogRoute> = history?.dialogHistory?.get() ?: emptyList()

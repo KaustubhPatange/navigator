@@ -1,14 +1,10 @@
 name: CI
 on:
   push:
-    branches:
-      - master
     paths:
       - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"
   pull_request:
-    branches:
-      - master
     paths:
       - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"
@@ -62,10 +58,10 @@ jobs:
             navigator-compose/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('navigator-compose/*.gradle*') }}-${{ hashFiles('navigator-compose/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
-      
+
       - name: Verify binary compatibility
         run: ./gradlew navigator-compose:apiCheck
-        
+
       # Publishing library
       - name: Publishing libraries to local maven
         run: ./gradlew navigator-compose:publishReleasePublicationToMavenLocal
