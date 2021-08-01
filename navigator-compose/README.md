@@ -45,6 +45,7 @@ dependencies {
   - [Navigating with animation](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigating-with-animation)
   - [Navigate with single top instance & `popUpTo`](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigate-with-single-top-instance-&-popUpTo)
   - [Implementing Nested Navigation](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#implementing-nested-navigation)
+  - [Implementing Dialogs](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#implementing-dialogs)
 
 ## Apps using `navigator-compose`
 

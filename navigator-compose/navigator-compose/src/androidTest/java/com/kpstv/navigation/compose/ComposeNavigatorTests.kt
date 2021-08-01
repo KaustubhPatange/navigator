@@ -205,4 +205,54 @@ public class ComposeNavigatorTests {
             composeTestRule.onNodeWithText(go_to_forth).assertIsDisplayed()
         }
     }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    public fun DialogTest() {
+        val go_to_forth = composeTestRule.activity.getString(R.string.go_to_forth)
+        val show_dialog = composeTestRule.activity.getString(R.string.show_dialog)
+        val choose_item = composeTestRule.activity.getString(R.string.choose_item)
+        val close = composeTestRule.activity.getString(R.string.close)
+        val detail_item_dialog = composeTestRule.activity.getString(R.string.detail_dialog, galleryItems[12].name, galleryItems[12].age)
+        val go_back = composeTestRule.activity.getString(R.string.go_back)
+
+        composeTestRule.activity.apply {
+            composeTestRule.onNodeWithText(go_to_forth).performClick()
+
+            composeTestRule.onNodeWithText(MultipleStack.Third::class.simpleName!!).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(show_dialog).performClick()
+
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText(choose_item).assertIsDisplayed()
+
+            val lazyColumn = composeTestRule.onNodeWithTag("lazy_column")
+            lazyColumn.performScrollToIndex(12)
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(galleryItems[12].name).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(detail_item_dialog).assertIsDisplayed()
+        }
+        composeTestRule.activityRule.scenario.recreate()
+        composeTestRule.activity.apply {
+            composeTestRule.onNodeWithText(detail_item_dialog).assertIsDisplayed()
+
+            composeTestRule.onNodeWithText(go_back).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(choose_item).assertIsDisplayed()
+            composeTestRule.onNodeWithText(galleryItems[12].name).assertIsDisplayed()
+
+            composeTestRule.activity.onBackPressed()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(choose_item).assertDoesNotExist()
+            composeTestRule.onNodeWithText(galleryItems[12].name).assertDoesNotExist()
+
+            composeTestRule.onNodeWithText(show_dialog).assertIsDisplayed()
+        }
+    }
 }
