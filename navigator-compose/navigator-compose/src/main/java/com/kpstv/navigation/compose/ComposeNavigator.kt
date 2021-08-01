@@ -443,7 +443,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             }
 
             LaunchedEffect(Unit) {
-                dialogCreateStack.add(key)
+                if (!dialogCreateStack.contains(key)) dialogCreateStack.add(key)
             }
         }
 
@@ -479,8 +479,10 @@ public class ComposeNavigator private constructor(private val activity: Componen
      * If possible then the [History.pop] will be called to remove the last item from the backstack.
      */
     private fun goBack(): Route? {
-        val last = backStackMap.lastValue()?.also { last ->
-            last.dialogHistory.pop()?.let { return it } // dialog always first
+        val last = backStackMap.lastValue()
+
+        if (last != null) {
+            last.dialogHistory.pop()?.let { return it } // dialogs
         }
 
         if (backStackMap.size > 1 && !last!!.canGoBack()) {
