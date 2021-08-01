@@ -3,12 +3,14 @@ on:
   push:
     paths-ignore:
       - "README.md"
+      - "CHANGELOG.md"
       - "navigator-compose/**"
       - ".github/workflows/build-compose.yml"
       - "docs"
   pull_request:
     paths-ignore:
       - "README.md"
+      - "CHANGELOG.md"
       - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"
       - "docs"
