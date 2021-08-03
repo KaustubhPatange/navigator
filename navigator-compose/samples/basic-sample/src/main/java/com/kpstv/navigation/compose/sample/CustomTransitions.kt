@@ -1,5 +1,10 @@
+@file:OptIn(ExperimentalAnimationApi::class)
+
 package com.kpstv.navigation.compose.sample
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import com.kpstv.navigation.compose.ComposeTransition
@@ -9,39 +14,21 @@ val SlideWithFadeRight get() = SlideWithFadeRightTransition.key
 val SlideWithFadeLeft get() = SlideWithFadeLeftTransition.key
 
 internal val SlideWithFadeRightTransition = object : NavigatorTransition() {
-    override val forwardTransition: ComposeTransition = ComposeTransition { modifier, width, _, progress ->
-        modifier.then(Modifier.graphicsLayer {
-            alpha = progress
-            scaleX = progress
-            scaleY = progress
-            translationX = width * (1 - progress)
-        })
-    }
-    override val backwardTransition: ComposeTransition = ComposeTransition { modifier, width, _, progress ->
-        modifier.then(Modifier.graphicsLayer {
-            alpha = 1 - progress
-            scaleX = 1 - progress
-            scaleY = 1 - progress
-            translationX = width * progress
-        })
-    }
+    override val forwardTransition: EnterTransition = fadeIn(animationSpec = tween(300)) +
+            expandVertically(expandFrom = Alignment.CenterVertically, animationSpec = tween(300)) +
+            slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300))
+
+    override val backwardTransition: ExitTransition = fadeOut(animationSpec = tween(300)) +
+            shrinkVertically(shrinkTowards = Alignment.CenterVertically, animationSpec = tween(300)) +
+            slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300))
 }
 
 internal val SlideWithFadeLeftTransition = object : NavigatorTransition() {
-    override val forwardTransition: ComposeTransition = ComposeTransition { modifier, width, _, progress ->
-        modifier.then(Modifier.graphicsLayer {
-            alpha = progress
-            scaleX = progress
-            scaleY = progress
-            translationX = width * (1 - progress) * (-1)
-        })
-    }
-    override val backwardTransition: ComposeTransition = ComposeTransition { modifier, width, _, progress ->
-        modifier.then(Modifier.graphicsLayer {
-            alpha = 1 - progress
-            scaleX = 1 - progress
-            scaleY = 1 - progress
-            translationX =  (-1) * width * (progress)
-        })
-    }
+    override val forwardTransition: EnterTransition = fadeIn(animationSpec = tween(300)) +
+            expandVertically(expandFrom = Alignment.CenterVertically, animationSpec = tween(300)) +
+            slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(300))
+
+    override val backwardTransition: ExitTransition = fadeOut(animationSpec = tween(300)) +
+            shrinkVertically(shrinkTowards = Alignment.CenterVertically, animationSpec = tween(300)) +
+            slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(300))
 }

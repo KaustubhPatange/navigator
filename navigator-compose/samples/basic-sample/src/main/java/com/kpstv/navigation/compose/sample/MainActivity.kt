@@ -61,17 +61,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onBackPressed() {
+   /* override fun onBackPressed() {
         // Show the dialog when navigation history contains 1 item
         // & close the dialog when dialog history contains the close dialog.
         if (controller.getAllHistory().count() > 1 ||
-            controller.getAllDialogHistory().lastOrNull() is CloseDialog
+            controller.getAllDialogHistory().lastOrNull() is CloseDialog ||
+            navigator.suppressBackPress
         ) {
             super.onBackPressed()
         } else {
             controller.showDialog(CloseDialog)
         }
-    }
+    }*/
 }
 
 sealed interface StartRoute : Route {
