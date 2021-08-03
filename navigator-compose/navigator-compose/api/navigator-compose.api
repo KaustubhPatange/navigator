@@ -114,9 +114,8 @@ public final class com/kpstv/navigation/compose/NavOptions$PopUpOptions {
 public abstract class com/kpstv/navigation/compose/NavigatorTransition {
 	public static final field $stable I
 	public fun <init> ()V
-	public fun getAnimationSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
-	public abstract fun getBackwardTransition ()Lcom/kpstv/navigation/compose/ComposeTransition;
-	public abstract fun getForwardTransition ()Lcom/kpstv/navigation/compose/ComposeTransition;
+	public abstract fun getBackwardTransition ()Landroidx/compose/animation/ExitTransition;
+	public abstract fun getForwardTransition ()Landroidx/compose/animation/EnterTransition;
 	public fun getKey ()Lcom/kpstv/navigation/compose/TransitionKey;
 }
 
