@@ -1,4 +1,5 @@
 @file:Suppress("MemberVisibilityCanBePrivate", "unused")
+@file:OptIn(ExperimentalAnimationApi::class)
 
 package com.kpstv.navigation.compose
 
@@ -8,6 +9,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -132,10 +134,8 @@ public data class TransitionKey(internal val key: String) : Parcelable // "class
  */
 public abstract class NavigatorTransition {
     public open val key: TransitionKey = TransitionKey(this::class.javaObjectType.name) // let's return the binary name
-    public abstract val forwardTransition: ComposeTransition
-    public abstract val backwardTransition: ComposeTransition
-
-    public open val animationSpec: FiniteAnimationSpec<Float> = tween(durationMillis = 300)
+    public abstract val forwardTransition: EnterTransition
+    public abstract val backwardTransition: ExitTransition
 }
 
 /**
@@ -631,68 +631,23 @@ public class ComposeNavigator private constructor(private val activity: Componen
         isBackward: Boolean = false, // if triggered on back press.
         content: @Composable (T) -> Unit
     ) {
-        val items = remember { mutableStateListOf<CommonAnimationItemHolder<T>>() }
         val transitionState = remember { MutableTransitionState(targetState) }
-        val targetChanged = (targetState != transitionState.targetState)
         transitionState.targetState = targetState
         val transition = updateTransition(transitionState, label = "transition")
 
         val enterAnimation = remember(animation) { navigatorTransitions.find { it.key == animation.target } ?: throw IllegalArgumentException("Could not find the enter animation \"${animation.target.key}\". Did you forgot to register it?") }
         val exitAnimation = remember(animation) { navigatorTransitions.find { it.key == animation.current } ?: throw IllegalArgumentException("Could not find the enter animation \"${animation.target.key}\". Did you forgot to register it?") }
 
-        fun getAnimationSpec(key: T): FiniteAnimationSpec<Float> {
-            return if (key == targetState) {
-                if (!isBackward) enterAnimation.animationSpec else exitAnimation.animationSpec
+        fun getTransitionSpec() : ContentTransform {
+            return if (!isBackward) {
+                enterAnimation.forwardTransition with exitAnimation.backwardTransition
             } else {
-                if (!isBackward) exitAnimation.animationSpec else enterAnimation.animationSpec
+                exitAnimation.forwardTransition with enterAnimation.backwardTransition
             }
         }
 
-        fun getUpdatedModifier(width: Int, height: Int, progress: Float, key: T): Modifier {
-            val predicate = if (!isBackward) key == targetState else key != targetState
-            val composeTransition = if (predicate) {
-                if (!isBackward) enterAnimation.forwardTransition else enterAnimation.backwardTransition
-            } else {
-                if (!isBackward) exitAnimation.forwardTransition else exitAnimation.backwardTransition
-            }
-            return composeTransition.invoke(Modifier, width, height, if (!isBackward) progress else 1 - progress)
-        }
-
-        if (targetChanged || items.isEmpty()) {
-            val keys = items.map { it.key }.run {
-                if (!contains(targetState)) {
-                    toMutableList().also { it.add(targetState) }
-                } else {
-                    this
-                }
-            }
-            items.clear()
-            keys.mapTo(items) { key ->
-                CommonAnimationItemHolder(key) {
-                    BoxWithConstraints {
-                        val animationSpec = getAnimationSpec(key)
-
-                        val progress by transition.animateFloat(
-                            transitionSpec = { animationSpec }, label = "normal")
-                        { if (it == key) 1f else 0f }
-
-                        val width = with(LocalDensity.current) { maxWidth.toPx().toInt() }
-                        val height = with(LocalDensity.current) { maxHeight.toPx().toInt() }
-                        val internalModifier = getUpdatedModifier(width, height, progress, key)
-                        Box(internalModifier) {
-                            content(key)
-                        }
-                    }
-                }
-            }
-        } else if (transitionState.currentState == transitionState.targetState) {
-            items.removeAll { it.key != transitionState.targetState }
-        }
-
-        items.fastForEach {
-            key(it.key) {
-                it.content()
-            }
+        transition.AnimatedContent(transitionSpec = { getTransitionSpec() }) { key ->
+            content(key)
         }
     }
 
