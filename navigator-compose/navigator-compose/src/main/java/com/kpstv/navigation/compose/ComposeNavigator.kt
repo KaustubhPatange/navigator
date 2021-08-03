@@ -474,6 +474,34 @@ public class ComposeNavigator private constructor(private val activity: Componen
     }
 
     /**
+     * @return A snapshot of all the keys that were used during setup of navigation including
+     *         the nested ones (if they are present).
+     */
+    public fun getAllKeys(): List<KClass<out Route>> {
+        return backStackMap.map { it.key }
+    }
+
+    /**
+     * @return A snapshot of the combined history (nested navigation) including dialog routes
+     *         which are stored in the backStack in the ascending order where the last one
+     *         being the current route.
+     */
+    public fun getAllHistory(): List<Route> {
+        return backStackMap.flatMap { (_, history) ->
+            history.get().map { it.key }
+        } + (backStackMap.lastValue()?.dialogHistory?.get() ?: emptyList())
+    }
+
+    /**
+     * @param key Key which is used during the setup of navigation.
+     * @return A snapshot of the history for the [key] including all dialog routes.
+     */
+    public fun getHistory(key: KClass<out Route>): List<Route> {
+        val value = backStackMap[key] ?: throw RuntimeException("No navigation was setup using key: $key")
+        return value.get().map { it.key } + value.dialogHistory.get()
+    }
+
+    /**
      * Recursive reverse call to [History.canGoBack] to identify if back navigation is possible or not.
      *
      * If possible then the [History.pop] will be called to remove the last item from the backstack.

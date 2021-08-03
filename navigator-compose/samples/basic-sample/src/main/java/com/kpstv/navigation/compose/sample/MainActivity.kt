@@ -22,8 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,6 +33,7 @@ import com.kpstv.navigation.compose.sample.ui.galleryItems
 import com.kpstv.navigation.compose.sample.ui.theme.ComposeTestAppTheme
 import com.kpstv.navigation.compose.*
 import com.kpstv.navigation.compose.sample.ui.MenuItem
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 class MainActivity : ComponentActivity() {
@@ -64,8 +63,9 @@ class MainActivity : ComponentActivity() {
     override fun onBackPressed() {
         // Show the dialog when navigation history contains 1 item
         // & close the dialog when dialog history contains the close dialog.
-        if (controller.getAllHistory().count() > 1 ||
-            controller.getAllDialogHistory().lastOrNull() is CloseDialog
+        if (navigator.getAllHistory().last() !is FirstRoute.Primary ||
+            controller.getAllDialogHistory().lastOrNull() is CloseDialog ||
+            navigator.suppressBackPress
         ) {
             super.onBackPressed()
         } else {
@@ -88,7 +88,9 @@ sealed interface StartRoute : Route {
 }
 
 @Parcelize
-object CloseDialog : DialogRoute
+object CloseDialog : DialogRoute {
+    val key get() = CloseDialog::class
+}
 
 @Composable
 fun StartScreen(
@@ -116,7 +118,7 @@ fun StartScreen(
             is StartRoute.Second -> SecondScreen()
         }
 
-        controller.CreateDialog(key = CloseDialog::class) { _, dismiss ->
+        controller.CreateDialog(key = CloseDialog.key) { _, dismiss ->
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -350,10 +352,16 @@ fun GalleryDetail(item: GalleryItem) {
 
 
 @Parcelize
-object FirstDialog : DialogRoute
+object ListDialog : DialogRoute {
+    val key get() = ListDialog::class
+}
 
 @Parcelize
-data class ListDialog(val item: GalleryItem) : DialogRoute
+data class DetailDialog(val item: GalleryItem) : DialogRoute {
+    companion object {
+        val key = DetailDialog::class
+    }
+}
 
 @Composable
 fun FavouriteMenuItem() {
@@ -369,12 +377,12 @@ fun FavouriteMenuItem() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(onClick = { controller.showDialog(FirstDialog) }) {
+        Button(onClick = { controller.showDialog(ListDialog) }) {
             Text("Show a dialog")
         }
     }
 
-    controller.CreateDialog(key = FirstDialog::class) { _, dismiss ->
+    controller.CreateDialog(key = ListDialog.key) { _, dismiss ->
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -391,7 +399,7 @@ fun FavouriteMenuItem() {
                     .height(600.dp)
             ) {
                 PrimaryGallery {
-                    controller.showDialog(ListDialog(it))
+                    controller.showDialog(DetailDialog(it))
                 }
             }
             Divider()
@@ -402,7 +410,7 @@ fun FavouriteMenuItem() {
         }
     }
 
-    controller.CreateDialog(key = ListDialog::class) { dialogRoute, dismiss ->
+    controller.CreateDialog(key = DetailDialog.key) { dialogRoute, dismiss ->
         Column(
             modifier = Modifier
                 .padding(horizontal = 10.dp)

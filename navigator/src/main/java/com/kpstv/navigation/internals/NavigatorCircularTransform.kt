@@ -50,6 +50,7 @@ internal class NavigatorCircularTransform(
 
     private fun circularTransform(payload: AnimationDefinition.CircularReveal, popUpTo: Boolean, currentTag: String?, reverse: Boolean) {
         if (fragmentContainer.childCount <= 0) return
+        if (!containerView.isLaidOut) return
 
         val viewBitmap = containerView.drawToBitmap()
         val overlayView = createEmptyImageView().apply {
