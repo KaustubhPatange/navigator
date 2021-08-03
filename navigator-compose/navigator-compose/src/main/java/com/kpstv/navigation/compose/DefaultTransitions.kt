@@ -27,8 +27,8 @@ internal val FadeTransition: NavigatorTransition = object : NavigatorTransition(
 /**
  * Slide right transition.
  *
- * Slide in right transition will be applied to the "target" composable where as Slide out right
- * transition will be applied to the "current" composable.
+ * Slide in right transition will run when composable is the "target" destination (forwardTransition).
+ * Slide out right will run when composable is the "current" destination (backwardTransition).
  */
 public val SlideRight: TransitionKey get() = SlideRightTransition.key
 
@@ -44,8 +44,8 @@ internal val SlideRightTransition: NavigatorTransition = object : NavigatorTrans
 /**
  * Slide left transition.
  *
- * Slide in left transition will be applied to the "target" composable where as Slide out left
- * transition will be applied to the "current" composable.
+ * Slide in left transition will run when composable is the "target" destination (forwardTransition).
+ * Slide out left will run when composable is the "current" destination (backwardTransition).
  */
 public val SlideLeft: TransitionKey get() = SlideLeftTransition.key
 
