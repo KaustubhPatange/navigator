@@ -8,13 +8,19 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.util.fastForEach
@@ -418,6 +424,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
          *               `dialogRoute` which is passed throw showDialog() & `dismiss` lambda
          *                which can be called to dismiss current dialog.
          */
+        @OptIn(ExperimentalAnimationApi::class)
         @Composable
         public fun<T : DialogRoute> CreateDialog(key: KClass<T>, dialogProperties: DialogProperties = DialogProperties(), content: @Composable (dialogRoute: T, dismiss: () -> Unit) -> Unit) {
             if (LocalInspectionMode.current) return
@@ -427,9 +434,31 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
             @Composable
             fun Inner(peek: DialogRoute) {
-                val dismiss = { history.dialogHistory.remove(key) }
+                val animate = remember { mutableStateOf(false) }
+                val dismiss = {
+                    animate.value = false
+                    history.dialogHistory.remove(key)
+                }
                 Dialog(onDismissRequest = { dismiss() }, properties = dialogProperties) {
-                    content(peek as T, dismiss)
+
+                    //if (!animate.value) Box(modifier = Modifier.fillMaxSize()){}
+
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//                        Crossfade(targetState = peek) { d ->
+//                            content(d as T, dismiss)
+//                        }
+                        Spacer(modifier = Modifier.fillMaxSize().pointerInput(Unit) {
+                            detectTapGestures { dismiss() }
+                        })
+                        AnimatedVisibility(visible = animate.value) {
+                            content(peek as T, dismiss)
+                        }
+                    }
+
+                    LaunchedEffect(Unit) {
+//                        android.util.Log.e("DialogLaunchEffect", "Composed")
+                        animate.value = true
+                    }
                 }
             }
 
