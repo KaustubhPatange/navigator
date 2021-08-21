@@ -1,6 +1,6 @@
 # Changelog
 
-## Version `0.1-alpha16` _(2021-08-16)_
+## Version `0.1-alpha17` _(2021-08-21)_
 
 - **Updated**: Java Docs for animations.
 - **Updated**: Updated Compose to v1.0.1

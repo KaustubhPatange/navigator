@@ -434,31 +434,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
             @Composable
             fun Inner(peek: DialogRoute) {
-                val animate = remember { mutableStateOf(false) }
-                val dismiss = {
-                    animate.value = false
-                    history.dialogHistory.remove(key)
-                }
+                val dismiss = { history.dialogHistory.remove(key) }
                 Dialog(onDismissRequest = { dismiss() }, properties = dialogProperties) {
-
-                    //if (!animate.value) Box(modifier = Modifier.fillMaxSize()){}
-
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//                        Crossfade(targetState = peek) { d ->
-//                            content(d as T, dismiss)
-//                        }
-                        Spacer(modifier = Modifier.fillMaxSize().pointerInput(Unit) {
-                            detectTapGestures { dismiss() }
-                        })
-                        AnimatedVisibility(visible = animate.value) {
-                            content(peek as T, dismiss)
-                        }
-                    }
-
-                    LaunchedEffect(Unit) {
-//                        android.util.Log.e("DialogLaunchEffect", "Composed")
-                        animate.value = true
-                    }
+                    content(peek as T, dismiss)
                 }
             }
 
