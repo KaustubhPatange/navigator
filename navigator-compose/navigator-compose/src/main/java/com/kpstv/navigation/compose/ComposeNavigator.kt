@@ -231,7 +231,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             }
 
         /**
-         * Dismiss this dialog regardless of any nested navigation.
+         * Dismiss this dialog regardless of any navigation implemented by [dialogNavigator].
          */
         public fun dismiss(): DialogRoute? = this.dismiss.invoke()
 
@@ -289,17 +289,13 @@ public class ComposeNavigator private constructor(private val activity: Componen
             internal fun pop(): Route? {
                 if (!isEmpty()) {
                     val peek = peek()
-                    removeScope(peek)?.let { return it }
+                    val scope = dialogScopes.findLast { it.dialogRoute === peek }
+                    val scopePopped = scope?.navigator?.goBack()
+                    if (scopePopped != null) return scopePopped
+                    dialogScopes.remove(scope)
                     backStack.removeLast()
                     return peek
                 }
-                return null
-            }
-            internal fun removeScope(route: DialogRoute?): Route? {
-                val scope = dialogScopes.findLast { it.dialogRoute === route }
-                val scopePopped = scope?.navigator?.goBack()
-                if (scopePopped != null) return scopePopped
-                dialogScopes.remove(scope)
                 return null
             }
             internal fun get(): List<DialogRoute> = backStack

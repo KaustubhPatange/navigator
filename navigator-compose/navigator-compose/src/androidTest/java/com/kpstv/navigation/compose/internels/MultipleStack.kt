@@ -98,20 +98,20 @@ internal fun NextScreenFirst(next: () -> Unit) {
         }
     }
 
-    controller.CreateDialog(key = GalleryDialog::class) { _, dismiss ->
+    controller.CreateDialog(key = GalleryDialog::class) {
         Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colors.background)) {
             Text(stringResource(id = R.string.choose_item))
             ThirdPrimaryScreen(modifier = Modifier.height(500.dp)) { controller.showDialog(GalleryDetailDialog(it)) }
-            Button(onClick = dismiss) {
+            Button(onClick = ::dismiss) {
                 Text(stringResource(id = R.string.close))
             }
         }
     }
 
-    controller.CreateDialog(key = GalleryDetailDialog::class) { dialogRoute, dismiss ->
+    controller.CreateDialog(key = GalleryDetailDialog::class) {
         Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colors.background)) {
             Text(stringResource(id = R.string.detail_dialog, dialogRoute.item.name, dialogRoute.item.age))
-            Button(onClick = dismiss) {
+            Button(onClick = ::dismiss) {
                 Text(stringResource(id = R.string.go_back))
             }
         }
