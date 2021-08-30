@@ -4,23 +4,21 @@ package com.kpstv.navigation.compose
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.util.fastForEach
@@ -175,13 +173,20 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         /**
-         * This will disable Navigator's internal back press logic if set to `False` which you then have to manually
+         * This will disable Navigator's internal back press logic which you then have to manually
          * handle in Activity's `onBackPressed()`.
          */
-        public fun setDefaultBackPressEnabled(value: Boolean): Builder {
-            if (!value) {
-                navigator.backPressHandler.remove()
-            }
+        public fun disableDefaultBackPressLogic(): Builder {
+            navigator.backPressHandler.remove()
+            return this
+        }
+
+        /**
+         * This will disable saving of all ComposeNavigator's internal state along with destination
+         * states during [activity]'s `onSaveStateInstance()`.
+         */
+        public fun disableOnSaveStateInstance(): Builder {
+            (navigator.activity.applicationContext as Application).unregisterActivityLifecycleCallbacks(navigator.activityLifecycleCallbacks)
             return this
         }
 
@@ -201,6 +206,45 @@ public class ComposeNavigator private constructor(private val activity: Componen
     }
 
     /**
+     * [DialogScope] provides functions that are convenient and only applicable in the context of
+     * [Controller.CreateDialog] such as [dismiss], [dialogRoute] & a [dialogNavigator].
+     */
+    public class DialogScope<T : DialogRoute> internal constructor(public val dialogRoute: T, private val dismiss: () -> DialogRoute?) {
+        internal var navigator: ComposeNavigator? = null
+
+        private var savedInstanceState: Bundle? = null
+
+        /**
+         * A [ComposeNavigator] that should be used to `Setup` navigation inside this dialog.
+         */
+        public val dialogNavigator: ComposeNavigator
+            @Composable
+            get() {
+                if (navigator == null) {
+                    val activity = LocalContext.current.findActivity()
+                    navigator = with(activity, savedInstanceState)
+                        .disableDefaultBackPressLogic()
+                        .disableOnSaveStateInstance()
+                        .initialize()
+                }
+                return navigator!!
+            }
+
+        /**
+         * Dismiss this dialog regardless of any nested navigation.
+         */
+        public fun dismiss(): DialogRoute? = this.dismiss.invoke()
+
+        internal fun saveState(outState: Bundle) {
+            navigator?.onSaveInstanceState(outState)
+        }
+
+        internal fun restoreState(bundle: Bundle?) {
+            savedInstanceState = bundle
+        }
+    }
+
+    /**
      * [associateKey] A parent key for this [key]. This means [associateKey] has setup navigation for this [key].
      */
     internal class History<T : Route> internal constructor(private val key: KClass<T>, internal val associateKey: KClass<out Route>?, internal val initial: T) {
@@ -209,10 +253,27 @@ public class ComposeNavigator private constructor(private val activity: Componen
             private const val LAST_REMOVED_ITEM_ANIMATION = "history:last_item:animation"
         }
         internal enum class NavType { Forward, Backward }
-        internal class DialogHistory {
-            private companion object {
-                private val SAVESTATE_BACKSTACK = "${DialogHistory::class.qualifiedName}_backstack"
+
+        internal class DialogHistory internal constructor() {
+
+            private var savedInstanceState: Bundle? = null
+            private val dialogScopes = arrayListOf<DialogScope<*>>()
+
+            internal fun<T : DialogRoute> createDialogScope(route: T): DialogScope<T> {
+                val scope = DialogScope<T>(route) { remove(route::class) }
+
+                // restore state
+                val bundleKey = scope.generateScopeKey()
+                savedInstanceState?.getBundle(bundleKey)?.let { state ->
+                    scope.restoreState(state)
+                }
+                savedInstanceState?.remove(bundleKey)
+
+                // add the scope
+                dialogScopes.add(scope)
+                return scope
             }
+
             private val backStack = mutableStateListOf<DialogRoute>()
 
             internal fun isEmpty(): Boolean = backStack.isEmpty()
@@ -225,12 +286,20 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 return last
             }
             internal fun peek(): DialogRoute? = backStack.lastOrNull()
-            internal fun pop(): DialogRoute? {
+            internal fun pop(): Route? {
                 if (!isEmpty()) {
                     val peek = peek()
+                    removeScope(peek)?.let { return it }
                     backStack.removeLast()
                     return peek
                 }
+                return null
+            }
+            internal fun removeScope(route: DialogRoute?): Route? {
+                val scope = dialogScopes.findLast { it.dialogRoute === route }
+                val scopePopped = scope?.navigator?.goBack()
+                if (scopePopped != null) return scopePopped
+                dialogScopes.remove(scope)
                 return null
             }
             internal fun get(): List<DialogRoute> = backStack
@@ -239,12 +308,26 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
             internal fun saveState(outState: Bundle) {
                 outState.putParcelableArrayList(SAVESTATE_BACKSTACK, ArrayList(backStack))
+                dialogScopes.forEach { scope ->
+                    val bundle = Bundle()
+                    scope.saveState(bundle)
+                    outState.putBundle(scope.generateScopeKey(), bundle)
+                }
             }
             internal fun restoreState(bundle: Bundle?) {
                 val backStackArrayList = bundle?.getParcelableArrayList<DialogRoute>(SAVESTATE_BACKSTACK) ?: return
                 backStack.addAll(backStackArrayList)
                 bundle.remove(SAVESTATE_BACKSTACK) // restore once then clear
-                android.util.Log.e("DialogHistory", "State: ${backStack.toList()}")
+
+                // we will save the bundle to lazily restore Dialog scopes later.
+                savedInstanceState = bundle
+            }
+
+            private companion object {
+                private val SAVESTATE_BACKSTACK = "${DialogHistory::class.qualifiedName}_backstack"
+                private fun DialogScope<*>.generateScopeKey() : String {
+                    return "DialogScope_${this.dialogRoute::class.qualifiedName}"
+                }
             }
         }
 
@@ -279,6 +362,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             return null
         }
         internal fun canGoBack(): Boolean = backStack.size > 1
+        internal fun canGoBackDialog(): Boolean = dialogHistory.count() > 0
 
         internal fun getCurrentRecord(): BackStackRecord<T> = current
 
@@ -424,9 +508,8 @@ public class ComposeNavigator private constructor(private val activity: Componen
          *               `dialogRoute` which is passed throw showDialog() & `dismiss` lambda
          *                which can be called to dismiss current dialog.
          */
-        @OptIn(ExperimentalAnimationApi::class)
         @Composable
-        public fun<T : DialogRoute> CreateDialog(key: KClass<T>, dialogProperties: DialogProperties = DialogProperties(), content: @Composable (dialogRoute: T, dismiss: () -> Unit) -> Unit) {
+        public fun<T : DialogRoute> CreateDialog(key: KClass<T>, dialogProperties: DialogProperties = DialogProperties(), content: @Composable DialogScope<T>.() -> Unit) {
             if (LocalInspectionMode.current) return
 
             val history = history
@@ -434,23 +517,32 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
             @Composable
             fun Inner(peek: DialogRoute) {
-                val dismiss = { history.dialogHistory.remove(key) }
-                Dialog(onDismissRequest = { dismiss() }, properties = dialogProperties) {
-                    content(peek as T, dismiss)
+                val dialogScope = remember { history.dialogHistory.createDialogScope(peek) }
+                val dialogDismiss by derivedStateOf { {
+                    val pop = dialogScope.navigator?.goBack()
+                    if (pop == null) {
+                        dialogScope.dismiss()
+                    }
+                } }
+                Dialog(onDismissRequest = { dialogDismiss() }, properties = dialogProperties) {
+                    content(dialogScope as DialogScope<T>)
                 }
             }
 
             if (!history.dialogHistory.isEmpty()) {
-                if (enableDialogOverlay) {
-                    history.dialogHistory.get(key)?.let { Inner(it) }
+                val peek = if (enableDialogOverlay) {
+                    history.dialogHistory.get(key)
                 } else {
-                    val peek = remember(history.dialogHistory.count()) { history.dialogHistory.peek()!! }
-                    if (peek::class == key) { Inner(peek) }
+                    remember(history.dialogHistory.count()) { history.dialogHistory.peek()!! }
+                }
+                if (peek != null && peek::class == key) {
+                    Inner(peek)
                 }
             }
 
-            LaunchedEffect(Unit) {
+            DisposableEffect(Unit) {
                 if (!dialogCreateStack.contains(key)) dialogCreateStack.add(key)
+                onDispose {  }
             }
         }
 
@@ -509,6 +601,15 @@ public class ComposeNavigator private constructor(private val activity: Componen
     }
 
     /**
+     * Save all the ComposeNavigator's internal states along with destination states.
+     */
+    public fun onSaveInstanceState(outState: Bundle) {
+        val navigatorBundle = Bundle()
+        backStackMap.forEach { (_, v) -> v.saveState(navigatorBundle) }
+        outState.putBundle("${activity::class.qualifiedName}$NAVIGATOR_SAVED_STATE_SUFFIX", navigatorBundle)
+    }
+
+    /**
      * Recursive reverse call to [History.canGoBack] to identify if back navigation is possible or not.
      *
      * If possible then the [History.pop] will be called to remove the last item from the backstack.
@@ -547,6 +648,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
      */
     internal fun canGoBack(): Boolean {
         val last = backStackMap.lastValue()
+        if (last?.canGoBackDialog() == true) return true
         if (backStackMap.size > 1) {
             val aggregate = backStackMap.values.sumOf { it.get().size }
             if (aggregate == backStackMap.size) return false
@@ -555,15 +657,23 @@ public class ComposeNavigator private constructor(private val activity: Componen
         return last?.canGoBack() == true
     }
 
-    private fun onSaveInstance(outState: Bundle) {
-        val navigatorBundle = Bundle()
-        backStackMap.forEach { (_, v) -> v.saveState(navigatorBundle) }
-        outState.putBundle("${activity::class.qualifiedName}$NAVIGATOR_SAVED_STATE_SUFFIX", navigatorBundle)
-    }
-
     private val backPressHandler = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             if (!shouldSuppressBackPress()) goBack()
+        }
+    }
+
+    private val activityLifecycleCallbacks = object : Application.ActivityLifecycleCallbacks {
+        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+        override fun onActivityStarted(activity: Activity) {}
+        override fun onActivityResumed(activity: Activity) {}
+        override fun onActivityPaused(activity: Activity) {}
+        override fun onActivityStopped(activity: Activity) {}
+        override fun onActivityDestroyed(activity: Activity) {}
+        override fun onActivitySaveInstanceState(act: Activity, outState: Bundle) {
+            if (activity === act) {
+                onSaveInstanceState(outState)
+            }
         }
     }
 
@@ -576,19 +686,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
     init {
         activity.onBackPressedDispatcher.addCallback(backPressHandler)
-        (activity.applicationContext as Application).registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
-            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
-            override fun onActivityStarted(activity: Activity) {}
-            override fun onActivityResumed(activity: Activity) {}
-            override fun onActivityPaused(activity: Activity) {}
-            override fun onActivityStopped(activity: Activity) {}
-            override fun onActivityDestroyed(activity: Activity) {}
-            override fun onActivitySaveInstanceState(act: Activity, outState: Bundle) {
-                if (activity === act) {
-                    onSaveInstance(outState)
-                }
-            }
-        })
+        (activity.applicationContext as Application).registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
         // find correct state
         savedState = savedInstanceState?.getBundle("${activity::class.qualifiedName}$NAVIGATOR_SAVED_STATE_SUFFIX")
     }
@@ -608,7 +706,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
     /**
      * When enabled, the back navigation will be disabled & no destinations will be popped from the history.
      *
-     * This is different from [Builder.setDefaultBackPressEnabled] where if set to `False` then you need to manually handle
+     * This is different from [Builder.disableDefaultBackPressLogic] where if set to `False` then you need to manually handle
      * Activity's `onBackPressed()` logic.
      */
     public var suppressBackPress: Boolean = false
@@ -640,10 +738,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
         @Composable
         fun Inner(body: @Composable () -> Unit) = Box(modifier) { body() }
 
-//        android.util.Log.d("Render", "${key.qualifiedName} Recomposed()/Composed()") TODO: Make sure there is no twice key in the backStack
+//       TODO: Make sure there is no twice key in the backStack
         Inner {
             // recompose on history change
-//            android.util.Log.d("Inner", "Recomposed()/Composed() ${history.peek()} - ${key.qualifiedName}")
             CompositionLocalProvider(compositionLocalScope provides controllerInternal, LocalNavigator provides this) {
                 val record = history.peek()
                 val animation = if (history.lastTransactionStatus == History.NavType.Forward) record.animation else history.getCurrentRecord().animation
@@ -766,4 +863,13 @@ private inline fun <T> rememberComposable(calculation: @Composable () -> T): T {
         internal.value = calculation()
     }
     return internal.value!!
+}
+
+private fun Context.findActivity(): ComponentActivity {
+    if (this is ContextWrapper) {
+        val baseContext = this.baseContext
+        if (baseContext is ComponentActivity) return baseContext
+        return baseContext.findActivity()
+    }
+    throw NotImplementedError("Parent must implement \"FragmentNavigator.Transmitter\" interface to propagate navigator's instance to all the child fragments.")
 }

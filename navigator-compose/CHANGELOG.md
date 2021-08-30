@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `0.1-alpha18` _(2021-xx-xx)_
+
+- **Breaking Change**: Renamed `setDefaultBackPressEnabled(boolean)` to `disableDefaultBackPressLogic()`.
+
 ## Version `0.1-alpha17` _(2021-08-21)_
 
 - **Updated**: Java Docs for animations.
