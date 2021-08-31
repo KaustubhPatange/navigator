@@ -224,7 +224,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     val activity = LocalContext.current.findActivity()
                     navigator = with(activity, savedInstanceState)
                         .disableDefaultBackPressLogic()
-                        .disableOnSaveStateInstance()
+                        .disableOnSaveStateInstance() // TODO: Add all the transition from original navigator to this
                         .initialize()
                 }
                 return navigator!!

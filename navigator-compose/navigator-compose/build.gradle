@@ -29,15 +29,18 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
-        useIR = true
-        freeCompilerArgs += ['-Xexplicit-api=strict']
-    }
+
     buildFeatures {
         buildConfig = false
         compose true
     }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+        useIR = true
+        freeCompilerArgs += ["-Xexplicit-api=strict"]
+    }
+
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
         kotlinCompilerVersion '1.4.32'
@@ -46,6 +49,16 @@ android {
     packagingOptions {
         exclude 'META-INF/AL2.0'
         exclude 'META-INF/LGPL2.1'
+    }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+    kotlinOptions {
+//        println("Name: ${project.}")
+       /* if (!project.name.contains("test")) {
+            println("Project name: ${project.name}")
+            freeCompilerArgs += ["-Xexplicit-api=strict"]
+        }*/
     }
 }
 
