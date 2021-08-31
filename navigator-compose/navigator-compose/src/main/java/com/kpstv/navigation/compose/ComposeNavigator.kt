@@ -255,6 +255,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
         companion object {
             private const val LAST_REMOVED_ITEM_KEY = "history:last_item:key"
             private const val LAST_REMOVED_ITEM_ANIMATION = "history:last_item:animation"
+
+            private const val BACKSTACK_RECORDS = "history:backstack_records"
+            private const val BACKSTACK_LAST_ITEM = "history:last_item"
         }
         internal enum class NavType { Forward, Backward }
 
@@ -332,7 +335,8 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         // TODO: Wait for Kotlin 1.5.20 (KT-42652). Make this parcelable for saving states.
-        internal data class BackStackRecord<T: Route>(val key: T, val animation: NavOptions.NavAnimation = NavOptions.NavAnimation())
+        @Parcelize
+        internal data class BackStackRecord<T: Route>(val key: T, val animation: NavOptions.NavAnimation = NavOptions.NavAnimation()) : Parcelable
 
         private var current: BackStackRecord<T> = BackStackRecord(initial)
         private var backStack by mutableStateOf(listOf(current))
@@ -369,10 +373,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
         internal fun saveState(outState: Bundle) {
             if (backStack.isNotEmpty()) {
                 val bundle = Bundle().apply {
-                    putParcelableArrayList(BackStackRecord<T>::key.name, ArrayList(backStack.map { it.key }))
-                    putParcelableArrayList(BackStackRecord<T>::animation.name, ArrayList(backStack.map { it.animation }))
-                    putParcelable(LAST_REMOVED_ITEM_KEY, current.key)
-                    putParcelable(LAST_REMOVED_ITEM_ANIMATION, current.animation)
+                    putParcelableArrayList(BACKSTACK_RECORDS, ArrayList(backStack))
+                    putParcelable(BACKSTACK_LAST_ITEM, current)
+
                     dialogHistory.saveState(this)
                 }
                 val name = "$HISTORY_SAVED_STATE${key.qualifiedName}"
@@ -383,19 +386,12 @@ public class ComposeNavigator private constructor(private val activity: Componen
         internal fun restoreState(bundle: Bundle?): String? {
             val name = "$HISTORY_SAVED_STATE${key.qualifiedName}"
             bundle?.getBundle(name)?.let { inner ->
-                val keys: List<T> = inner.getParcelableArrayList(BackStackRecord<T>::key.name)!!
-                val animations: List<NavOptions.NavAnimation> = inner.getParcelableArrayList(BackStackRecord<T>::animation.name)!!
+                val records = inner.getParcelableArrayList<BackStackRecord<T>>(BACKSTACK_RECORDS)!!
+                backStack = records
 
-
-                val lastKey: T? = inner.getParcelable(LAST_REMOVED_ITEM_KEY)
-                val lastAnimation: NavOptions.NavAnimation? = inner.getParcelable(LAST_REMOVED_ITEM_ANIMATION)
-                if (lastKey != null && lastAnimation != null) {
-                    current = BackStackRecord(lastKey, lastAnimation)
-                }
+                inner.getParcelable<BackStackRecord<T>>(BACKSTACK_LAST_ITEM)?.let { current = it }
 
                 dialogHistory.restoreState(inner)
-                backStack = keys.zip(animations).map { BackStackRecord(it.first, it.second) }
-
                 return name
             }
             return null
@@ -540,9 +536,8 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 }
             }
 
-            DisposableEffect(Unit) {
+            LaunchedEffect(Unit) {
                 if (!dialogCreateStack.contains(key)) dialogCreateStack.add(key)
-                onDispose {  }
             }
         }
 
@@ -871,5 +866,5 @@ private fun Context.findActivity(): ComponentActivity {
         if (baseContext is ComponentActivity) return baseContext
         return baseContext.findActivity()
     }
-    throw NotImplementedError("Parent must implement \"FragmentNavigator.Transmitter\" interface to propagate navigator's instance to all the child fragments.")
+    throw NotImplementedError("Could not find activity from $this.")
 }

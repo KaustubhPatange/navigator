@@ -1,8 +1,10 @@
 # Changelog
 
-## Version `0.1-alpha18` _(2021-xx-xx)_
+## Version `0.1-alpha18` _(2021-08-31)_
 
 - **Breaking Change**: Renamed `setDefaultBackPressEnabled(boolean)` to `disableDefaultBackPressLogic()`.
+- **Breaking Change**: Creating dialogs through controller will now provide `DialogScope` (read [here](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#implementing-dialogs)).
+- **Added:** Support for navigation inside Dialogs (read [here](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigation-in-dialogs)).
 
 ## Version `0.1-alpha17` _(2021-08-21)_
 

@@ -73,10 +73,6 @@ class MainActivity : ComponentActivity() {
             controller.showDialog(CloseDialog)
         }
     }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-    }
 }
 
 sealed interface StartRoute : Route {
@@ -453,25 +449,28 @@ fun FavouriteMenuItem() {
 
     // Dialog with navigation
     controller.CreateDialog(key = NavigationDialog.key, dialogProperties = DialogProperties(dismissOnClickOutside = false)) {
+        android.util.Log.e("MainActivity", "NavigationDialog root recomposing")
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clipToBounds() // clip content within the bounds, needed for animation to not look weird.
                 .background(MaterialTheme.colors.background)
+                .clipToBounds() // clip content within the bounds, needed for animation to not look weird.
                 .border(1.dp, color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f))
         ) {
             dialogNavigator.Setup(key = DialogScopeRoute.key, initial = DialogScopeRoute.First()) { controller, dest ->
                 when(dest) {
                     is DialogScopeRoute.First -> {
-                        Column(modifier = Modifier.height(300.dp).fillMaxSize(),verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(modifier = Modifier.background(MaterialTheme.colors.background).height(300.dp).fillMaxSize(),verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(text = "You are on first screen")
                             Spacer(modifier = Modifier.height(20.dp))
                             Button(onClick = {
                                 controller.navigateTo(DialogScopeRoute.Second()) {
-                                    withAnimation {
+                                    // Enable animations as well
+                                    /*withAnimation {
                                         target = SlideRight
-                                        current = SlideLeft
-                                    }
+                                        current = Fade
+                                    }*/
                                 }
                             }) {
                                 Text(text = "Go to second")
@@ -479,7 +478,7 @@ fun FavouriteMenuItem() {
                         }
                     }
                     is DialogScopeRoute.Second -> {
-                        Column(modifier = Modifier.height(300.dp).fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(modifier = Modifier.background(MaterialTheme.colors.background).height(300.dp).fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(text = "You are on second screen")
                             Spacer(modifier = Modifier.height(20.dp))
                             Button(onClick = { controller.goBack() }) {

@@ -2,6 +2,7 @@
 .gradle
 /local.properties
 /.idea/caches
+samples/basic-sample/release/
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
