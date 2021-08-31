@@ -195,7 +195,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
          * navigating to target destination.
          */
         public fun registerTransitions(vararg transitions: NavigatorTransition): Builder {
-            navigator.navigatorTransitions.addAll(transitions)
+            val list = (navigator.navigatorTransitions + transitions).distinct()
+            navigator.navigatorTransitions.clear()
+            navigator.navigatorTransitions.addAll(list)
             return this
         }
 
@@ -221,10 +223,12 @@ public class ComposeNavigator private constructor(private val activity: Componen
             @Composable
             get() {
                 if (navigator == null) {
+                    val activityNavigator = findComposeNavigator()
                     val activity = LocalContext.current.findActivity()
                     navigator = with(activity, savedInstanceState)
                         .disableDefaultBackPressLogic()
-                        .disableOnSaveStateInstance() // TODO: Add all the transition from original navigator to this
+                        .disableOnSaveStateInstance()
+                        .registerTransitions(*activityNavigator.navigatorTransitions.toTypedArray()) // register all transitions of activity's ComposeNavigator
                         .initialize()
                 }
                 return navigator!!
@@ -260,7 +264,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             private val dialogScopes = arrayListOf<DialogScope<*>>()
 
             internal fun<T : DialogRoute> createDialogScope(route: T): DialogScope<T> {
-                val scope = DialogScope<T>(route) { remove(route::class) }
+                val scope = DialogScope(route) { remove(route::class) }
 
                 // restore state
                 val bundleKey = scope.generateScopeKey()

@@ -52,16 +52,6 @@ android {
     }
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
-    kotlinOptions {
-//        println("Name: ${project.}")
-       /* if (!project.name.contains("test")) {
-            println("Project name: ${project.name}")
-            freeCompilerArgs += ["-Xexplicit-api=strict"]
-        }*/
-    }
-}
-
 dependencies {
     implementation 'androidx.core:core-ktx:1.5.0'
     implementation "androidx.compose.ui:ui:$compose_version"
