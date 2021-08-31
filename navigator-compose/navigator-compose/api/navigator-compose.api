@@ -7,14 +7,16 @@ public final class com/kpstv/navigation/compose/ComposeNavigator {
 	public final fun getAllKeys ()Ljava/util/List;
 	public final fun getHistory (Lkotlin/reflect/KClass;)Ljava/util/List;
 	public final fun getSuppressBackPress ()Z
+	public final fun onSaveInstanceState (Landroid/os/Bundle;)V
 	public final fun setSuppressBackPress (Z)V
 }
 
 public final class com/kpstv/navigation/compose/ComposeNavigator$Builder {
 	public static final field $stable I
+	public final fun disableDefaultBackPressLogic ()Lcom/kpstv/navigation/compose/ComposeNavigator$Builder;
+	public final fun disableOnSaveStateInstance ()Lcom/kpstv/navigation/compose/ComposeNavigator$Builder;
 	public final fun initialize ()Lcom/kpstv/navigation/compose/ComposeNavigator;
 	public final fun registerTransitions ([Lcom/kpstv/navigation/compose/NavigatorTransition;)Lcom/kpstv/navigation/compose/ComposeNavigator$Builder;
-	public final fun setDefaultBackPressEnabled (Z)Lcom/kpstv/navigation/compose/ComposeNavigator$Builder;
 }
 
 public final class com/kpstv/navigation/compose/ComposeNavigator$Companion {
@@ -23,7 +25,7 @@ public final class com/kpstv/navigation/compose/ComposeNavigator$Companion {
 
 public final class com/kpstv/navigation/compose/ComposeNavigator$Controller {
 	public static final field $stable I
-	public final fun CreateDialog (Lkotlin/reflect/KClass;Landroidx/compose/ui/window/DialogProperties;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
+	public final fun CreateDialog (Lkotlin/reflect/KClass;Landroidx/compose/ui/window/DialogProperties;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public final fun canGoBack ()Z
 	public final fun closeDialog (Lkotlin/reflect/KClass;)Lcom/kpstv/navigation/compose/DialogRoute;
 	public final fun getAllDialogHistory ()Ljava/util/List;
@@ -35,6 +37,13 @@ public final class com/kpstv/navigation/compose/ComposeNavigator$Controller {
 	public static synthetic fun navigateTo$default (Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun setEnableDialogOverlay (Z)V
 	public final fun showDialog (Lcom/kpstv/navigation/compose/DialogRoute;)V
+}
+
+public final class com/kpstv/navigation/compose/ComposeNavigator$DialogScope {
+	public static final field $stable I
+	public final fun dismiss ()Lcom/kpstv/navigation/compose/DialogRoute;
+	public final fun getDialogNavigator (Landroidx/compose/runtime/Composer;I)Lcom/kpstv/navigation/compose/ComposeNavigator;
+	public final fun getDialogRoute ()Lcom/kpstv/navigation/compose/DialogRoute;
 }
 
 public final class com/kpstv/navigation/compose/ComposeNavigatorKt {

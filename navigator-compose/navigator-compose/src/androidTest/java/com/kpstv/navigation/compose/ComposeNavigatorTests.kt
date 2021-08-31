@@ -255,4 +255,82 @@ public class ComposeNavigatorTests {
             composeTestRule.onNodeWithText(show_dialog).assertIsDisplayed()
         }
     }
+
+    @Test
+    public fun NavigationDialogTest() {
+        val go_to_forth = composeTestRule.activity.getString(R.string.go_to_forth)
+        val navigation_dialog = composeTestRule.activity.getString(R.string.navigation_dialog)
+        val go_to_second = composeTestRule.activity.getString(R.string.go_to_second)
+        val close = composeTestRule.activity.getString(R.string.close)
+        val go_back = composeTestRule.activity.getString(R.string.go_back)
+
+        val first_dialog_route = NavigationDialogRoute.First::class.qualifiedName.toString()
+        val second_dialog_route = NavigationDialogRoute.Second::class.qualifiedName.toString()
+
+        composeTestRule.activity.apply {
+            composeTestRule.onNodeWithText(go_to_forth).performClick()
+
+            composeTestRule.onNodeWithText(MultipleStack.Third::class.simpleName!!).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(navigation_dialog).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(first_dialog_route).assertIsDisplayed()
+
+            composeTestRule.onNodeWithText(go_to_second).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(second_dialog_route, substring = true).assertIsDisplayed()
+
+            onBackPressed()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(first_dialog_route).assertIsDisplayed()
+
+            onBackPressed()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(first_dialog_route).assertDoesNotExist()
+            composeTestRule.onNodeWithText(navigation_dialog).assertIsDisplayed()
+            composeTestRule.onNodeWithText(navigation_dialog).performClick()
+
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(go_to_second).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(close).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(second_dialog_route, substring = true).assertDoesNotExist()
+            composeTestRule.onNodeWithText(navigation_dialog).performClick()
+
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(go_to_second).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(go_back).performClick()
+            composeTestRule.onNodeWithText(second_dialog_route, substring = true).assertDoesNotExist()
+            composeTestRule.onNodeWithText(first_dialog_route).assertIsDisplayed()
+
+            composeTestRule.onNodeWithText(go_to_second).performClick()
+            composeTestRule.waitForIdle()
+        }
+        composeTestRule.activityRule.scenario.recreate()
+        composeTestRule.activity.apply {
+            composeTestRule.onNodeWithText(second_dialog_route, substring = true).assertIsDisplayed()
+
+            onBackPressed()
+            composeTestRule.waitForIdle()
+            onBackPressed()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(second_dialog_route, substring = true).assertDoesNotExist()
+            composeTestRule.onNodeWithText(first_dialog_route).assertDoesNotExist()
+
+            composeTestRule.onNodeWithText(navigation_dialog).assertIsDisplayed()
+        }
+    }
 }

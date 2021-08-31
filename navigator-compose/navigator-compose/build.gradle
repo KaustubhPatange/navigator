@@ -29,15 +29,18 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
-        useIR = true
-        freeCompilerArgs += ['-Xexplicit-api=strict']
-    }
+
     buildFeatures {
         buildConfig = false
         compose true
     }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+        useIR = true
+        freeCompilerArgs += ["-Xexplicit-api=strict"]
+    }
+
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
         kotlinCompilerVersion '1.4.32'

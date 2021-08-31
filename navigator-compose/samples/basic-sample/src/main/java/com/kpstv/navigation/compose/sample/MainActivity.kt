@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import com.kpstv.navigation.R
 import com.kpstv.navigation.compose.sample.ui.GalleryItem
 import com.kpstv.navigation.compose.sample.ui.Menu
@@ -33,7 +35,6 @@ import com.kpstv.navigation.compose.sample.ui.galleryItems
 import com.kpstv.navigation.compose.sample.ui.theme.ComposeTestAppTheme
 import com.kpstv.navigation.compose.*
 import com.kpstv.navigation.compose.sample.ui.MenuItem
-import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 class MainActivity : ComponentActivity() {
@@ -71,6 +72,10 @@ class MainActivity : ComponentActivity() {
         } else {
             controller.showDialog(CloseDialog)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
     }
 }
 
@@ -118,7 +123,7 @@ fun StartScreen(
             is StartRoute.Second -> SecondScreen()
         }
 
-        controller.CreateDialog(key = CloseDialog.key) { _, dismiss ->
+        controller.CreateDialog(key = CloseDialog.key) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -128,7 +133,7 @@ fun StartScreen(
                 Text("Do you want to close the app?", fontSize = 16.sp)
                 Spacer(modifier = Modifier.height(20.dp))
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    Button(onClick = dismiss) {
+                    Button(onClick = ::dismiss) {
                         Text("Cancel")
                     }
                     Spacer(modifier = Modifier.weight(1f))
@@ -155,11 +160,11 @@ sealed interface FirstRoute : Route {
 }
 
 @Composable
-fun FirstScreen(data: String, change: (StartRoute) -> Unit) {
+fun FirstScreen(data: String, goToSecond: (StartRoute) -> Unit) {
     val navigator = findComposeNavigator()
     navigator.Setup(key = FirstRoute.key, initial = FirstRoute.Primary()) { controller, dest ->
         when (dest) {
-            is FirstRoute.Primary -> PrimaryFirst(data, change) { route ->
+            is FirstRoute.Primary -> PrimaryFirst(data, goToSecond) { route ->
                 controller.navigateTo(route) {
                     withAnimation {
                         target = SlideRight
@@ -175,7 +180,7 @@ fun FirstScreen(data: String, change: (StartRoute) -> Unit) {
 }
 
 @Composable
-fun PrimaryFirst(data: String, change: (StartRoute) -> Unit, change2: (FirstRoute) -> Unit) {
+fun PrimaryFirst(data: String, goToSecond: (StartRoute) -> Unit, goToThird: (FirstRoute) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -185,13 +190,13 @@ fun PrimaryFirst(data: String, change: (StartRoute) -> Unit, change2: (FirstRout
     ) {
         Text("First Screen: $data", color = Color.Black)
         Button(
-            onClick = { change.invoke(StartRoute.Second()) },
+            onClick = { goToSecond.invoke(StartRoute.Second()) },
             modifier = Modifier.padding(top = 10.dp)
         ) {
             Text("Go to second screen")
         }
         Button(
-            onClick = { change2.invoke(FirstRoute.Third()) },
+            onClick = { goToThird.invoke(FirstRoute.Third()) },
             modifier = Modifier.padding(top = 10.dp)
         ) {
             Text("Go to third screen")
@@ -363,6 +368,21 @@ data class DetailDialog(val item: GalleryItem) : DialogRoute {
     }
 }
 
+@Parcelize
+object NavigationDialog: DialogRoute {
+    val key get() = NavigationDialog::class
+}
+
+sealed class DialogScopeRoute : Route {
+    @Parcelize
+    data class First(private val noArg: String = "") : DialogScopeRoute()
+    @Parcelize
+    data class Second(private val noArg: String = "") : DialogScopeRoute()
+    companion object {
+        val key = DialogScopeRoute::class
+    }
+}
+
 @Composable
 fun FavouriteMenuItem() {
     val controller = findController(key = MenuItem.key)
@@ -380,9 +400,13 @@ fun FavouriteMenuItem() {
         Button(onClick = { controller.showDialog(ListDialog) }) {
             Text("Show a dialog")
         }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(onClick = { controller.showDialog(NavigationDialog) }) {
+            Text("Nested navigation dialog")
+        }
     }
 
-    controller.CreateDialog(key = ListDialog.key) { _, dismiss ->
+    controller.CreateDialog(key = ListDialog.key) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -404,13 +428,13 @@ fun FavouriteMenuItem() {
             }
             Divider()
             Spacer(modifier = Modifier.height(20.dp))
-            Button(onClick = dismiss) {
+            Button(onClick = ::dismiss) {
                 Text("Close")
             }
         }
     }
 
-    controller.CreateDialog(key = DetailDialog.key) { dialogRoute, dismiss ->
+    controller.CreateDialog(key = DetailDialog.key) {
         Column(
             modifier = Modifier
                 .padding(horizontal = 10.dp)
@@ -421,8 +445,49 @@ fun FavouriteMenuItem() {
         ) {
             Text(text = "You selected item with name ${dialogRoute.item.name} & age ${dialogRoute.item.age}!")
             Spacer(modifier = Modifier.height(20.dp))
-            Button(onClick = dismiss) {
+            Button(onClick = ::dismiss) {
                 Text(text = "Go Back")
+            }
+        }
+    }
+
+    // Dialog with navigation
+    controller.CreateDialog(key = NavigationDialog.key, dialogProperties = DialogProperties(dismissOnClickOutside = false)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clipToBounds() // clip content within the bounds, needed for animation to not look weird.
+                .background(MaterialTheme.colors.background)
+                .border(1.dp, color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f))
+        ) {
+            dialogNavigator.Setup(key = DialogScopeRoute.key, initial = DialogScopeRoute.First()) { controller, dest ->
+                when(dest) {
+                    is DialogScopeRoute.First -> {
+                        Column(modifier = Modifier.height(300.dp).fillMaxSize(),verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = "You are on first screen")
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Button(onClick = {
+                                controller.navigateTo(DialogScopeRoute.Second()) {
+                                    withAnimation {
+                                        target = SlideRight
+                                        current = SlideLeft
+                                    }
+                                }
+                            }) {
+                                Text(text = "Go to second")
+                            }
+                        }
+                    }
+                    is DialogScopeRoute.Second -> {
+                        Column(modifier = Modifier.height(300.dp).fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = "You are on second screen")
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Button(onClick = { controller.goBack() }) {
+                                Text(text = "Go back")
+                            }
+                        }
+                    }
+                }
             }
         }
     }

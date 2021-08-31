@@ -82,6 +82,16 @@ internal object GalleryDialog: DialogRoute
 @Parcelize
 internal data class GalleryDetailDialog(val item: GalleryItem) : DialogRoute
 
+@Parcelize
+internal object NavigationDialog : DialogRoute
+
+internal sealed class NavigationDialogRoute : Route {
+    @Parcelize
+    data class First(private val noArg: String = ""): NavigationDialogRoute()
+    @Parcelize
+    data class Second(val message: String): NavigationDialogRoute()
+}
+
 @Composable
 internal fun NextScreenFirst(next: () -> Unit) {
     val controller = findController(key = NextRoute.key)
@@ -96,24 +106,66 @@ internal fun NextScreenFirst(next: () -> Unit) {
         Button(onClick = { controller.showDialog(GalleryDialog) }) {
             Text(stringResource(id = R.string.show_dialog))
         }
+        Button(onClick = { controller.showDialog(NavigationDialog) }) {
+            Text(stringResource(id = R.string.navigation_dialog))
+        }
     }
 
-    controller.CreateDialog(key = GalleryDialog::class) { _, dismiss ->
-        Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colors.background)) {
+    controller.CreateDialog(key = GalleryDialog::class) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.background)) {
             Text(stringResource(id = R.string.choose_item))
             ThirdPrimaryScreen(modifier = Modifier.height(500.dp)) { controller.showDialog(GalleryDetailDialog(it)) }
-            Button(onClick = dismiss) {
+            Button(onClick = ::dismiss) {
                 Text(stringResource(id = R.string.close))
             }
         }
     }
 
-    controller.CreateDialog(key = GalleryDetailDialog::class) { dialogRoute, dismiss ->
-        Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colors.background)) {
+    controller.CreateDialog(key = GalleryDetailDialog::class) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.background)) {
             Text(stringResource(id = R.string.detail_dialog, dialogRoute.item.name, dialogRoute.item.age))
-            Button(onClick = dismiss) {
+            Button(onClick = ::dismiss) {
                 Text(stringResource(id = R.string.go_back))
             }
         }
     }
+
+    // Nested navigation
+    controller.CreateDialog(key = NavigationDialog::class) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.background)) {
+            dialogNavigator.Setup(key = NavigationDialogRoute::class, initial = NavigationDialogRoute.First()) { controller, dest ->
+                when(dest) {
+                    is NavigationDialogRoute.First -> {
+                        Column(modifier = Modifier.height(300.dp)) {
+                            Text(dest::class.qualifiedName.toString())
+                            Button(onClick = {
+                                controller.navigateTo(NavigationDialogRoute.Second("Hello world message"))
+                            }) {
+                                Text(stringResource(id = R.string.go_to_second))
+                            }
+                        }
+                    }
+                    is NavigationDialogRoute.Second -> {
+                        Column(modifier = Modifier.height(300.dp)) {
+                            Text("${dest::class.qualifiedName.toString()}: ${dest.message}")
+                            Button(onClick = { controller.goBack() }) {
+                                Text(stringResource(id = R.string.go_back))
+                            }
+                            Button(onClick = { dismiss() }) {
+                                Text(stringResource(id = R.string.close))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
+
