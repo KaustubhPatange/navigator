@@ -6,6 +6,8 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -92,38 +94,44 @@ internal sealed class NavigationDialogRoute : Route {
     data class Second(val message: String): NavigationDialogRoute()
 }
 
+@Parcelize
+internal object DismissDialog : DialogRoute
+
 @Composable
 internal fun NextScreenFirst(next: () -> Unit) {
-    val controller = findController(key = NextRoute.key)
+    val nextScreenController = findController(key = NextRoute.key)
 
-    controller.enableDialogOverlay = true
+    nextScreenController.enableDialogOverlay = true
 
     Column(modifier = Modifier.fillMaxSize()) {
         Text(NextRoute.First::class.qualifiedName!!)
         Button(onClick = { next.invoke() }) {
             Text(stringResource(id = R.string.go_to_second_bottom))
         }
-        Button(onClick = { controller.showDialog(GalleryDialog) }) {
+        Button(onClick = { nextScreenController.showDialog(GalleryDialog) }) {
             Text(stringResource(id = R.string.show_dialog))
         }
-        Button(onClick = { controller.showDialog(NavigationDialog) }) {
+        Button(onClick = { nextScreenController.showDialog(DismissDialog) }) {
+            Text(stringResource(id = R.string.dismiss_dialog))
+        }
+        Button(onClick = { nextScreenController.showDialog(NavigationDialog) }) {
             Text(stringResource(id = R.string.navigation_dialog))
         }
     }
 
-    controller.CreateDialog(key = GalleryDialog::class) {
+    nextScreenController.CreateDialog(key = GalleryDialog::class) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.background)) {
             Text(stringResource(id = R.string.choose_item))
-            ThirdPrimaryScreen(modifier = Modifier.height(500.dp)) { controller.showDialog(GalleryDetailDialog(it)) }
+            ThirdPrimaryScreen(modifier = Modifier.height(500.dp)) { nextScreenController.showDialog(GalleryDetailDialog(it)) }
             Button(onClick = ::dismiss) {
                 Text(stringResource(id = R.string.close))
             }
         }
     }
 
-    controller.CreateDialog(key = GalleryDetailDialog::class) {
+    nextScreenController.CreateDialog(key = GalleryDetailDialog::class) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.background)) {
@@ -133,9 +141,27 @@ internal fun NextScreenFirst(next: () -> Unit) {
             }
         }
     }
+    
+    val twiceClose = remember { mutableStateOf(false) }
+    nextScreenController.CreateDialog(key = DismissDialog::class, handleOnDismissRequest = handle@{
+        if (!twiceClose.value) {
+            twiceClose.value = true
+            return@handle true
+        }
+        return@handle false
+    }) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.background)) {
+            Text(DismissDialog::class.qualifiedName.toString())
+            Button(onClick = ::dismiss) {
+                Text(stringResource(id = R.string.close))
+            }
+        }
+    }
 
     // Nested navigation
-    controller.CreateDialog(key = NavigationDialog::class) {
+    nextScreenController.CreateDialog(key = NavigationDialog::class) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.background)) {
@@ -154,10 +180,10 @@ internal fun NextScreenFirst(next: () -> Unit) {
                     is NavigationDialogRoute.Second -> {
                         Column(modifier = Modifier.height(300.dp)) {
                             Text("${dest::class.qualifiedName.toString()}: ${dest.message}")
-                            Button(onClick = { controller.goBack() }) {
+                            Button(onClick = ::dismiss) {
                                 Text(stringResource(id = R.string.go_back))
                             }
-                            Button(onClick = { dismiss() }) {
+                            Button(onClick = { nextScreenController.closeDialog(NavigationDialog::class) }) {
                                 Text(stringResource(id = R.string.close))
                             }
                         }

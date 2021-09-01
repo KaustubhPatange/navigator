@@ -333,4 +333,32 @@ public class ComposeNavigatorTests {
             composeTestRule.onNodeWithText(navigation_dialog).assertIsDisplayed()
         }
     }
+
+    @Test
+    public fun HandleDismissRequestDialogTest() {
+        val go_to_forth = composeTestRule.activity.getString(R.string.go_to_forth)
+        val dismiss_dialog_button = composeTestRule.activity.getString(R.string.dismiss_dialog)
+
+        val dialog_text = DismissDialog::class.qualifiedName.toString()
+
+        composeTestRule.activity.apply {
+            composeTestRule.onNodeWithText(go_to_forth).performClick()
+
+            composeTestRule.onNodeWithText(MultipleStack.Third::class.simpleName!!).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(dismiss_dialog_button).performClick()
+            composeTestRule.waitForIdle()
+
+            onBackPressed()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(dialog_text).assertIsDisplayed()
+
+            onBackPressed()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(dialog_text).assertDoesNotExist()
+        }
+    }
 }

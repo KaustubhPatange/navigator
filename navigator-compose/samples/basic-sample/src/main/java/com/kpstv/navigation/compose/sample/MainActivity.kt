@@ -449,8 +449,6 @@ fun FavouriteMenuItem() {
 
     // Dialog with navigation
     controller.CreateDialog(key = NavigationDialog.key, dialogProperties = DialogProperties(dismissOnClickOutside = false)) {
-        android.util.Log.e("MainActivity", "NavigationDialog root recomposing")
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()

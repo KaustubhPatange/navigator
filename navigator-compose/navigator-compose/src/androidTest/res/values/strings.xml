@@ -11,5 +11,6 @@
     <string name="close">Close</string>
     <string name="show_dialog">Show dialog</string>
     <string name="choose_item">Choose an item</string>
+    <string name="dismiss_dialog">Dismiss request dialog</string>
     <string name="navigation_dialog">Navigation dialog</string>
 </resources>

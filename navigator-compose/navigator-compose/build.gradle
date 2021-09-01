@@ -38,7 +38,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
         useIR = true
-        freeCompilerArgs += ["-Xexplicit-api=strict"]
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn", "-Xexplicit-api=strict"]
     }
 
     composeOptions {

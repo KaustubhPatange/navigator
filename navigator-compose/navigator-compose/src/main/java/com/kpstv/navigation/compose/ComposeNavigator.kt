@@ -211,7 +211,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
      * [DialogScope] provides functions that are convenient and only applicable in the context of
      * [Controller.CreateDialog] such as [dismiss], [dialogRoute] & a [dialogNavigator].
      */
-    public class DialogScope<T : DialogRoute> internal constructor(public val dialogRoute: T, private val dismiss: () -> DialogRoute?) {
+    public class DialogScope<T : DialogRoute> internal constructor(public val dialogRoute: T, private val handleOnDismissRequest: () -> Boolean, private val forceCloseDialog: () -> DialogRoute?) {
         internal var navigator: ComposeNavigator? = null
 
         private var savedInstanceState: Bundle? = null
@@ -235,9 +235,23 @@ public class ComposeNavigator private constructor(private val activity: Componen
             }
 
         /**
-         * Dismiss this dialog regardless of any navigation implemented by [dialogNavigator].
+         * Attempts to dismiss this dialog.
+         *
+         * This will first call [handleOnDismissRequest] to determine whether the dismiss request
+         * is handled or not. If `true` then it will return null otherwise proceeds to close the dialog.
+         *
+         * The default implementation of [handleOnDismissRequest] returns false which will
+         * close the dialog.
+         *
+         * @see Controller.CreateDialog
          */
-        public fun dismiss(): DialogRoute? = this.dismiss.invoke()
+        public fun dismiss(): DialogRoute? {
+            val pop = navigator?.goBack()
+            if (pop == null) {
+                if (!handleOnDismissRequest()) return forceCloseDialog()
+            }
+            return null
+        }
 
         internal fun saveState(outState: Bundle) {
             navigator?.onSaveInstanceState(outState)
@@ -266,8 +280,8 @@ public class ComposeNavigator private constructor(private val activity: Componen
             private var savedInstanceState: Bundle? = null
             private val dialogScopes = arrayListOf<DialogScope<*>>()
 
-            internal fun<T : DialogRoute> createDialogScope(route: T): DialogScope<T> {
-                val scope = DialogScope(route) { remove(route::class) }
+            internal fun<T : DialogRoute> createDialogScope(route: T, handleOnDismissRequest: () -> Boolean): DialogScope<T> {
+                val scope = DialogScope(route, handleOnDismissRequest = handleOnDismissRequest, forceCloseDialog = { remove(route::class) })
 
                 // restore state
                 val bundleKey = scope.generateScopeKey()
@@ -289,19 +303,19 @@ public class ComposeNavigator private constructor(private val activity: Componen
             }
             internal fun remove(route: KClass<out DialogRoute>): DialogRoute? {
                 val last = backStack.findLast { it::class == route }
-                last?.let { backStack.remove(it) }
-                return last
+                last?.let { lastRoute ->
+                    dialogScopes.removeAll { it.dialogRoute::class == route }
+                    backStack.remove(lastRoute)
+                    return last
+                }
+                return null
             }
             internal fun peek(): DialogRoute? = backStack.lastOrNull()
             internal fun pop(): Route? {
                 if (!isEmpty()) {
                     val peek = peek()
                     val scope = dialogScopes.findLast { it.dialogRoute === peek }
-                    val scopePopped = scope?.navigator?.goBack()
-                    if (scopePopped != null) return scopePopped
-                    dialogScopes.remove(scope)
-                    backStack.removeLast()
-                    return peek
+                    return scope?.dismiss() // eventually calls remove(peek::class)
                 }
                 return null
             }
@@ -500,12 +514,14 @@ public class ComposeNavigator private constructor(private val activity: Componen
          *
          * @param key Key associated with the dialog usually a data class.
          * @param dialogProperties [DialogProperties] to customize dialog.
+         * @param handleOnDismissRequest Intercept whether dismiss request is handled or not. Returning `true`
+         *                               will considered as request being handled & will not dismiss the dialog.
          * @param content The composable body of the dialog which supplies two arguments.
          *               `dialogRoute` which is passed throw showDialog() & `dismiss` lambda
          *                which can be called to dismiss current dialog.
          */
         @Composable
-        public fun<T : DialogRoute> CreateDialog(key: KClass<T>, dialogProperties: DialogProperties = DialogProperties(), content: @Composable DialogScope<T>.() -> Unit) {
+        public fun<T : DialogRoute> CreateDialog(key: KClass<T>, dialogProperties: DialogProperties = DialogProperties(), handleOnDismissRequest: () -> Boolean = { false }, content: @Composable DialogScope<T>.() -> Unit) {
             if (LocalInspectionMode.current) return
 
             val history = history
@@ -513,14 +529,8 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
             @Composable
             fun Inner(peek: DialogRoute) {
-                val dialogScope = remember { history.dialogHistory.createDialogScope(peek) }
-                val dialogDismiss by derivedStateOf { {
-                    val pop = dialogScope.navigator?.goBack()
-                    if (pop == null) {
-                        dialogScope.dismiss()
-                    }
-                } }
-                Dialog(onDismissRequest = { dialogDismiss() }, properties = dialogProperties) {
+                val dialogScope = remember { history.dialogHistory.createDialogScope(peek, handleOnDismissRequest) }
+                Dialog(onDismissRequest = { dialogScope.dismiss() }, properties = dialogProperties) {
                     content(dialogScope as DialogScope<T>)
                 }
             }
@@ -551,11 +561,14 @@ public class ComposeNavigator private constructor(private val activity: Componen
             if (!dialogCreateStack.contains(key::class)) {
                 throw IllegalStateException("Dialog with the key \"${key::class.qualifiedName}\" is not present in the backStack. Did you forgot to create Dialog using \"controller.CreateDialog(...)\".")
             }
+            if (history.dialogHistory.get().any { it::class == key::class }) throw IllegalStateException("Cannot show dialog \"${key::class.qualifiedName}\" twice.")
+
             history.dialogHistory.add(key)
         }
 
         /**
-         * Dismiss an ongoing dialog which is currently being shown or was in the backStack.
+         * Force dismiss an ongoing dialog which is currently being shown or was in the backStack. This
+         * respects neither [handleOnDismissRequest] nor [dialogNavigator]'s backstack.
          *
          * @param key The key that was used to [CreateDialog].
          * @throws IllegalStateException When the dialog associated with the [key] does not exist in the backstack.
@@ -612,8 +625,10 @@ public class ComposeNavigator private constructor(private val activity: Componen
     private fun goBack(): Route? {
         val last = backStackMap.lastValue()
 
-        if (last != null) {
-            last.dialogHistory.pop()?.let { return it } // dialogs
+        // dialogs
+        if (last != null && !last.dialogHistory.isEmpty()) {
+            last.dialogHistory.pop()?.let { return it }
+            return null // this means dismiss() in DialogScope has been handled by someone
         }
 
         if (backStackMap.size > 1 && !last!!.canGoBack()) {
