@@ -25,7 +25,7 @@ public final class com/kpstv/navigation/compose/ComposeNavigator$Companion {
 
 public final class com/kpstv/navigation/compose/ComposeNavigator$Controller {
 	public static final field $stable I
-	public final fun CreateDialog (Lkotlin/reflect/KClass;Landroidx/compose/ui/window/DialogProperties;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public final fun CreateDialog (Lkotlin/reflect/KClass;Landroidx/compose/ui/window/DialogProperties;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public final fun canGoBack ()Z
 	public final fun closeDialog (Lkotlin/reflect/KClass;)Lcom/kpstv/navigation/compose/DialogRoute;
 	public final fun getAllDialogHistory ()Ljava/util/List;

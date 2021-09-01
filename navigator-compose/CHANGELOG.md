@@ -3,7 +3,7 @@
 ## Version `0.1-alpha19` _(2021-09-01)_
 
 - **Added**: `handleOnDismissRequest` API in `CreateDialog` for intercepting dismiss request.
-- **Fixed**: Incorrect of popping dialog on onBackPressed().
+- **Fixed**: Incorrect popping of dialogs during onBackPressed().
 
 ## Version `0.1-alpha18` _(2021-08-31)_
 
