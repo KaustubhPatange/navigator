@@ -35,6 +35,7 @@ import com.kpstv.navigation.compose.sample.ui.galleryItems
 import com.kpstv.navigation.compose.sample.ui.theme.ComposeTestAppTheme
 import com.kpstv.navigation.compose.*
 import com.kpstv.navigation.compose.sample.ui.MenuItem
+import kotlinx.coroutines.flow.collect
 import kotlinx.parcelize.Parcelize
 
 class MainActivity : ComponentActivity() {
@@ -459,7 +460,10 @@ fun FavouriteMenuItem() {
             dialogNavigator.Setup(key = DialogScopeRoute.key, initial = DialogScopeRoute.First()) { controller, dest ->
                 when(dest) {
                     is DialogScopeRoute.First -> {
-                        Column(modifier = Modifier.background(MaterialTheme.colors.background).height(300.dp).fillMaxSize(),verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(modifier = Modifier
+                            .background(MaterialTheme.colors.background)
+                            .height(300.dp)
+                            .fillMaxSize(),verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(text = "You are on first screen")
                             Spacer(modifier = Modifier.height(20.dp))
                             Button(onClick = {
@@ -476,7 +480,10 @@ fun FavouriteMenuItem() {
                         }
                     }
                     is DialogScopeRoute.Second -> {
-                        Column(modifier = Modifier.background(MaterialTheme.colors.background).height(300.dp).fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(modifier = Modifier
+                            .background(MaterialTheme.colors.background)
+                            .height(300.dp)
+                            .fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(text = "You are on second screen")
                             Spacer(modifier = Modifier.height(20.dp))
                             Button(onClick = { controller.goBack() }) {

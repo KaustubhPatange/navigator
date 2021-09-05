@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `0.1-alpha20` _(2021-09-05)_
+
+- **Added**: `getCurrentRouteAsFlow` method to observe changes to current destination.
+
 ## Version `0.1-alpha19` _(2021-09-01)_
 
 - **Added**: `handleOnDismissRequest` API in `CreateDialog` for intercepting dismiss request.

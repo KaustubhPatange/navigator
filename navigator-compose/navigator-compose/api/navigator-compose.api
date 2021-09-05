@@ -30,7 +30,7 @@ public final class com/kpstv/navigation/compose/ComposeNavigator$Controller {
 	public final fun closeDialog (Lkotlin/reflect/KClass;)Lcom/kpstv/navigation/compose/DialogRoute;
 	public final fun getAllDialogHistory ()Ljava/util/List;
 	public final fun getAllHistory ()Ljava/util/List;
-	public final fun getCurrentAsFlow ()Lkotlinx/coroutines/flow/StateFlow;
+	public final fun getCurrentRouteAsFlow ()Lkotlinx/coroutines/flow/Flow;
 	public final fun getEnableDialogOverlay ()Z
 	public final fun goBack ()Lcom/kpstv/navigation/compose/Route;
 	public final fun navigateTo (Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;)V

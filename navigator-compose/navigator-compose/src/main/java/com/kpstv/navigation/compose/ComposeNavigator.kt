@@ -422,7 +422,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
         private var navigator: ComposeNavigator? = null
         private var history: History<T>? = null
 
-        private val currentFlow = MutableStateFlow<T?>(null)
         private val dialogCreateStack = arrayListOf<KClass<out DialogRoute>>()
 
         internal fun setup(key: KClass<out Route>, navigator: ComposeNavigator, history: History<T>) {
@@ -494,7 +493,12 @@ public class ComposeNavigator private constructor(private val activity: Componen
          */
         public fun getAllDialogHistory(): List<DialogRoute> = history?.dialogHistory?.get() ?: emptyList()
 
-        public fun getCurrentAsFlow(): StateFlow<T?> = currentFlow
+        /**
+         * @return A [Flow] that will emit the current active route whenever it changes. This doesn't include dialogs.
+         */
+        public fun getCurrentRouteAsFlow(): Flow<T> = snapshotFlow {
+            history?.get()?.lastOrNull()?.key
+        }.filterNotNull()
 
         /**
          * @return If it safe to go back i.e up the stack. If false then it means the current composable
