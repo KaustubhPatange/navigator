@@ -65,7 +65,7 @@ jobs:
       - name: Verify binary compatibility
         run: ./gradlew navigator-compose:apiCheck
 
-      # Publishing library
+      # Publishing library locally
       - name: Publishing libraries to local maven
         run: ./gradlew navigator-compose:publishReleasePublicationToMavenLocal
 
@@ -83,3 +83,8 @@ jobs:
         with:
           api-level: 29
           script: ./navigator-compose/run_test.sh
+
+      - name: Publishing snapshots from master
+        if: github.ref == "master" && github.event_name == 'push' # only on push & master
+        run: |
+          ./gradlew publishSnapshot

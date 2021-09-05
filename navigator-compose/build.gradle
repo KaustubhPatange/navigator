@@ -34,3 +34,25 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+tasks.create("publishSnapshot") {
+    def lastCommit = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
+
+    subprojects {
+        afterEvaluate { project ->
+            if (project.plugins.hasPlugin("maven-publish")) {
+                project.ext.PUBLISH_VERSION += "$lastCommit-SNAPSHOT"
+                def publish = project.tasks.getByName("publish")
+                def close = rootProject.tasks.getByName("closeRepository")
+                def release = rootProject.tasks.getByName("releaseRepository")
+
+                close.mustRunAfter(publish)
+                release.mustRunAfter(close)
+
+                dependsOn(publish)
+                dependsOn(close)
+                dependsOn(release)
+            }
+        }
+    }
+}
