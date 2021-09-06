@@ -86,5 +86,8 @@ jobs:
 
       - name: Publishing snapshots to Sonatype
         if: github.ref == 'refs/heads/master' && github.event_name == 'push' # only on push & master
+        continue-on-error: true
         run: |
-          ./gradlew publishSnapshot
+          ./gradlew publishSnapshot --stacktrace
+
+      - run: exit 0

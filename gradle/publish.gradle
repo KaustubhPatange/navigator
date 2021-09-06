@@ -72,9 +72,47 @@ nexusStaging {
     password = ossrhPassword
 }
 
+def getSnapshotVersion() {
+    def lastCommit = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
+    return "$PUBLISH_VERSION-SNAPSHOT-$lastCommit"
+}
+
 afterEvaluate {
     publishing {
         publications {
+            snapshot(MavenPublication) {
+                from components.release
+                artifact androidSourcesJar
+
+                groupId = 'io.github.kaustubhpatange'
+                artifactId = PUBLISH_ARTIFACT_ID
+                version = getSnapshotVersion()
+
+                pom {
+                    name = PUBLISH_ARTIFACT_ID
+                    description = 'A small navigation library to ease the use of fragment transactions & handling backstack.'
+                    url = 'https://github.com/KaustubhPatange/navigator'
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'kp2016'
+                            name = 'Kaustubh Patange'
+                            email = 'developerkp16@gmail.com'
+                        }
+                    }
+                    // Version control info, if you're using GitHub, follow the format as seen here
+                    scm {
+                        connection = 'scm:git:github.com/KaustubhPatange/navigator.git'
+                        developerConnection = 'scm:git:ssh://github.com/KaustubhPatange/navigator.git'
+                        url = 'https://github.com/KaustubhPatange/navigator/tree/master'
+                    }
+                }
+            }
             release(MavenPublication) {
                 from components.release
                 artifact androidSourcesJar
