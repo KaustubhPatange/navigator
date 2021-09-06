@@ -37,7 +37,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
 
-    implementation project(":navigator-base-navigation")
+    implementation "io.github.kaustubhpatange:navigator-base-navigation:${versions.navigator_base_navigation}"
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

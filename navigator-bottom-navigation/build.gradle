@@ -38,7 +38,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.3.0'
     implementation "androidx.fragment:fragment-ktx:$fragment_version"
 
-    implementation project(":navigator-base-navigation")
+    implementation "io.github.kaustubhpatange:navigator-base-navigation:${versions.navigator_base_navigation}"
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
