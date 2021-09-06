@@ -84,7 +84,7 @@ jobs:
           api-level: 29
           script: ./navigator-compose/run_test.sh
 
-      - name: Publishing snapshots from master
-        if: github.ref == "master" && github.event_name == 'push' # only on push & master
+      - name: Publishing snapshots to Sonatype
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push' # only on push & master
         run: |
           ./gradlew publishSnapshot
