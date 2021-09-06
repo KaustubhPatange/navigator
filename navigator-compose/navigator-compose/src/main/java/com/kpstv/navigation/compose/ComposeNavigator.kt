@@ -39,8 +39,9 @@ public fun findComposeNavigator() : ComposeNavigator = LocalNavigator.current
  */
 @Composable
 public fun <T : Route> findController(key: KClass<T>): ComposeNavigator.Controller<T> {
+    val localNavigator = LocalNavigator.current
     return rememberComposable {
-        getLocalController(key).current ?: throw Exception("Could not find Controller for key \"${key.qualifiedName}\". Did you forgot to call \"Navigator.Setup\"?")
+        localNavigator.getLocalController(key).current ?: throw Exception("Could not find Controller for key \"${key.qualifiedName}\". Did you forgot to call \"Navigator.Setup\"?")
     }
 }
 
@@ -460,6 +461,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     for(i in snapshot.size - 1 downTo clamp) {
                         val removed = snapshot.removeLast()
                         navigator.saveableStateHolder.removeState(removed.key)
+
                     }
                 }
             }
@@ -768,6 +770,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 backPressHandler.isEnabled = canGoBack() // update if back press is enabled or not.
             })
         }
+        DisposableEffect(Unit) {
+            onDispose { compositionLocalScopeList.remove(compositionLocalScope) }
+        }
     }
 
     @Composable
@@ -846,18 +851,18 @@ public class ComposeNavigator private constructor(private val activity: Componen
         val key: T,
         val content: @Composable () -> Unit
     )
-}
 
-private val compositionLocalScopeList = arrayListOf<ProvidableCompositionLocal<*>>() // for memoization
-@Composable
-private fun<T: Route> getLocalController(key: KClass<T>): ProvidableCompositionLocal<ComposeNavigator.Controller<T>?> {
-    compositionLocalScopeList.asReversed().fastForEach { scope ->
-        val controller = scope.current as? ComposeNavigator.Controller<*>
-        if (controller?.key == key) return scope as ProvidableCompositionLocal<ComposeNavigator.Controller<T>?>
+    private val compositionLocalScopeList = arrayListOf<ProvidableCompositionLocal<*>>() // for memoization
+    @Composable
+    internal fun<T: Route> getLocalController(key: KClass<T>): ProvidableCompositionLocal<Controller<T>?> {
+        compositionLocalScopeList.asReversed().fastForEach { scope ->
+            val controller = scope.current as? Controller<*>
+            if (controller?.key == key) return scope as ProvidableCompositionLocal<Controller<T>?>
+        }
+        val scope = compositionLocalOf<Controller<T>?> { null }
+        compositionLocalScopeList.add(scope)
+        return scope
     }
-    val scope = compositionLocalOf<ComposeNavigator.Controller<T>?> { null }
-    compositionLocalScopeList.add(scope)
-    return scope
 }
 
 private val LocalNavigator = staticCompositionLocalOf<ComposeNavigator> { throw Exception("Compose Navigator not set. Did you forgot to call \"Navigator.Setup\"?") }
@@ -880,6 +885,7 @@ private inline fun <T> rememberComposable(calculation: @Composable () -> T): T {
 }
 
 private fun Context.findActivity(): ComponentActivity {
+    if (this is ComponentActivity) return this
     if (this is ContextWrapper) {
         val baseContext = this.baseContext
         if (baseContext is ComponentActivity) return baseContext
