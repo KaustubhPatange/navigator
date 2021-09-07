@@ -107,7 +107,7 @@ jobs:
           echo PUBLISH_MODE=snapshot >> "${{ github.workspace }}/.gradle/gradle.properties"
           echo PUBLISH_MODE=snapshot >> "${{ github.workspace }}/gradle/gradle.properties"
 
-          dir
+          ls
 
           cat "${{ github.workspace }}/gradle.properties"
           cat "${{ github.workspace }}/.gradle/gradle.properties"
