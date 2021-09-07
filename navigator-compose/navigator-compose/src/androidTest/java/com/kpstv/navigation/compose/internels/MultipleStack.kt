@@ -6,6 +6,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -157,7 +158,11 @@ internal fun NextScreenFirst(next: () -> Unit) {
             Button(onClick = ::dismiss) {
                 Text(stringResource(id = R.string.close))
             }
+            Button(onClick = { nextScreenController.closeDialog(DismissDialog::class) }) {
+                Text(stringResource(id = R.string.force_close))
+            }
         }
+        LaunchedEffect(Unit) { twiceClose.value = false }
     }
 
     // Nested navigation
@@ -180,10 +185,10 @@ internal fun NextScreenFirst(next: () -> Unit) {
                     is NavigationDialogRoute.Second -> {
                         Column(modifier = Modifier.height(300.dp)) {
                             Text("${dest::class.qualifiedName.toString()}: ${dest.message}")
-                            Button(onClick = ::dismiss) {
+                            Button(onClick = ::goBack) {
                                 Text(stringResource(id = R.string.go_back))
                             }
-                            Button(onClick = { nextScreenController.closeDialog(NavigationDialog::class) }) {
+                            Button(onClick = ::dismiss) {
                                 Text(stringResource(id = R.string.close))
                             }
                         }

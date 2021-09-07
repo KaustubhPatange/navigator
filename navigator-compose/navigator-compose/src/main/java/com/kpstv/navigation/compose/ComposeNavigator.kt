@@ -236,21 +236,24 @@ public class ComposeNavigator private constructor(private val activity: Componen
             }
 
         /**
-         * Attempts to dismiss this dialog.
+         * Go back in [dialogNavigator] & returns the route.
+         */
+        public fun goBack(): Route? {
+            return navigator?.goBack()
+        }
+
+        /**
+         * Dismisses the dialog.
          *
          * This will first call [handleOnDismissRequest] to determine whether the dismiss request
          * is handled or not. If `true` then it will return null otherwise proceeds to close the dialog.
          *
-         * The default implementation of [handleOnDismissRequest] returns false which will
-         * close the dialog.
+         * The default implementation of [handleOnDismissRequest] in [Controller.CreateDialog] returns false.
          *
          * @see Controller.CreateDialog
          */
         public fun dismiss(): DialogRoute? {
-            val pop = navigator?.goBack()
-            if (pop == null) {
-                if (!handleOnDismissRequest()) return forceCloseDialog()
-            }
+            if (!handleOnDismissRequest()) return forceCloseDialog()
             return null
         }
 
@@ -316,7 +319,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 if (!isEmpty()) {
                     val peek = peek()
                     val scope = dialogScopes.findLast { it.dialogRoute === peek }
-                    return scope?.dismiss() // eventually calls remove(peek::class)
+                    scope?.goBack() ?: return scope?.dismiss() // eventually calls remove(peek::class)
                 }
                 return null
             }
@@ -536,7 +539,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             @Composable
             fun Inner(peek: DialogRoute) {
                 val dialogScope = remember { history.dialogHistory.createDialogScope(peek, handleOnDismissRequest) }
-                Dialog(onDismissRequest = { dialogScope.dismiss() }, properties = dialogProperties) {
+                Dialog(onDismissRequest = { dialogScope.goBack() ?: dialogScope.dismiss() }, properties = dialogProperties) {
                     content(dialogScope as DialogScope<T>)
                 }
             }
@@ -574,7 +577,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
         /**
          * Force dismiss an ongoing dialog which is currently being shown or was in the backStack. This
-         * respects neither [handleOnDismissRequest] nor [dialogNavigator]'s backstack.
+         * respects neither [handleOnDismissRequest] nor [DialogScope.goBack]'s backstack.
          *
          * @param key The key that was used to [CreateDialog].
          * @throws IllegalStateException When the dialog associated with the [key] does not exist in the backstack.

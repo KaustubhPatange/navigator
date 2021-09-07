@@ -44,6 +44,7 @@ public final class com/kpstv/navigation/compose/ComposeNavigator$DialogScope {
 	public final fun dismiss ()Lcom/kpstv/navigation/compose/DialogRoute;
 	public final fun getDialogNavigator (Landroidx/compose/runtime/Composer;I)Lcom/kpstv/navigation/compose/ComposeNavigator;
 	public final fun getDialogRoute ()Lcom/kpstv/navigation/compose/DialogRoute;
+	public final fun goBack ()Lcom/kpstv/navigation/compose/Route;
 }
 
 public final class com/kpstv/navigation/compose/ComposeNavigatorKt {

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **Breaking Change**: Dismiss() in `DialogScope` does not respects the `dialogNavigator`'s backstack, use `goBack()`.
+- **Fixed**: CompositionLocalScope will not be properly removed when composition disposes.
+
 ## Version `0.1-alpha20` _(2021-09-05)_
 
 - **Added**: `getCurrentRouteAsFlow` method to observe changes to current destination.

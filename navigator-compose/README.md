@@ -31,7 +31,7 @@ dependencies {
 }
 ```
 
-#### Snapshots
+- #### Snapshots
 
 Snapshots of the current development version of `navigator-compose` are available, which track the latest commit. See [here](https://github.com/KaustubhPatange/navigator/wiki/Using-a-Snapshot-Version) for more information.
 

@@ -489,6 +489,10 @@ fun FavouriteMenuItem() {
                             Button(onClick = { controller.goBack() }) {
                                 Text(text = "Go back")
                             }
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Button(onClick = ::dismiss) {
+                                Text(text = "Dismiss")
+                            }
                         }
                     }
                 }

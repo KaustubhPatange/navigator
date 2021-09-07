@@ -338,6 +338,8 @@ public class ComposeNavigatorTests {
     public fun HandleDismissRequestDialogTest() {
         val go_to_forth = composeTestRule.activity.getString(R.string.go_to_forth)
         val dismiss_dialog_button = composeTestRule.activity.getString(R.string.dismiss_dialog)
+        val force_close = composeTestRule.activity.getString(R.string.force_close)
+        val close = composeTestRule.activity.getString(R.string.close)
 
         val dialog_text = DismissDialog::class.qualifiedName.toString()
 
@@ -356,6 +358,31 @@ public class ComposeNavigatorTests {
             composeTestRule.onNodeWithText(dialog_text).assertIsDisplayed()
 
             onBackPressed()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(dialog_text).assertDoesNotExist()
+
+            // We will use dismiss button which should work same as onBackPressed()
+
+            composeTestRule.onNodeWithText(dismiss_dialog_button).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(close).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(dialog_text).assertIsDisplayed()
+
+            composeTestRule.onNodeWithText(close).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(dialog_text).assertDoesNotExist()
+
+            // Now we will force close dialog (no twice)
+
+            composeTestRule.onNodeWithText(dismiss_dialog_button).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(force_close).performClick()
             composeTestRule.waitForIdle()
 
             composeTestRule.onNodeWithText(dialog_text).assertDoesNotExist()

@@ -9,6 +9,7 @@
     <string name="detail_dialog" formatted="false">Item: %1$s, Age: %2$d</string>
     <string name="go_back">Go back</string>
     <string name="close">Close</string>
+    <string name="force_close">Force Close</string>
     <string name="show_dialog">Show dialog</string>
     <string name="choose_item">Choose an item</string>
     <string name="dismiss_dialog">Dismiss request dialog</string>
