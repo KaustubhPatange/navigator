@@ -1,0 +1,35 @@
+// Publish all libraries using ./gradlew publishAll
+
+def getPublishMode() {
+    if (!rootProject.hasProperty("PUBLISH_MODE")) return null
+    return rootProject.property("PUBLISH_MODE")
+}
+
+tasks.register("publishAll") {
+    def mode = getPublishMode()
+    if (mode == "snapshot") {
+        println("Publishing snapshot builds")
+    } else {
+        println("Publishing release builds")
+    }
+
+    subprojects.forEach { child ->
+        if (child.plugins.hasPlugin("maven-publish")) {
+            if (mode == "snapshot") {
+                dependsOn(child.tasks.getByName("publish"))
+            } else {
+                def publish = child.tasks.getByName("publish")
+
+                def close = rootProject.tasks.getByName("closeRepository")
+                def release = rootProject.tasks.getByName("releaseRepository")
+
+                close.mustRunAfter(publish)
+                release.mustRunAfter(close)
+
+                dependsOn(publish)
+                dependsOn(close)
+                dependsOn(release)
+            }
+        }
+    }
+}

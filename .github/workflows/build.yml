@@ -98,3 +98,12 @@ jobs:
           path: |
             navigator/build/reports/androidTests/
             navigator-base-navigation/build/reports/androidTests/
+
+      - name: Publishing snapshots to Sonatype
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push' # only on push & master
+        continue-on-error: true
+        run: |
+          echo PUBLISH_MODE=snapshot >> gradle.properties
+          ./gradlew publishAll --stacktrace
+
+      - run: exit 0

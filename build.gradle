@@ -47,3 +47,5 @@ task runAllInstrumentedTest {
     dependsOn(t1)
     dependsOn(t2)
 }
+
+apply from: "${rootProject.projectDir}/gradle/root.gradle"

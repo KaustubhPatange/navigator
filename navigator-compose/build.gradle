@@ -35,19 +35,4 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-tasks.register("publishSnapshot") {
-    subprojects.forEach { child ->
-        if (child.plugins.hasPlugin("maven-publish")) {
-            def publish = child.tasks.getByName("publishSnapshotPublicationToSonatypeRepository")
-            def close = rootProject.tasks.getByName("closeRepository")
-            def release = rootProject.tasks.getByName("releaseRepository")
-
-            close.mustRunAfter(publish)
-            release.mustRunAfter(close)
-
-            dependsOn(publish)
-            dependsOn(close)
-            dependsOn(release)
-        }
-    }
-}
+apply from: "${rootProject.projectDir}/../gradle/root.gradle"

@@ -88,6 +88,7 @@ jobs:
         if: github.ref == 'refs/heads/master' && github.event_name == 'push' # only on push & master
         continue-on-error: true
         run: |
-          ./gradlew publishSnapshot --stacktrace
+          echo PUBLISH_MODE=snapshot >> gradle.properties
+          ./gradlew publishAll --stacktrace
 
       - run: exit 0

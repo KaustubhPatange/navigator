@@ -74,52 +74,26 @@ nexusStaging {
 
 def getSnapshotVersion() {
     def lastCommit = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
-    return "$PUBLISH_VERSION-SNAPSHOT-$lastCommit"
+    return "$PUBLISH_VERSION-$lastCommit-SNAPSHOT"
+}
+
+def getPublishMode() {
+    if (!rootProject.hasProperty("PUBLISH_MODE")) return null
+    return rootProject.property("PUBLISH_MODE")
 }
 
 afterEvaluate {
     publishing {
+        def mode = getPublishMode()
+
         publications {
-            snapshot(MavenPublication) {
-                from components.release
-                artifact androidSourcesJar
-
-                groupId = 'io.github.kaustubhpatange'
-                artifactId = PUBLISH_ARTIFACT_ID
-                version = getSnapshotVersion()
-
-                pom {
-                    name = PUBLISH_ARTIFACT_ID
-                    description = 'A small navigation library to ease the use of fragment transactions & handling backstack.'
-                    url = 'https://github.com/KaustubhPatange/navigator'
-                    licenses {
-                        license {
-                            name = 'The Apache License, Version 2.0'
-                            url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
-                        }
-                    }
-                    developers {
-                        developer {
-                            id = 'kp2016'
-                            name = 'Kaustubh Patange'
-                            email = 'developerkp16@gmail.com'
-                        }
-                    }
-                    // Version control info, if you're using GitHub, follow the format as seen here
-                    scm {
-                        connection = 'scm:git:github.com/KaustubhPatange/navigator.git'
-                        developerConnection = 'scm:git:ssh://github.com/KaustubhPatange/navigator.git'
-                        url = 'https://github.com/KaustubhPatange/navigator/tree/master'
-                    }
-                }
-            }
             release(MavenPublication) {
                 from components.release
                 artifact androidSourcesJar
 
                 groupId = 'io.github.kaustubhpatange'
                 artifactId = PUBLISH_ARTIFACT_ID
-                version = PUBLISH_VERSION
+                version = mode == "snapshot" ? getSnapshotVersion() : PUBLISH_VERSION
 
                 pom {
                     name = PUBLISH_ARTIFACT_ID
@@ -158,8 +132,7 @@ afterEvaluate {
                 def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
                 // You only need this if you want to publish snapshots, otherwise just set the URL
                 // to the release repo directly
-                url = version.contains("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
-
+                url = mode == "snapshot" ? snapshotsRepoUrl : releasesRepoUrl
                 // The username and password we've fetched earlier
                 credentials {
                     username ossrhUsername
