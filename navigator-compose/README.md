@@ -31,6 +31,10 @@ dependencies {
 }
 ```
 
+#### Snapshots
+
+Snapshots of the current development version of `navigator-compose` are available, which track the latest commit. See [here](https://github.com/KaustubhPatange/navigator/wiki/Using-a-Snapshot-Version) for more information.
+
 ## Samples
 
 - [Basic sample](/samples/basic-sample) - Demonstrates forward & backward navigation with animations as well as setup of Bottom Navigation supporting multiple backstack.
