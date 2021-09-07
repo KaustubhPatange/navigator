@@ -3,7 +3,9 @@
 ## Unreleased
 
 - **Breaking Change**: Dismiss() in `DialogScope` does not respects the `dialogNavigator`'s backstack, use `goBack()`.
+- **Added**: `canGoBack()` to determine if backward navigation is possible or not.
 - **Fixed**: CompositionLocalScope will not be properly removed when composition disposes.
+- **Fixed**: `getAllHistory()` on empty backstack causes Collection empty exception.
 
 ## Version `0.1-alpha20` _(2021-09-05)_
 

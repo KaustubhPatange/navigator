@@ -627,6 +627,20 @@ public class ComposeNavigator private constructor(private val activity: Componen
     }
 
     /**
+     * Recursive reverse calls to [History.canGoBack] from [backStackMap] to identify if back navigation is possible or not.
+     */
+    public fun canGoBack(): Boolean {
+        val last = backStackMap.lastValue()
+        if (last?.canGoBackDialog() == true) return true
+        if (backStackMap.size > 1) {
+            val aggregate = backStackMap.values.sumOf { it.get().size }
+            if (aggregate == backStackMap.size) return false
+            return true
+        }
+        return last?.canGoBack() == true
+    }
+
+    /**
      * Recursive reverse call to [History.canGoBack] to identify if back navigation is possible or not.
      *
      * If possible then the [History.pop] will be called to remove the last item from the backstack.
@@ -660,20 +674,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         return popped?.key
-    }
-
-    /**
-     * Recursive reverse call to [History.canGoBack] to identify if back navigation is possible or not.
-     */
-    internal fun canGoBack(): Boolean {
-        val last = backStackMap.lastValue()
-        if (last?.canGoBackDialog() == true) return true
-        if (backStackMap.size > 1) {
-            val aggregate = backStackMap.values.sumOf { it.get().size }
-            if (aggregate == backStackMap.size) return false
-            return true
-        }
-        return last?.canGoBack() == true
     }
 
     private val backPressHandler = object : OnBackPressedCallback(true) {

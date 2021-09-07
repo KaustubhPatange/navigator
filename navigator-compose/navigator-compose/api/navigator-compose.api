@@ -3,6 +3,7 @@ public final class com/kpstv/navigation/compose/ComposeNavigator {
 	public static final field Companion Lcom/kpstv/navigation/compose/ComposeNavigator$Companion;
 	public synthetic fun <init> (Landroidx/activity/ComponentActivity;Landroid/os/Bundle;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun Setup (Landroidx/compose/ui/Modifier;Lkotlin/reflect/KClass;Lcom/kpstv/navigation/compose/Route;Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
+	public final fun canGoBack ()Z
 	public final fun getAllHistory ()Ljava/util/List;
 	public final fun getAllKeys ()Ljava/util/List;
 	public final fun getHistory (Lkotlin/reflect/KClass;)Ljava/util/List;
