@@ -103,7 +103,7 @@ jobs:
         if: github.ref == 'refs/heads/master' && github.event_name == 'push' # only on push & master
         continue-on-error: true
         run: |
-          echo "PUBLISH_MODE=snapshot" >> "${{ github.workspace }}/gradle.properties"
+          echo "\nPUBLISH_MODE=snapshot" >> "${{ github.workspace }}/gradle.properties"
 
           ls
 
