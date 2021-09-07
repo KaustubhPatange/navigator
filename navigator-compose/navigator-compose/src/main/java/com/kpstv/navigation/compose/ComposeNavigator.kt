@@ -870,9 +870,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
 private val LocalNavigator = staticCompositionLocalOf<ComposeNavigator> { throw Exception("Compose Navigator not set. Did you forgot to call \"Navigator.Setup\"?") }
 
-private fun<K, V> Map<K,V>.lastKey(): K? = keys.last()
-private fun<K, V> Map<K,V>.lastValue(): V? = get(keys.last())
-private fun<K, V> MutableMap<K,V>.removeLastOrNull(): V? = remove(keys.last())
+private fun<K, V> Map<K,V>.lastKey(): K? = keys.lastOrNull()
+private fun<K, V> Map<K,V>.lastValue(): V? = get(keys.lastOrNull())
+private fun<K, V> MutableMap<K,V>.removeLastOrNull(): V? = remove(keys.lastOrNull())
 private fun<K, V> MutableMap<K, V>.bringToTop(key: K) = remove(key)?.let { put(key, it) }
 
 /**

@@ -103,15 +103,11 @@ jobs:
         if: github.ref == 'refs/heads/master' && github.event_name == 'push' # only on push & master
         continue-on-error: true
         run: |
-          echo PUBLISH_MODE=snapshot >> "${{ github.workspace }}/gradle.properties"
-          echo PUBLISH_MODE=snapshot >> "${{ github.workspace }}/.gradle/gradle.properties"
-          echo PUBLISH_MODE=snapshot >> "${{ github.workspace }}/gradle/gradle.properties"
+          echo "PUBLISH_MODE=snapshot" >> "${{ github.workspace }}/gradle.properties"
 
           ls
 
           cat "${{ github.workspace }}/gradle.properties"
-          cat "${{ github.workspace }}/.gradle/gradle.properties"
-          cat "${{ github.workspace }}/gradle/gradle.properties"
 
           ./gradlew publishAll --stacktrace
 
