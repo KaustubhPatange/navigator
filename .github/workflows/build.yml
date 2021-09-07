@@ -106,6 +106,13 @@ jobs:
           echo PUBLISH_MODE=snapshot >> "${{ github.workspace }}/gradle.properties"
           echo PUBLISH_MODE=snapshot >> "${{ github.workspace }}/.gradle/gradle.properties"
           echo PUBLISH_MODE=snapshot >> "${{ github.workspace }}/gradle/gradle.properties"
+
+          dir
+
+          cat "${{ github.workspace }}/gradle.properties"
+          cat "${{ github.workspace }}/.gradle/gradle.properties"
+          cat "${{ github.workspace }}/gradle/gradle.properties"
+
           ./gradlew publishAll --stacktrace
 
       - run: exit 0
