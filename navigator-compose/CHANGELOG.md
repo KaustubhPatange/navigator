@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased
+## Version `0.1-alpha21` _(2021-09-11)_
 
 - **Breaking Change**: Dismiss() in `DialogScope` does not respects the `dialogNavigator`'s backstack, use `goBack()`.
 - **Added**: `canGoBack()` to determine if backward navigation is possible or not.
+- **Updated**: Jetpack Compose to version `v1.0.2`.
 - **Fixed**: CompositionLocalScope will not be properly removed when composition disposes.
 - **Fixed**: `getAllHistory()` on empty backstack causes Collection empty exception.
 
