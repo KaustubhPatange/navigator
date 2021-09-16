@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **Breaking Change**: `rememberController` renamed to `rememberNavController`.
+- **Breaking Change**: You must provide `Controller<T>` using `rememberNavController<T>()` during `Setup`. This removes the need of `controller` parameter scope in the content.
+
 ## Version `0.1-alpha21` _(2021-09-11)_
 
 - **Breaking Change**: Dismiss() in `DialogScope` does not respects the `dialogNavigator`'s backstack, use `goBack()`.

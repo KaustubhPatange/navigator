@@ -50,14 +50,14 @@ public fun <T : Route> findController(key: KClass<T>): ComposeNavigator.Controll
  * navigation for Route [T].
  *
  * ```
- * val controller = rememberController()
+ * val controller = rememberNavController()
  * navigator.Setup(... , controller = controller) { _, dest ->
  *  ...
  * }
  * ```
  */
 @Composable
-public fun <T : Route> rememberController(): ComposeNavigator.Controller<T> {
+public fun <T : Route> rememberNavController(): ComposeNavigator.Controller<T> {
     return remember { ComposeNavigator.Controller() }
 }
 
@@ -743,7 +743,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
      * @see Controller
      */
     @Composable
-    public fun<T : Route> Setup(modifier: Modifier = Modifier, key: KClass<T>, initial: T, controller: Controller<T> = rememberController(), content: @Composable (controller: Controller<T>, dest: T) -> Unit) {
+    public fun<T : Route> Setup(modifier: Modifier = Modifier, key: KClass<T>, controller: Controller<T>, initial: T, content: @Composable (currentRoute: T) -> Unit) {
         val associateKey = remember {
             if (backStackMap.isNotEmpty()) {
                 backStackMap.lastValue()!!.getCurrentRecord().key::class
@@ -765,7 +765,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 val animation = if (history.lastTransactionStatus == History.NavType.Forward) record.animation else history.getCurrentRecord().animation
                 CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
                     saveableStateHolder.SaveableStateProvider(key = peek) {
-                        content(controllerInternal, peek)
+                        content(peek)
                     }
                 }
             }

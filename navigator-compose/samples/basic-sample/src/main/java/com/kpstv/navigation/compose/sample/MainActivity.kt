@@ -35,7 +35,6 @@ import com.kpstv.navigation.compose.sample.ui.galleryItems
 import com.kpstv.navigation.compose.sample.ui.theme.ComposeTestAppTheme
 import com.kpstv.navigation.compose.*
 import com.kpstv.navigation.compose.sample.ui.MenuItem
-import kotlinx.coroutines.flow.collect
 import kotlinx.parcelize.Parcelize
 
 class MainActivity : ComponentActivity() {
@@ -49,7 +48,7 @@ class MainActivity : ComponentActivity() {
             .initialize()
 
         setContent {
-            controller = rememberController()
+            controller = rememberNavController()
             ComposeTestAppTheme {
                 Surface(color = MaterialTheme.colors.background) {
                     StartScreen(
@@ -106,7 +105,7 @@ fun StartScreen(
         key = StartRoute.key,
         initial = startRoute,
         controller = controller
-    ) { _, dest ->
+    ) { dest ->
         val onChanged: (screen: StartRoute) -> Unit = { value ->
             controller.navigateTo(value) {
                 withAnimation {
@@ -159,10 +158,11 @@ sealed interface FirstRoute : Route {
 @Composable
 fun FirstScreen(data: String, goToSecond: (StartRoute) -> Unit) {
     val navigator = findComposeNavigator()
-    navigator.Setup(key = FirstRoute.key, initial = FirstRoute.Primary()) { controller, dest ->
+    val firstRouteController = rememberNavController<FirstRoute>()
+    navigator.Setup(key = FirstRoute.key, initial = FirstRoute.Primary(), controller = firstRouteController) { dest ->
         when (dest) {
             is FirstRoute.Primary -> PrimaryFirst(data, goToSecond) { route ->
-                controller.navigateTo(route) {
+                firstRouteController.navigateTo(route) {
                     withAnimation {
                         target = SlideRight
                         current = Fade
@@ -208,7 +208,7 @@ fun SecondScreen() {
         // undergo recomposition when destination is changed which looks
         // bad if animations are enabled.
 
-        val controller = rememberController<MenuItem>()
+        val controller = rememberNavController<MenuItem>()
         val destination = remember { mutableStateOf(MenuItem.Home() as MenuItem) }
 
         findComposeNavigator().Setup(
@@ -216,7 +216,7 @@ fun SecondScreen() {
             controller = controller,
             key = MenuItem.key,
             initial = MenuItem.Home()
-        ) { _, dest ->
+        ) { dest ->
             destination.value = dest
 
             Box(
@@ -268,10 +268,11 @@ fun SecondScreen() {
 @Composable
 fun Gallery() {
     val navigator = findComposeNavigator()
-    navigator.Setup(key = GalleryRoute.key, initial = GalleryRoute.Primary()) { controller, dest ->
+    val galleryController = rememberNavController<GalleryRoute>()
+    navigator.Setup(key = GalleryRoute.key, initial = GalleryRoute.Primary(), controller = galleryController) { dest ->
         when (dest) {
             is GalleryRoute.Primary -> PrimaryGallery {
-                controller.navigateTo(GalleryRoute.Detail(it)) {
+                galleryController.navigateTo(GalleryRoute.Detail(it)) {
                     withAnimation {
                         target = Fade
                         current = Fade
@@ -457,7 +458,8 @@ fun FavouriteMenuItem() {
                 .clipToBounds() // clip content within the bounds, needed for animation to not look weird.
                 .border(1.dp, color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f))
         ) {
-            dialogNavigator.Setup(key = DialogScopeRoute.key, initial = DialogScopeRoute.First()) { controller, dest ->
+            val dialogScopeController = rememberNavController<DialogScopeRoute>()
+            dialogNavigator.Setup(key = DialogScopeRoute.key, initial = DialogScopeRoute.First(), controller = dialogScopeController) { dest ->
                 when(dest) {
                     is DialogScopeRoute.First -> {
                         Column(modifier = Modifier
@@ -467,7 +469,7 @@ fun FavouriteMenuItem() {
                             Text(text = "You are on first screen")
                             Spacer(modifier = Modifier.height(20.dp))
                             Button(onClick = {
-                                controller.navigateTo(DialogScopeRoute.Second()) {
+                                dialogScopeController.navigateTo(DialogScopeRoute.Second()) {
                                     // Enable animations as well
                                     /*withAnimation {
                                         target = SlideRight
@@ -516,12 +518,14 @@ fun ReusableComponent(text: String) {
 
 @Composable
 fun ThirdScreen() {
+    val thirdRouteController = rememberNavController<ThirdRoute>()
     findComposeNavigator().Setup(
         key = ThirdRoute.key,
-        initial = ThirdRoute.Third1() as ThirdRoute
-    ) { controller, dest ->
+        initial = ThirdRoute.Third1() as ThirdRoute,
+        controller = thirdRouteController
+    ) { dest ->
         val onChanged: (ThirdRoute) -> Unit = { screen ->
-            controller.navigateTo(screen) {
+            thirdRouteController.navigateTo(screen) {
                 withAnimation {
                     target = SlideWithFadeRight
                     current = SlideWithFadeLeft

@@ -19,9 +19,8 @@ import kotlinx.parcelize.Parcelize
 @Composable
 public fun MultipleStackScreen() {
     Column {
-        var controller: ComposeNavigator.Controller<MultipleStack>? = null
-        findComposeNavigator().Setup(modifier = Modifier.weight(1f), key = MultipleStack.key, initial = MultipleStack.First() as MultipleStack) { con, dest ->
-            controller = con
+        val controller = rememberNavController<MultipleStack>()
+        findComposeNavigator().Setup(modifier = Modifier.weight(1f), key = MultipleStack.key, initial = MultipleStack.First() as MultipleStack, controller = controller) { dest ->
             when(dest) {
                 is MultipleStack.Third -> NextScreen()
                 else -> ReusableScreen(dest::class.qualifiedName!!)
@@ -30,7 +29,7 @@ public fun MultipleStackScreen() {
         Row {
             0.rangeTo(2).forEach { value ->
                 val route = MultipleStack.getRouteFromIndex(value)
-                Button(onClick = { controller?.navigateTo(route) }) {
+                Button(onClick = { controller.navigateTo(route) }) {
                     Text(route::class.simpleName!!)
                 }
             }
@@ -71,7 +70,8 @@ public sealed class NextRoute : Route {
 
 @Composable
 internal fun NextScreen() {
-    findComposeNavigator().Setup(key = NextRoute.key, initial = NextRoute.First() as NextRoute) { controller, dest ->
+    val controller = rememberNavController<NextRoute>()
+    findComposeNavigator().Setup(key = NextRoute.key, initial = NextRoute.First() as NextRoute, controller = controller) { dest ->
         when(dest) {
             is NextRoute.First -> NextScreenFirst { controller.navigateTo(NextRoute.Second()) }
             is NextRoute.Second -> ReusableScreen(dest::class.qualifiedName!!)
@@ -170,7 +170,8 @@ internal fun NextScreenFirst(next: () -> Unit) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.background)) {
-            dialogNavigator.Setup(key = NavigationDialogRoute::class, initial = NavigationDialogRoute.First()) { controller, dest ->
+            val controller = rememberNavController<NavigationDialogRoute>()
+            dialogNavigator.Setup(key = NavigationDialogRoute::class, initial = NavigationDialogRoute.First(), controller = controller) { dest ->
                 when(dest) {
                     is NavigationDialogRoute.First -> {
                         Column(modifier = Modifier.height(300.dp)) {

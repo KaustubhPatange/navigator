@@ -1,7 +1,6 @@
 package com.kpstv.navigation.compose.internels
 
 import android.os.Bundle
-import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
@@ -21,10 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.kpstv.navigation.compose.ComposeNavigator
-import com.kpstv.navigation.compose.Route
-import com.kpstv.navigation.compose.findComposeNavigator
-import com.kpstv.navigation.compose.findController
+import com.kpstv.navigation.compose.*
 import com.kpstv.navigation.compose.test.R
 import kotlinx.parcelize.Parcelize
 
@@ -56,7 +52,8 @@ public sealed class StartRoute : Route {
 
 @Composable
 public fun StartScreen(navigator: ComposeNavigator) {
-    navigator.Setup(key = StartRoute.key, initial = StartRoute.First(stringResource(R.string.app_name)) as StartRoute) { controller, dest ->
+    val controller = rememberNavController<StartRoute>()
+    navigator.Setup(key = StartRoute.key, initial = StartRoute.First(stringResource(R.string.app_name)) as StartRoute, controller = controller) { dest ->
         when(dest) {
             is StartRoute.First -> StartFirstScreen(
                 data = dest.data,
@@ -121,7 +118,8 @@ public sealed class ThirdRoute : Route {
 @Composable
 public fun ThirdScreen() {
     val navigator = findComposeNavigator()
-    navigator.Setup(key = ThirdRoute.key, initial = ThirdRoute.Primary() as ThirdRoute) { controller, dest ->
+    val controller = rememberNavController<ThirdRoute>()
+    navigator.Setup(key = ThirdRoute.key, initial = ThirdRoute.Primary() as ThirdRoute, controller = controller) { dest ->
         when(dest) {
             is ThirdRoute.Primary -> ThirdPrimaryScreen { controller.navigateTo(ThirdRoute.Secondary(it)) }
             is ThirdRoute.Secondary -> ThirdSecondaryScreen(dest.item)
