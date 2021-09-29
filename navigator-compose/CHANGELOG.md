@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## Version `0.1-alpha22` _(2021-09-29)_
 
 - **Breaking Change**: `rememberController` renamed to `rememberNavController`.
 - **Breaking Change**: You must provide `Controller<T>` using `rememberNavController<T>()` during `Setup`. This removes the need of `controller` parameter scope in the content.
