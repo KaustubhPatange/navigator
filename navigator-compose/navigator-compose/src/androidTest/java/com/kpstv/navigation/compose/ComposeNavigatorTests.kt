@@ -10,6 +10,7 @@ import com.kpstv.navigation.compose.test.R
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.reflect.full.createInstance
 
 @RunWith(AndroidJUnit4::class)
 public class ComposeNavigatorTests {
@@ -386,6 +387,31 @@ public class ComposeNavigatorTests {
             composeTestRule.waitForIdle()
 
             composeTestRule.onNodeWithText(dialog_text).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    public fun goBackUntilTest() {
+        val go_to_second = composeTestRule.activity.getString(R.string.go_to_second)
+
+        fun getNextScreenText(route: StartRoute) : String {
+            return composeTestRule.activity.getString(R.string.navigate_to, route::class.simpleName.toString())
+        }
+
+        fun fillAll() {
+            val secondXClasses = StartRoute::class.nestedClasses.filter { it.simpleName?.contains("Second(\\d+)".toRegex()) == true }.sortedBy { it.simpleName }
+            secondXClasses.forEach { clazz ->
+                val nextScreen = getNextScreenText(clazz.createInstance() as StartRoute)
+                composeTestRule.onNodeWithText(nextScreen).performClick()
+                composeTestRule.waitForIdle()
+            }
+        }
+
+        composeTestRule.activity.apply {
+            composeTestRule.onNodeWithText(go_to_second).performClick()
+            composeTestRule.waitForIdle()
+
+            fillAll()
         }
     }
 }

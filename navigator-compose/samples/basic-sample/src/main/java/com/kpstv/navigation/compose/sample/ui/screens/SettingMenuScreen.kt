@@ -1,0 +1,80 @@
+package com.kpstv.navigation.compose.sample.ui.screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.kpstv.navigation.compose.*
+import com.kpstv.navigation.compose.sample.StartRoute
+import com.kpstv.navigation.compose.sample.ui.MenuItem
+import kotlinx.parcelize.Parcelize
+
+sealed class SettingRoute : Route {
+    @Parcelize @Immutable
+    data class First(private val noArg: String = "") : SettingRoute()
+    @Parcelize @Immutable
+    data class Second(private val noArg: String = "") : SettingRoute()
+    companion object { val key = SettingRoute::class }
+}
+
+@Composable
+fun SettingScreen() {
+    val navigator = findComposeNavigator()
+    val settingController = rememberNavController<SettingRoute>()
+    navigator.Setup(key = SettingRoute.key, controller = settingController, initial = SettingRoute.First()) { dest ->
+        when(dest) {
+            is SettingRoute.First -> FirstSettingScreen()
+            is SettingRoute.Second -> SecondSettingScreen()
+        }
+    }
+}
+
+@OptIn(UnstableNavigatorApi::class)
+@Composable
+private fun FirstSettingScreen() {
+    val navigator = findComposeNavigator()
+    val settingController = findController(key = SettingRoute.key)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(onClick = { settingController.navigateTo(SettingRoute.Second()) {
+            withAnimation {
+                target = Fade
+                current = Fade
+            }
+        } }) {
+            Text(text = "Go to Settings:Second")
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Button(onClick = { navigator.goBackUntil(StartRoute.Second::class, inclusive = false) }) { // equivalent to "navigator.goBackUntil(MenuItem.Home::class)"
+            Text(text = "Go to StartRoute:Second navigation")
+        }
+    }
+}
+
+@OptIn(UnstableNavigatorApi::class)
+@Composable
+private fun SecondSettingScreen() {
+    val navigator = findComposeNavigator()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.DarkGray),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(onClick = { navigator.goBackUntil(MenuItem.Home::class, inclusive = false) }) {
+            Text(text = "Go to Menu screen: Home")
+        }
+    }
+}

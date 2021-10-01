@@ -35,6 +35,7 @@ import com.kpstv.navigation.compose.sample.ui.galleryItems
 import com.kpstv.navigation.compose.sample.ui.theme.ComposeTestAppTheme
 import com.kpstv.navigation.compose.*
 import com.kpstv.navigation.compose.sample.ui.MenuItem
+import com.kpstv.navigation.compose.sample.ui.screens.SettingScreen
 import kotlinx.parcelize.Parcelize
 
 class MainActivity : ComponentActivity() {
@@ -227,7 +228,7 @@ fun SecondScreen() {
                 when (dest) {
                     is MenuItem.Home -> Gallery()
                     is MenuItem.Favourite -> FavouriteMenuItem()
-                    else -> ReusableComponent(dest.toString())
+                    is MenuItem.Settings -> SettingScreen()
                 }
             }
         }
@@ -500,19 +501,6 @@ fun FavouriteMenuItem() {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun ReusableComponent(text: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text)
     }
 }
 

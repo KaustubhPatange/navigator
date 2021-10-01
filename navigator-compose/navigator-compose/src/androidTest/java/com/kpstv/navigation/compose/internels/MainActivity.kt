@@ -43,6 +43,18 @@ public sealed class StartRoute : Route {
     @Parcelize
     public data class Second(private val noArg: String = "") : StartRoute()
     @Parcelize
+    public data class Second1(private val noArg: String = "") : StartRoute()
+    @Parcelize
+    public data class Second2(private val noArg: String = "") : StartRoute()
+    @Parcelize
+    public data class Second3(private val noArg: String = "") : StartRoute()
+    @Parcelize
+    public data class Second4(private val noArg: String = "") : StartRoute()
+    @Parcelize
+    public data class Second5(private val noArg: String = "") : StartRoute()
+    @Parcelize
+    public data class Second6(private val noArg: String = "") : StartRoute()
+    @Parcelize
     public data class Third(private val noArg: String = "") : StartRoute()
     @Parcelize public data class Forth(private val noArg: String = "") : StartRoute()
     internal companion object {
@@ -62,6 +74,12 @@ public fun StartScreen(navigator: ComposeNavigator) {
                 goToForth = { controller.navigateTo(StartRoute.Forth()) }
             )
             is StartRoute.Second -> StartSecondScreen()
+            is StartRoute.Second1 -> StartSecondXScreen(dest::class.qualifiedName.toString(), StartRoute.Second2())
+            is StartRoute.Second2 -> StartSecondXScreen(dest::class.qualifiedName.toString(), StartRoute.Second3())
+            is StartRoute.Second3 -> StartSecondXScreen(dest::class.qualifiedName.toString(), StartRoute.Second4())
+            is StartRoute.Second4 -> StartSecondXScreen(dest::class.qualifiedName.toString(), StartRoute.Second5())
+            is StartRoute.Second5 -> StartSecondXScreen(dest::class.qualifiedName.toString(), StartRoute.Second6())
+            is StartRoute.Second6 -> StartSecondXScreen(dest::class.qualifiedName.toString(), null)
             is StartRoute.Third -> ThirdScreen()
             is StartRoute.Forth -> MultipleStackScreen()
         }
@@ -94,16 +112,33 @@ public fun StartSecondScreen() {
         }
         Button(onClick = {
             controller.navigateTo(StartRoute.Third()) {
-                popUpTo(controller.getAllHistory().first()) {
+                popUpTo(controller.getAllHistory().first()::class) {
                     inclusive = false // should be equivalent to history First, Third
                 }
             }
         }) {
             Text(text = stringResource(id = R.string.go_to_third))
         }
+        Button(onClick = { controller.navigateTo(StartRoute.Second1()) }) {
+            Text(text = stringResource(id = R.string.navigate_to, StartRoute.Second1::class.simpleName.toString()))
+        }
     }
 }
 
+@Composable
+public fun StartSecondXScreen(text: String, nextRoute: StartRoute?) {
+    val controller = findController(StartRoute.key)
+    Column {
+        Text(text = text)
+        if (nextRoute != null) {
+            Button(onClick = {
+                controller.navigateTo(nextRoute)
+            }) {
+                Text(text = stringResource(id = R.string.navigate_to, nextRoute::class.simpleName.toString()))
+            }
+        }
+    }
+}
 
 public sealed class ThirdRoute : Route {
     @Parcelize

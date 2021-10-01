@@ -28,6 +28,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.parcelize.Parcelize
 import kotlin.reflect.KClass
 
+@RequiresOptIn("The method is highly experimental & unstable and may not work correct in some edge cases.")
+public annotation class UnstableNavigatorApi
+
 /**
  * Find the [ComposeNavigator] provided by the nearest CompositionLocalProvider.
  */
@@ -65,7 +68,6 @@ public fun <T : Route> rememberNavController(): ComposeNavigator.Controller<T> {
  * Destination must implement this interface to identify as Key for the root.
  */
 public interface Route : Parcelable
-
 /**
  * Destination must implement this interface to identify as Route for Dialog.
  */
@@ -99,13 +101,13 @@ public data class NavOptions<T : Route>(
      *            this will recursively pop till the first one in the backstack. Otherwise, the last
      *            added one will be chosen.
      */
-    public data class PopUpOptions<T: Route>(internal var dest: T, var inclusive: Boolean = true, var all: Boolean = false)
+    public data class PopUpOptions<T: Route>(internal var dest: KClass<out T>, var inclusive: Boolean = true, var all: Boolean = false)
 
     /**
      * Pop up to the destination. Additional parameters can be set through [options] DSL.
      */
-    public fun popUpTo(dest: T, options: PopUpOptions<T>.() -> Unit = {}) {
-        popOptions = PopUpOptions(dest).apply(options)
+    public fun popUpTo(destKey: KClass<out T>, options: PopUpOptions<T>.() -> Unit = {}) {
+        popOptions = PopUpOptions(destKey).apply(options)
     }
 
     /**
@@ -269,7 +271,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
     /**
      * [associateKey] A parent key for this [key]. This means [associateKey] has setup navigation for this [key].
      */
-    internal class History<T : Route> internal constructor(private val key: KClass<T>, internal val associateKey: KClass<out Route>?, internal val initial: T) {
+    internal class History<T : Route> internal constructor(internal val key: KClass<T>, internal var associateKey: KClass<out Route>?, internal val initial: T) {
         companion object {
             private const val LAST_REMOVED_ITEM_KEY = "history:last_item:key"
             private const val LAST_REMOVED_ITEM_ANIMATION = "history:last_item:animation"
@@ -365,10 +367,10 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
         internal fun get(): List<BackStackRecord<T>> = backStack
 
-        internal fun set(elements: List<BackStackRecord<T>>) {
+        internal fun set(elements: List<BackStackRecord<T>>, navType: NavType) {
             if (elements != backStack) {
                 current = elements.last()
-                lastTransactionStatus = NavType.Forward
+                lastTransactionStatus = navType
                 backStack = elements
             }
         }
@@ -380,6 +382,23 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 current = backStack.last()
                 backStack = backStack.subList(0, backStack.lastIndex)
                 return current
+            }
+            return null
+        }
+        internal fun popUntil(key: KClass<out T>, inclusive: Boolean) : List<BackStackRecord<T>>? {
+            val index = backStack.indexOfLast { it.key::class == key }
+            if (index != -1) {
+                val root = backStack.first()
+                val clamp = if (inclusive) index else minOf(index + 1, backStack.size)
+
+                val final = backStack.subList(0, clamp).ifEmpty { listOf(root) }
+                val exclusive = backStack.intersect(final).toList()
+
+                lastTransactionStatus = NavType.Backward
+                current = backStack.last()
+                backStack = final
+
+                return exclusive
             }
             return null
         }
@@ -455,9 +474,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
             val popOptions = current.popOptions
             if (popOptions != null) { // recursive remove till pop options
                 val dest = if (popOptions.all)
-                    snapshot.find { it.key == popOptions.dest }
+                    snapshot.find { it.key::class == popOptions.dest }
                 else
-                    snapshot.findLast { it.key == popOptions.dest }
+                    snapshot.findLast { it.key::class == popOptions.dest }
                 val index = snapshot.indexOf(dest)
                 if (index != -1) {
                     val clamp = if (popOptions.inclusive) index else minOf(index + 1, snapshot.lastIndex)
@@ -482,7 +501,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             }
             navigator.backStackMap.bringToTop(key)
 
-            history.set(snapshot)
+            history.set(snapshot, History.NavType.Forward)
         }
 
         /**
@@ -517,6 +536,23 @@ public class ComposeNavigator private constructor(private val activity: Componen
          * @return The removed key.
          */
         public fun goBack(): T? = navigator?.goBack() as? T
+
+        /**
+         * Go back until the required destination is satisfied by [destKey] parameter ([inclusive] or not).
+         *
+         * @throws IllegalArgumentException if [destKey] doesn't exist in the backstack.
+         * @return List of removed keys else empty if nothing is removed.
+         */
+        public fun goBackUntil(destKey: KClass<out T>, inclusive: Boolean = true): List<T> {
+            val history = history
+            val navigator = navigator
+            checkNotNull(history) { "Cannot perform this operation until navigator is not set." }
+            checkNotNull(navigator) { "Cannot perform this operation until navigator is not set." }
+
+            val exclusive = history.popUntil(destKey, inclusive)?.map { it.key } ?: throw IllegalArgumentException("Required key: $destKey does not exist in the backstack")
+            exclusive.forEach { navigator.saveableStateHolder.removeState(it) }
+            return exclusive
+        }
 
         /**
          * Setup a composable that will be displayed in the [Dialog] with the backStack functionality.
@@ -645,7 +681,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
      *
      * If possible then the [History.pop] will be called to remove the last item from the backstack.
      */
-    private fun goBack(): Route? {
+    public fun goBack(): Route? {
         val last = backStackMap.lastValue()
 
         // dialogs
@@ -674,6 +710,128 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         return popped?.key
+    }
+
+    /**
+     * Go back call until destination is satisfied.
+     *
+     * @throws IllegalArgumentException if [destKey] doesn't exist in the backstack or [destKey] is [DialogRoute].
+     */
+    @UnstableNavigatorApi
+    public fun goBackUntil(destKey: KClass<out Route>, inclusive: Boolean = true): Boolean {
+        if (getAllHistory().none { it::class == destKey }) {
+            throw IllegalArgumentException("Required key: $destKey does not exist in the backstack.")
+        }
+        if (destKey is DialogRoute) throw IllegalArgumentException("Dialog routes are not supported.")
+
+        /* This works more like a heap compacting,
+         * Eg: BackStackMap where we want to pop until "d" (inclusive).
+         *     [key1 = {a,b,c} , key2 = {d,e,f} , key3 = {g,h,i}, key4 = {j,k,l}]
+         * We iterate through backstack in reverse order...
+         * 1st iteration -> key4
+         * -------------
+         *   It doesn't contain "d" so we will modify it to become key4 = {l}
+         *   essentially keeping only one item i.e current one
+         * 2nd iteration -> key3
+         * -------------
+         *   It doesn't contain "d" so we remove it completely from BackStackMap.
+         * 3rd iteration -> key2
+         * -------------
+         *   This contains "d" so we will modify it to become key2 = {d}.
+         *   Since "d" is the first time this is a special case,
+         *      where now we should pop till "c" exclusively from previous map.
+         *      our destKey becomes "c" & we remove this pair completely.
+         * 4th iteration -> key1 (special case)
+         * -------------
+         *   This contains "c" as item so no changes to the list.
+         *   (If suppose it was "b" then we modify it to become key1 = {a,b})
+         *
+         * Lastly our map looks like [key1 = {a,b,c} , key4 = {l}].
+         * Now we call [goBack] to go back with the animation; becoming [key1 = {a,b,c}]
+         */
+        var finalDestKey = destKey
+        var finalInclusive = inclusive
+
+        var firstIterationSet = false
+        var secondIterationSet = false
+
+        if (backStackMap.isNotEmpty()) {
+            var keys = backStackMap.keys.toList()
+            val lastRouteKey = backStackMap.lastKey()
+            for (i in keys.size - 1 downTo 0) {
+                if (firstIterationSet && secondIterationSet) break
+
+                val routeKey = keys[i]
+                val history = backStackMap[routeKey] as? History<out Route> ?: continue
+                val snapshot = history.get()
+                val index = snapshot.indexOfLast { it.key::class == finalDestKey }
+                // Key is present & is the current backstack but key is not the topKey.
+                if (index != -1 && routeKey == lastRouteKey && !finalInclusive) {
+                    // we found the key in the last map itself so popUntil & gracefully return
+                    history.popUntil(finalDestKey as KClass<Nothing>, finalInclusive)?.removeFromSaveableStateHolder()
+                    return true
+                // Key is present
+                } else if (index != -1 && !firstIterationSet) {
+                    val clamp = if (finalInclusive) index else minOf(index + 1, snapshot.size)
+                    val final = snapshot.subList(0, clamp)
+                    // Special case key is topKey & inclusive is true
+                    if (final.isEmpty() && i != 0) {
+                        finalDestKey = backStackMap[keys[i - 1]]!!.get().last().key::class // change key to last item from previous backstack
+                        finalInclusive = false
+                        if (routeKey == lastRouteKey) {
+                            val current = history.peek()
+                            history.get().filter { it != current }.removeFromSaveableStateHolder()
+                            history.set(listOf(current) as List<Nothing>, History.NavType.Forward)
+
+                            firstIterationSet = true
+                        }
+                        continue
+                    }
+                    snapshot.intersect(final).toList().removeFromSaveableStateHolder()
+                    history.set(final as List<Nothing>, History.NavType.Forward)
+
+                    firstIterationSet = true
+
+                // Key is not present but the current route key is the last route
+                } else if (index == -1 && routeKey == lastRouteKey && !secondIterationSet) {
+                    val current = history.peek()
+                    history.get().filter { it != current }.removeFromSaveableStateHolder()
+                    history.set(listOf(current) as List<Nothing>, History.NavType.Forward)
+
+                    secondIterationSet = true
+
+                // Key is not present & is neither the last route. Just remove it.
+                } else if (index == -1 && routeKey != lastRouteKey) {
+                    backStackMap.remove(routeKey)?.get()?.removeFromSaveableStateHolder()
+                }
+            }
+
+            if (backStackMap.size > 1) {
+                keys = backStackMap.keys.toList()
+                val lastBackStack = backStackMap.lastValue()!!
+                val secondLastBackStack = backStackMap[keys[keys.lastIndex - 1]]!!
+
+                // Special edge case when BackStackMap is [key1 = {a,b,c}, key2 = {d}, key3 = {e}]
+                // & we want to go to "d".
+                if (lastBackStack.get().count() == 1 && secondLastBackStack.get().count() == 1 ) {
+                    val last = secondLastBackStack.get().last()
+                    val finalElement = if (last.animation.current == None && last.animation.target == None)
+                        last.copy(animation = lastBackStack.get().last().animation) // We use animation defined by the current screen if None
+                    else
+                        last
+                    val mutatedSecondSnapshot = secondLastBackStack.get().plus(finalElement)
+                    secondLastBackStack.set(mutatedSecondSnapshot as List<Nothing>, History.NavType.Forward)
+
+                    val went = goBack() != null
+                    secondLastBackStack.set(listOf(last) as List<Nothing>, History.NavType.Forward)
+                    return went
+                }
+            }
+
+            return goBack() != null
+        }
+
+        return false
     }
 
     private val backPressHandler = object : OnBackPressedCallback(true) {
@@ -865,6 +1023,10 @@ public class ComposeNavigator private constructor(private val activity: Componen
         val scope = compositionLocalOf<Controller<T>?> { null }
         compositionLocalScopeList.add(scope)
         return scope
+    }
+
+    private fun List<History.BackStackRecord<out Route>>.removeFromSaveableStateHolder() {
+        forEach { saveableStateHolder.removeState(it.key) }
     }
 }
 
