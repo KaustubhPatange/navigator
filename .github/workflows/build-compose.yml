@@ -75,6 +75,7 @@ jobs:
 
       - name: Run Unit tests
         run: |
+          ./gradlew navigator-compose:test
           ./gradlew navigator-compose-lint:test
 
       # Test samples or code

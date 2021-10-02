@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Updated**: Jetpack Compose to version `v1.0.3` (requires Kotlin `v1.5.30`).
+- **Breaking Change**: `popUpTo` doesn't require destination instance, instead they now accept `Route` keys.
+- **Added**: `goBackUntil(dest)` similar to popUntil for `Controller<T>` as well as navigator.
+- **Added**: Exposed `navigator.goBack()` for managing backstack or manual handling of `onBackPressed()`.
+
 ## Version `0.1-alpha22` _(2021-09-29)_
 
 - **Breaking Change**: `rememberController` renamed to `rememberNavController`.

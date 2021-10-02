@@ -1,5 +1,6 @@
 package com.kpstv.navigation.compose
 
+import android.os.Bundle
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -10,7 +11,6 @@ import com.kpstv.navigation.compose.test.R
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.reflect.full.createInstance
 
 @RunWith(AndroidJUnit4::class)
 public class ComposeNavigatorTests {
@@ -390,28 +390,116 @@ public class ComposeNavigatorTests {
         }
     }
 
+    @Test // I don't like mocking so better be it an instrumented test
+    public fun DialogHistorySavedInstanceTest() {
+        var dialogHistory = ComposeNavigator.History.DialogHistory()
+        dialogHistory.createDialogScope(DialogRoutes.FirstDialog) { false }
+        dialogHistory.createDialogScope(DialogRoutes.SecondDialog) { false }
+
+        dialogHistory.add(DialogRoutes.FirstDialog)
+
+        val bundle = Bundle()
+        dialogHistory.saveState(bundle)
+
+        dialogHistory = ComposeNavigator.History.DialogHistory()
+
+        dialogHistory.restoreState(bundle)
+
+        assert(dialogHistory.peek() is DialogRoutes.FirstDialog)
+        assert(dialogHistory.count() == 1)
+    }
+
+    @OptIn(UnstableNavigatorApi::class)
     @Test
-    public fun goBackUntilTest() {
-        val go_to_second = composeTestRule.activity.getString(R.string.go_to_second)
+    public fun NavigatorGoBackUntilTest() {
 
-        fun getNextScreenText(route: StartRoute) : String {
-            return composeTestRule.activity.getString(R.string.navigate_to, route::class.simpleName.toString())
+        fun createDefaultNavigator() : ComposeNavigator {
+            val navigator = ComposeNavigator.with(composeTestRule.activity, null)
+                .disableDefaultBackPressLogic()
+                .disableOnSaveStateInstance()
+                .initialize()
+
+            val startRouteHistory = ComposeNavigator.History(StartRoute.key, null, StartRoute.First(""))
+            startRouteHistory.push(StartRoute.Second(""))
+            startRouteHistory.push(StartRoute.Third(""))
+
+            val nextRouteHistory = ComposeNavigator.History(NextRoute.key, StartRoute.Third::class, NextRoute.First())
+            nextRouteHistory.push(NextRoute.Second())
+
+            val thirdRouteHistory = ComposeNavigator.History(ThirdRoute.key, NextRoute.Second::class, ThirdRoute.Primary())
+            thirdRouteHistory.push(ThirdRoute.Secondary(GalleryItem("test", 0)))
+
+            navigator.backStackMap[StartRoute::class] = startRouteHistory
+            navigator.backStackMap[NextRoute::class] = nextRouteHistory
+            navigator.backStackMap[ThirdRoute::class] = thirdRouteHistory
+            return navigator
         }
 
-        fun fillAll() {
-            val secondXClasses = StartRoute::class.nestedClasses.filter { it.simpleName?.contains("Second(\\d+)".toRegex()) == true }.sortedBy { it.simpleName }
-            secondXClasses.forEach { clazz ->
-                val nextScreen = getNextScreenText(clazz.createInstance() as StartRoute)
-                composeTestRule.onNodeWithText(nextScreen).performClick()
-                composeTestRule.waitForIdle()
-            }
+        fun ComposeNavigator.peekLastFromBackStack() : Route {
+            return backStackMap.lastValue()!!.peek().key
         }
 
-        composeTestRule.activity.apply {
-            composeTestRule.onNodeWithText(go_to_second).performClick()
-            composeTestRule.waitForIdle()
+        var navigator = createDefaultNavigator()
 
-            fillAll()
-        }
+        assert(navigator.peekLastFromBackStack() is ThirdRoute.Secondary)
+
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "s:1" (inclusive)
+        navigator = createDefaultNavigator()
+        navigator.goBackUntil(StartRoute.First::class, inclusive = true)
+        assert(navigator.peekLastFromBackStack() is StartRoute.First)
+
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "s:1" (not inclusive)
+        navigator = createDefaultNavigator()
+        navigator.goBackUntil(StartRoute.First::class, inclusive = false)
+        assert(navigator.peekLastFromBackStack() is StartRoute.First)
+
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "t:2" (inclusive)
+        navigator = createDefaultNavigator()
+        navigator.goBackUntil(ThirdRoute.Secondary::class, inclusive = true)
+        assert(navigator.peekLastFromBackStack() is ThirdRoute.Primary)
+
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "t:2" (not inclusive)
+        navigator = createDefaultNavigator()
+        navigator.goBackUntil(ThirdRoute.Secondary::class, inclusive = false)
+        assert(navigator.peekLastFromBackStack() is ThirdRoute.Secondary)
+
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "t:1" (inclusive)
+        navigator = createDefaultNavigator()
+        navigator.goBackUntil(ThirdRoute.Primary::class, inclusive = true)
+        assert(navigator.peekLastFromBackStack() is NextRoute.Second)
+
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "t:1" (not inclusive)
+        navigator = createDefaultNavigator()
+        navigator.goBackUntil(ThirdRoute.Primary::class, inclusive = false)
+        assert(navigator.peekLastFromBackStack() is ThirdRoute.Primary)
+
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:1" (not inclusive)
+        navigator = createDefaultNavigator()
+        navigator.goBackUntil(NextRoute.First::class, inclusive = false)
+        assert(navigator.peekLastFromBackStack() is NextRoute.First)
+
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:1" (inclusive)
+        navigator = createDefaultNavigator()
+        navigator.goBackUntil(NextRoute.First::class, inclusive = true)
+        assert(navigator.peekLastFromBackStack() is StartRoute.Third)
+
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:1" (not inclusive)
+        navigator = createDefaultNavigator()
+        navigator.goBackUntil(NextRoute.First::class, inclusive = false)
+        assert(navigator.peekLastFromBackStack() is NextRoute.First)
+
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:2" (not inclusive)
+        navigator = createDefaultNavigator()
+        navigator.goBackUntil(NextRoute.Second::class, inclusive = false)
+        assert(navigator.peekLastFromBackStack() is NextRoute.Second)
+
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:2" (inclusive)
+        navigator = createDefaultNavigator()
+        navigator.goBackUntil(NextRoute.Second::class, inclusive = true)
+        assert(navigator.peekLastFromBackStack() is NextRoute.First)
+    }
+
+    private fun <T : Route> ComposeNavigator.History<T>.push(element: T) {
+        push(ComposeNavigator.History.BackStackRecord(element))
     }
 }

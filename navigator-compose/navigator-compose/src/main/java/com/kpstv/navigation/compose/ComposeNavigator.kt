@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.parcelize.Parcelize
 import kotlin.reflect.KClass
 
-@RequiresOptIn("The method is highly experimental & unstable and may not work correct in some edge cases.")
+@RequiresOptIn("The method might be unstable and may not work correct in some edge cases.", RequiresOptIn.Level.WARNING)
 public annotation class UnstableNavigatorApi
 
 /**
@@ -303,8 +303,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
             private val backStack = mutableStateListOf<DialogRoute>()
 
+            internal fun getScopes(): List<DialogScope<*>> = dialogScopes.toList()
             internal fun isEmpty(): Boolean = backStack.isEmpty()
-            internal fun add(route: DialogRoute) {
+            internal fun add(route: DialogRoute) { // when added the dialog will be visible.
                 backStack.add(route)
             }
             internal fun remove(route: KClass<out DialogRoute>): DialogRoute? {
@@ -328,6 +329,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
             internal fun get(): List<DialogRoute> = backStack
             internal fun get(key: KClass<out DialogRoute>): DialogRoute? = backStack.findLast { it::class == key }
             internal fun count() = backStack.size
+            internal fun clear() {
+                while (pop() != null);
+            }
 
             internal fun saveState(outState: Bundle) {
                 outState.putParcelableArrayList(SAVESTATE_BACKSTACK, ArrayList(backStack))
@@ -341,6 +345,8 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 val backStackArrayList = bundle?.getParcelableArrayList<DialogRoute>(SAVESTATE_BACKSTACK) ?: return
                 backStack.addAll(backStackArrayList)
                 bundle.remove(SAVESTATE_BACKSTACK) // restore once then clear
+
+                // scopes are automatically recreated during config so no action.
 
                 // we will save the bundle to lazily restore Dialog scopes later.
                 savedInstanceState = bundle
@@ -375,6 +381,11 @@ public class ComposeNavigator private constructor(private val activity: Componen
             }
         }
 
+        internal fun push(element: BackStackRecord<T>) {
+            current = element
+            lastTransactionStatus = NavType.Forward
+            backStack = get().plus(element)
+        }
         internal fun peek(): BackStackRecord<T> = backStack.last()
         internal fun pop(): BackStackRecord<T>? {
             if (canGoBack()) { // last item will not be popped
@@ -482,15 +493,14 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     val clamp = if (popOptions.inclusive) index else minOf(index + 1, snapshot.lastIndex)
                     for(i in snapshot.size - 1 downTo clamp) {
                         val removed = snapshot.removeLast()
-                        navigator.saveableStateHolder.removeState(removed.key)
-
+                        navigator.removeFromSaveableStateHolder(removed.key)
                     }
                 }
             }
             if (current.singleTop) { // remove duplicates
                 val items = snapshot.filter { it.key == destination}
                 snapshot.removeAll(items)
-                items.fastForEach { navigator.saveableStateHolder.removeState(it.key) }
+                navigator.removeFromSaveableStateHolder(items.map { it.key })
             }
 
             snapshot.add(History.BackStackRecord(destination, current.animationOptions))
@@ -550,7 +560,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             checkNotNull(navigator) { "Cannot perform this operation until navigator is not set." }
 
             val exclusive = history.popUntil(destKey, inclusive)?.map { it.key } ?: throw IllegalArgumentException("Required key: $destKey does not exist in the backstack")
-            exclusive.forEach { navigator.saveableStateHolder.removeState(it) }
+            navigator.removeFromSaveableStateHolder(exclusive)
             return exclusive
         }
 
@@ -691,12 +701,12 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         if (backStackMap.size > 1 && !last!!.canGoBack()) {
-            backStackMap.removeLastOrNull()?.let { saveableStateHolder.removeState(it.initial) }
+            backStackMap.removeLastOrNull()?.let { removeFromSaveableStateHolder(it.initial) }
             return goBack()
         }
 
         val popped = last?.pop()
-        popped?.let { saveableStateHolder.removeState(it.key) }
+        popped?.let { removeFromSaveableStateHolder(it.key) }
         last?.let { _ ->
             val currentLastKey = last.get().last().key::class
             var associateKey: KClass<out Route>? = null
@@ -713,7 +723,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
     }
 
     /**
-     * Go back call until destination is satisfied.
+     * Go back call until destination is satisfied. It also considers destination from parent navigation.
      *
      * @throws IllegalArgumentException if [destKey] doesn't exist in the backstack or [destKey] is [DialogRoute].
      */
@@ -767,42 +777,56 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 val index = snapshot.indexOfLast { it.key::class == finalDestKey }
                 // Key is present & is the current backstack but key is not the topKey.
                 if (index != -1 && routeKey == lastRouteKey && !finalInclusive) {
+                    // clear dialogs
+                    history.dialogHistory.clear()
                     // we found the key in the last map itself so popUntil & gracefully return
-                    history.popUntil(finalDestKey as KClass<Nothing>, finalInclusive)?.removeFromSaveableStateHolder()
+                    val exclusive = history.popUntil(finalDestKey as KClass<Nothing>, finalInclusive) ?: emptyList()
+                    removeFromSaveableStateHolder(exclusive.map { it.key })
                     return true
                 // Key is present
                 } else if (index != -1 && !firstIterationSet) {
+                    // clear dialogs
+                    history.dialogHistory.clear()
                     val clamp = if (finalInclusive) index else minOf(index + 1, snapshot.size)
-                    val final = snapshot.subList(0, clamp)
+                    var final = snapshot.subList(0, clamp)
                     // Special case key is topKey & inclusive is true
                     if (final.isEmpty() && i != 0) {
                         finalDestKey = backStackMap[keys[i - 1]]!!.get().last().key::class // change key to last item from previous backstack
                         finalInclusive = false
                         if (routeKey == lastRouteKey) {
                             val current = history.peek()
-                            history.get().filter { it != current }.removeFromSaveableStateHolder()
+                            history.get().filter { it != current }.also { stack -> removeFromSaveableStateHolder(stack.map { it.key }) }
                             history.set(listOf(current) as List<Nothing>, History.NavType.Forward)
-
-                            firstIterationSet = true
+                        } else {
+                            val backstack = backStackMap.remove(routeKey)?.get() ?: emptyList()
+                            removeFromSaveableStateHolder(backstack.map { it.key })
                         }
+                        firstIterationSet = true
                         continue
+                    // The selected root is the first route of the leaf navigator.
+                    } else if (final.isEmpty()&& i == 0) {
+                        final = listOf(snapshot.first())
                     }
-                    snapshot.intersect(final).toList().removeFromSaveableStateHolder()
+                    snapshot.intersect(final).toList().also { stack -> removeFromSaveableStateHolder(stack.map { it.key }) }
                     history.set(final as List<Nothing>, History.NavType.Forward)
 
                     firstIterationSet = true
 
                 // Key is not present but the current route key is the last route
                 } else if (index == -1 && routeKey == lastRouteKey && !secondIterationSet) {
+                    // clear dialogs
+                    history.dialogHistory.clear()
+
                     val current = history.peek()
-                    history.get().filter { it != current }.removeFromSaveableStateHolder()
+                    history.get().filter { it != current }.also { stack -> removeFromSaveableStateHolder(stack.map { it.key }) }
                     history.set(listOf(current) as List<Nothing>, History.NavType.Forward)
 
                     secondIterationSet = true
 
                 // Key is not present & is neither the last route. Just remove it.
                 } else if (index == -1 && routeKey != lastRouteKey) {
-                    backStackMap.remove(routeKey)?.get()?.removeFromSaveableStateHolder()
+                    val backstack = backStackMap.remove(routeKey)?.get() ?: emptyList()
+                    removeFromSaveableStateHolder(backstack.map { it.key })
                 }
             }
 
@@ -813,9 +837,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
                 // Special edge case when BackStackMap is [key1 = {a,b,c}, key2 = {d}, key3 = {e}]
                 // & we want to go to "d".
-                if (lastBackStack.get().count() == 1 && secondLastBackStack.get().count() == 1 ) {
+                if ((lastBackStack.get().count() == 1 && secondLastBackStack.get().count() == 1) || lastBackStack.associateKey != secondLastBackStack.key) {
                     val last = secondLastBackStack.get().last()
-                    val finalElement = if (last.animation.current == None && last.animation.target == None)
+                    val finalElement = if (secondLastBackStack.get().size == 1 && last.animation.current == None && last.animation.target == None)
                         last.copy(animation = lastBackStack.get().last().animation) // We use animation defined by the current screen if None
                     else
                         last
@@ -855,6 +879,15 @@ public class ComposeNavigator private constructor(private val activity: Componen
     }
 
     private fun shouldSuppressBackPress() : Boolean = suppressBackPress
+
+    private fun removeFromSaveableStateHolder(vararg items: Route) {
+        removeFromSaveableStateHolder(items.toList())
+    }
+    private fun removeFromSaveableStateHolder(items: List<Route>) {
+        if (::saveableStateHolder.isInitialized) {
+            items.forEach { saveableStateHolder.removeState(it) }
+        }
+    }
 
     internal val backStackMap = mutableMapOf<KClass<out Route>, History<*>>()
     private lateinit var saveableStateHolder: SaveableStateHolder
@@ -1023,10 +1056,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
         val scope = compositionLocalOf<Controller<T>?> { null }
         compositionLocalScopeList.add(scope)
         return scope
-    }
-
-    private fun List<History.BackStackRecord<out Route>>.removeFromSaveableStateHolder() {
-        forEach { saveableStateHolder.removeState(it.key) }
     }
 }
 
