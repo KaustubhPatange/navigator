@@ -11,35 +11,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kpstv.navigation.compose.*
-import com.kpstv.navigation.compose.sample.StartRoute
-import com.kpstv.navigation.compose.sample.ui.MenuItem
+import com.kpstv.navigation.compose.sample.ui.componenets.MenuItem
 import kotlinx.parcelize.Parcelize
 
-sealed class SettingRoute : Route {
+sealed class MenuSettingRoute : Route {
     @Parcelize @Immutable
-    data class First(private val noArg: String = "") : SettingRoute()
+    data class First(private val noArg: String = "") : MenuSettingRoute()
     @Parcelize @Immutable
-    data class Second(private val noArg: String = "") : SettingRoute()
-    companion object { val key = SettingRoute::class }
+    data class Second(private val noArg: String = "") : MenuSettingRoute()
+    companion object { val key = MenuSettingRoute::class }
 }
 
 @Composable
-fun SettingScreen() {
+fun MenuSettingScreen() {
     val navigator = findComposeNavigator()
-    val settingController = rememberNavController<SettingRoute>()
-    navigator.Setup(key = SettingRoute.key, controller = settingController, initial = SettingRoute.First()) { dest ->
+    val settingController = rememberNavController<MenuSettingRoute>()
+    navigator.Setup(key = MenuSettingRoute.key, controller = settingController, initial = MenuSettingRoute.First()) { dest ->
         when(dest) {
-            is SettingRoute.First -> FirstSettingScreen()
-            is SettingRoute.Second -> SecondSettingScreen()
+            is MenuSettingRoute.First -> MenuSettingFirstScreen()
+            is MenuSettingRoute.Second -> MenuSettingSecondScreen()
         }
     }
 }
 
 @OptIn(UnstableNavigatorApi::class)
 @Composable
-private fun FirstSettingScreen() {
+private fun MenuSettingFirstScreen() {
     val navigator = findComposeNavigator()
-    val settingController = findController(key = SettingRoute.key)
+    val settingController = findController(key = MenuSettingRoute.key)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -47,7 +46,7 @@ private fun FirstSettingScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(onClick = { settingController.navigateTo(SettingRoute.Second()) {
+        Button(onClick = { settingController.navigateTo(MenuSettingRoute.Second()) {
             withAnimation {
                 target = Fade
                 current = Fade
@@ -56,7 +55,7 @@ private fun FirstSettingScreen() {
             Text(text = "Go to Settings:Second")
         }
         Spacer(modifier = Modifier.height(10.dp))
-        Button(onClick = { navigator.goBackUntil(StartRoute.Second::class, inclusive = false) }) { // equivalent to "navigator.goBackUntil(MenuItem.Home::class)"
+        Button(onClick = { navigator.goBackUntil(MainRoute.Second::class, inclusive = false) }) { // equivalent to "navigator.goBackUntil(MenuItem.Home::class)"
             Text(text = "Go to StartRoute:Second navigation")
         }
     }
@@ -64,7 +63,7 @@ private fun FirstSettingScreen() {
 
 @OptIn(UnstableNavigatorApi::class)
 @Composable
-private fun SecondSettingScreen() {
+private fun MenuSettingSecondScreen() {
     val navigator = findComposeNavigator()
     Column(
         modifier = Modifier

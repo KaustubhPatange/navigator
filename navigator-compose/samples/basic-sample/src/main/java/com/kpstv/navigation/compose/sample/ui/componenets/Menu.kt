@@ -1,4 +1,4 @@
-package com.kpstv.navigation.compose.sample.ui
+package com.kpstv.navigation.compose.sample.ui.componenets
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -44,7 +44,11 @@ sealed class MenuItem : Route {
 interface Menu {
 
     data class State(
-        val menuItems: List<MenuItem> = listOf(MenuItem.Home(), MenuItem.Favourite(), MenuItem.Settings()),
+        val menuItems: List<MenuItem> = listOf(
+            MenuItem.Home(),
+            MenuItem.Favourite(),
+            MenuItem.Settings()
+        ),
         val currentSelection: MenuItem
     )
 

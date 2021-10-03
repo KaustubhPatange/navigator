@@ -94,7 +94,7 @@ public fun StartSecondScreen() {
         }
         Button(onClick = {
             controller.navigateTo(StartRoute.Third()) {
-                popUpTo(controller.getAllHistory().first()::class) {
+                popUpTo(StartRoute.First::class) {
                     inclusive = false // should be equivalent to history First, Third
                 }
             }

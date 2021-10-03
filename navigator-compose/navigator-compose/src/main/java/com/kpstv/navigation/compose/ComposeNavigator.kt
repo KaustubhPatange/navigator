@@ -101,7 +101,7 @@ public data class NavOptions<T : Route>(
      *            this will recursively pop till the first one in the backstack. Otherwise, the last
      *            added one will be chosen.
      */
-    public data class PopUpOptions<T: Route>(internal var dest: KClass<out T>, var inclusive: Boolean = true, var all: Boolean = false)
+    public data class PopUpOptions<T: Route>(internal var dest: KClass<out T>, var inclusive: Boolean = false, var all: Boolean = false)
 
     /**
      * Pop up to the destination. Additional parameters can be set through [options] DSL.
@@ -553,7 +553,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
          * @throws IllegalArgumentException if [destKey] doesn't exist in the backstack.
          * @return List of removed keys else empty if nothing is removed.
          */
-        public fun goBackUntil(destKey: KClass<out T>, inclusive: Boolean = true): List<T> {
+        public fun goBackUntil(destKey: KClass<out T>, inclusive: Boolean = false): List<T> {
             val history = history
             val navigator = navigator
             checkNotNull(history) { "Cannot perform this operation until navigator is not set." }
@@ -728,7 +728,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
      * @throws IllegalArgumentException if [destKey] doesn't exist in the backstack or [destKey] is [DialogRoute].
      */
     @UnstableNavigatorApi
-    public fun goBackUntil(destKey: KClass<out Route>, inclusive: Boolean = true): Boolean {
+    public fun goBackUntil(destKey: KClass<out Route>, inclusive: Boolean = false): Boolean {
         if (getAllHistory().none { it::class == destKey }) {
             throw IllegalArgumentException("Required key: $destKey does not exist in the backstack.")
         }
