@@ -125,18 +125,19 @@ public data class NavOptions<T : Route>(
  * A key to uniquely identify transition.
  */
 @Parcelize
-public data class TransitionKey(internal val key: String) : Parcelable // "class" so that IDE can show appropriate suggestions.
+@JvmInline
+public value class TransitionKey(internal val key: String) : Parcelable // "class" (but inlined) so that IDE can show appropriate suggestions.
 
 /**
  * Interface to define custom transition.
  *
- * - An optional [key] to define so that ComposeNavigator can identify this transition.
+ * - [key] - A unique string so that [ComposeNavigator] can identify this transition upon use.
  * - [forwardTransition] - Define the forward transition that'll be used when navigating to the target destination.
  * - [backwardTransition] - Define the backward transition that'll be used when navigating from the target
  *                          destination to the previous one (usually on back press).
  */
 public abstract class NavigatorTransition {
-    public open val key: TransitionKey = TransitionKey(this::class.javaObjectType.name) // let's return the binary name
+    public abstract val key: TransitionKey
     public abstract val forwardTransition: ComposeTransition
     public abstract val backwardTransition: ComposeTransition
 

@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 public val None: TransitionKey get() = NoneTransition.key
 
 internal val NoneTransition: NavigatorTransition = object : NavigatorTransition() {
+    override val key: TransitionKey = TransitionKey("com.kpstv.navigation.compose:NoneTransition")
     override val forwardTransition: ComposeTransition = ComposeTransition { modifier, _, _, _ -> modifier }
     override val backwardTransition: ComposeTransition = ComposeTransition { modifier, _, _, _ -> modifier }
 }
@@ -16,6 +17,7 @@ internal val NoneTransition: NavigatorTransition = object : NavigatorTransition(
 public val Fade: TransitionKey get() = FadeTransition.key
 
 internal val FadeTransition: NavigatorTransition = object : NavigatorTransition() {
+    override val key: TransitionKey = TransitionKey("com.kpstv.navigation.compose:FadeTransition")
     override val forwardTransition: ComposeTransition = ComposeTransition { modifier, _, _, progress ->
         modifier.then(Modifier.graphicsLayer { alpha = progress }) // fade-in
     }
@@ -33,6 +35,7 @@ internal val FadeTransition: NavigatorTransition = object : NavigatorTransition(
 public val SlideRight: TransitionKey get() = SlideRightTransition.key
 
 internal val SlideRightTransition: NavigatorTransition = object : NavigatorTransition() {
+    override val key: TransitionKey = TransitionKey("com.kpstv.navigation.compose:SlideRightTransition")
     override val forwardTransition: ComposeTransition = ComposeTransition { modifier, width, _, progress ->
         modifier.then(Modifier.graphicsLayer { this.translationX = width + (-1) * width * progress }) // slide-in-right
     }
@@ -50,6 +53,7 @@ internal val SlideRightTransition: NavigatorTransition = object : NavigatorTrans
 public val SlideLeft: TransitionKey get() = SlideLeftTransition.key
 
 internal val SlideLeftTransition: NavigatorTransition = object : NavigatorTransition() {
+    override val key: TransitionKey = TransitionKey("com.kpstv.navigation.compose:SlideLeftTransition")
     override val forwardTransition: ComposeTransition = ComposeTransition { modifier, width, _, progress ->
         modifier.then(Modifier.graphicsLayer { this.translationX = width * (1 - progress) * (-1) }) // slide-in-left
     }
