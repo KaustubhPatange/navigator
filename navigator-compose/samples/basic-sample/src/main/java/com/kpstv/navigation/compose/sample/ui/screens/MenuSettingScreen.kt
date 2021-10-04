@@ -55,7 +55,7 @@ private fun MenuSettingFirstScreen() {
             Text(text = "Go to Settings:Second")
         }
         Spacer(modifier = Modifier.height(10.dp))
-        Button(onClick = { navigator.goBackUntil(MainRoute.Second::class, inclusive = false) }) { // equivalent to "navigator.goBackUntil(MenuItem.Home::class)"
+        Button(onClick = { navigator.goBackUntil(MainRoute.Second::class, inclusive = true) }) { // equivalent to "navigator.goBackUntil(MenuItem.Home::class, inclusive = false)"
             Text(text = "Go to StartRoute:Second navigation")
         }
     }
@@ -72,8 +72,8 @@ private fun MenuSettingSecondScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(onClick = { navigator.goBackUntil(MenuItem.Home::class, inclusive = false) }) {
-            Text(text = "Go to Menu screen: Home")
+        Button(onClick = { navigator.goBackToRoot() }) {
+            Text(text = "Go to Root")
         }
     }
 }

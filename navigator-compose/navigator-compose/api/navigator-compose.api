@@ -9,6 +9,7 @@ public final class com/kpstv/navigation/compose/ComposeNavigator {
 	public final fun getHistory (Lkotlin/reflect/KClass;)Ljava/util/List;
 	public final fun getSuppressBackPress ()Z
 	public final fun goBack ()Lcom/kpstv/navigation/compose/Route;
+	public final fun goBackToRoot ()Z
 	public final fun goBackUntil (Lkotlin/reflect/KClass;Z)Z
 	public static synthetic fun goBackUntil$default (Lcom/kpstv/navigation/compose/ComposeNavigator;Lkotlin/reflect/KClass;ZILjava/lang/Object;)Z
 	public final fun onSaveInstanceState (Landroid/os/Bundle;)V
@@ -37,6 +38,7 @@ public final class com/kpstv/navigation/compose/ComposeNavigator$Controller {
 	public final fun getCurrentRouteAsFlow ()Lkotlinx/coroutines/flow/Flow;
 	public final fun getEnableDialogOverlay ()Z
 	public final fun goBack ()Lcom/kpstv/navigation/compose/Route;
+	public final fun goBackToRoot ()Ljava/util/List;
 	public final fun goBackUntil (Lkotlin/reflect/KClass;Z)Ljava/util/List;
 	public static synthetic fun goBackUntil$default (Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;Lkotlin/reflect/KClass;ZILjava/lang/Object;)Ljava/util/List;
 	public final fun navigateTo (Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;)V

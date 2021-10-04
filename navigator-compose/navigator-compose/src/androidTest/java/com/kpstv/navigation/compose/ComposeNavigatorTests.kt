@@ -413,6 +413,7 @@ public class ComposeNavigatorTests {
     @Test
     public fun NavigatorGoBackUntilTest() {
 
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}]
         fun createDefaultNavigator() : ComposeNavigator {
             val navigator = ComposeNavigator.with(composeTestRule.activity, null)
                 .disableDefaultBackPressLogic()
@@ -448,7 +449,7 @@ public class ComposeNavigatorTests {
         navigator.goBackUntil(StartRoute.First::class, inclusive = true)
         assert(navigator.peekLastFromBackStack() is StartRoute.First)
 
-        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "s:1" (not inclusive)
+        // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "s:1" (not inclusive) = (also equals jump to root)
         navigator = createDefaultNavigator()
         navigator.goBackUntil(StartRoute.First::class, inclusive = false)
         assert(navigator.peekLastFromBackStack() is StartRoute.First)
@@ -466,7 +467,9 @@ public class ComposeNavigatorTests {
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "t:1" (inclusive)
         navigator = createDefaultNavigator()
         navigator.goBackUntil(ThirdRoute.Primary::class, inclusive = true)
-        assert(navigator.peekLastFromBackStack() is NextRoute.Second)
+        // why NextRoute.First? because n:2 is associated to t:1 so it only serves as nested navigation.
+        // Having set inclusive means to to exclude it & go back previous i.e n:1
+        assert(navigator.peekLastFromBackStack() is NextRoute.First)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "t:1" (not inclusive)
         navigator = createDefaultNavigator()
@@ -481,7 +484,7 @@ public class ComposeNavigatorTests {
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:1" (inclusive)
         navigator = createDefaultNavigator()
         navigator.goBackUntil(NextRoute.First::class, inclusive = true)
-        assert(navigator.peekLastFromBackStack() is StartRoute.Third)
+        assert(navigator.peekLastFromBackStack() is StartRoute.Second)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:1" (not inclusive)
         navigator = createDefaultNavigator()
@@ -491,11 +494,39 @@ public class ComposeNavigatorTests {
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:2" (not inclusive)
         navigator = createDefaultNavigator()
         navigator.goBackUntil(NextRoute.Second::class, inclusive = false)
-        assert(navigator.peekLastFromBackStack() is NextRoute.Second)
+        assert(navigator.peekLastFromBackStack() is ThirdRoute.Primary)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:2" (inclusive)
         navigator = createDefaultNavigator()
         navigator.goBackUntil(NextRoute.Second::class, inclusive = true)
+        assert(navigator.peekLastFromBackStack() is NextRoute.First)
+
+        // ******
+        // createDefaultNavigator2()
+        // [s = {1} , n = {1,2} , t = {1,2}]
+        fun createDefaultNavigator2() : ComposeNavigator {
+            val navigator = ComposeNavigator.with(composeTestRule.activity, null)
+                .disableDefaultBackPressLogic()
+                .disableOnSaveStateInstance()
+                .initialize()
+
+            val startRouteHistory = ComposeNavigator.History(StartRoute.key, null, StartRoute.First(""))
+
+            val nextRouteHistory = ComposeNavigator.History(NextRoute.key, StartRoute.First::class, NextRoute.First())
+            nextRouteHistory.push(NextRoute.Second())
+
+            val thirdRouteHistory = ComposeNavigator.History(ThirdRoute.key, NextRoute.Second::class, ThirdRoute.Primary())
+            thirdRouteHistory.push(ThirdRoute.Secondary(GalleryItem("test", 0)))
+
+            navigator.backStackMap[StartRoute::class] = startRouteHistory
+            navigator.backStackMap[NextRoute::class] = nextRouteHistory
+            navigator.backStackMap[ThirdRoute::class] = thirdRouteHistory
+            return navigator
+        }
+
+        // [s = {1} , n = {1,2} , t = {1,2}] target is s:1 (not inclusive) i.e jump to root.
+        navigator = createDefaultNavigator2()
+        navigator.goBackToRoot()
         assert(navigator.peekLastFromBackStack() is NextRoute.First)
     }
 

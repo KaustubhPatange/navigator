@@ -1,6 +1,5 @@
 package com.kpstv.navigation.compose
 
-import android.os.Bundle
 import com.kpstv.navigation.compose.internals.*
 import org.junit.Test
 
@@ -38,6 +37,15 @@ public class ComposeNavigatorUnitTests {
     history.popUntil(TestRoute.Second2::class, inclusive = false)
 
     assert(history.peek().key is TestRoute.Second2)
+
+    history.push(TestRoute.Second3())
+    history.push(TestRoute.Second4())
+    history.push(TestRoute.Second5())
+
+    // jump to root test
+    history.popUntil(TestRoute.First::class, inclusive = false)
+
+    assert(history.peek().key is TestRoute.First)
   }
 
   @Test

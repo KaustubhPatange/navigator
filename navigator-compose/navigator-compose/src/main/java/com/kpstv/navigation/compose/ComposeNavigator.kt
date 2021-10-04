@@ -565,6 +565,18 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         /**
+         * Jump back to the root destination.
+         *
+         * @return List of removed keys else empty if nothing is removed.
+         */
+        public fun goBackToRoot() : List<T> {
+            val history = history
+            checkNotNull(history) { "Cannot perform this operation until navigator is not set." }
+
+            return goBackUntil(history.get().first().key::class, inclusive = false)
+        }
+
+        /**
          * Setup a composable that will be displayed in the [Dialog] with the backStack functionality.
          *
          * @param key Key associated with the dialog usually a data class.
@@ -725,6 +737,11 @@ public class ComposeNavigator private constructor(private val activity: Componen
     /**
      * Go back call until destination is satisfied. It also considers destination from parent navigation.
      *
+     * Note: The result may not be expected but it will mostly be theoretically correct.
+     *       For eg: If a destination is currently used only for for nested navigation
+     *       then it will choose the initial key of this nested navigation if inclusive
+     *       is false.
+     *
      * @throws IllegalArgumentException if [destKey] doesn't exist in the backstack or [destKey] is [DialogRoute].
      */
     @UnstableNavigatorApi
@@ -764,10 +781,49 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
         var firstIterationSet = false
         var secondIterationSet = false
-
         if (backStackMap.isNotEmpty()) {
             var keys = backStackMap.keys.toList()
             val lastRouteKey = backStackMap.lastKey()
+            val associatedItem = backStackMap.filter { it.value.associateKey == finalDestKey }.firstNotNullOfOrNull { it }
+            val sourceItem = backStackMap.filter { entry -> entry.value.get().any { it.key::class == finalDestKey } }.firstNotNullOf { it }
+            val sourceKeyIndex = keys.indexOf(sourceItem.key)
+            if (associatedItem != null) {
+                val associatedKeyIndex = keys.indexOf(associatedItem.key)
+                if (associatedKeyIndex < sourceKeyIndex) {
+                    backStackMap.moveItemIndex(associatedKeyIndex, sourceKeyIndex + 1)
+                    if (sourceItem.value.get().last().key::class != finalDestKey) {
+                        sourceItem.value.popUntil(finalDestKey as KClass<Nothing>, inclusive = false)
+                    }
+                }
+                if (!inclusive) {
+                    return goBackUntil(associatedItem.value.get().first().key::class, inclusive = false)
+                } else {
+                    val newIndex = backStackMap.indexOfKey(sourceItem.key)
+                    if (newIndex > 0 && (sourceItem.value.get().size == 1 || sourceItem.value.get().last().key::class != finalDestKey)) {
+                        val previousEntry = backStackMap.getIndex(newIndex - 1)
+                        val previousEntryLastKey = previousEntry.value.get().last().key
+                        if (sourceItem.value.associateKey == previousEntry.value.get().last().key::class) {
+                            return goBackUntil(previousEntryLastKey::class, inclusive = true)
+                        }
+                        return goBackUntil(previousEntryLastKey::class, inclusive = false)
+                    }
+                }
+            } else if (sourceItem.value.associateKey != null && (sourceKeyIndex != backStackMap.lastIndex || sourceItem.value.get().indexOfFirst { it.key::class == finalDestKey } == 0)) {
+                val associatedKeyItem = backStackMap.filter { entry -> entry.value.get().any { it.key::class == sourceItem.value.associateKey } }.firstNotNullOf { it }
+                val associatedKeyIndex = keys.indexOf(associatedKeyItem.key)
+                if (sourceKeyIndex < associatedKeyIndex) {
+                    backStackMap.moveItemIndex(sourceKeyIndex, associatedKeyIndex + 1)
+                    if (associatedKeyItem.value.get().last().key::class != sourceItem.value.associateKey) {
+                        associatedKeyItem.value.popUntil(sourceItem.value.associateKey as KClass<Nothing>, inclusive = false)
+                    }
+                }
+                if (inclusive && sourceItem.value.get().indexOfFirst { it.key::class == finalDestKey } == 0) {
+                    return goBackUntil(associatedKeyItem.value.get().last().key::class, inclusive = true)
+                }
+            }
+            // keys may have changed due to reordering so better to calculate it again.
+            keys = backStackMap.keys.toList()
+
             for (i in keys.size - 1 downTo 0) {
                 if (firstIterationSet && secondIterationSet) break
 
@@ -787,6 +843,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 } else if (index != -1 && !firstIterationSet) {
                     // clear dialogs
                     history.dialogHistory.clear()
+
                     val clamp = if (finalInclusive) index else minOf(index + 1, snapshot.size)
                     var final = snapshot.subList(0, clamp)
                     // Special case key is topKey & inclusive is true
@@ -817,7 +874,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     // clear dialogs
                     history.dialogHistory.clear()
 
-                    val current = history.peek()
+                    val current = history.get().last()
                     history.get().filter { it != current }.also { stack -> removeFromSaveableStateHolder(stack.map { it.key }) }
                     history.set(listOf(current) as List<Nothing>, History.NavType.Forward)
 
@@ -835,8 +892,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 val lastBackStack = backStackMap.lastValue()!!
                 val secondLastBackStack = backStackMap[keys[keys.lastIndex - 1]]!!
 
-                // Special edge case when BackStackMap is [key1 = {a,b,c}, key2 = {d}, key3 = {e}]
-                // & we want to go to "d".
                 if ((lastBackStack.get().count() == 1 && secondLastBackStack.get().count() == 1) || lastBackStack.associateKey != secondLastBackStack.key) {
                     val last = secondLastBackStack.get().last()
                     val finalElement = if (secondLastBackStack.get().size == 1 && last.animation.current == None && last.animation.target == None)
@@ -846,9 +901,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     val mutatedSecondSnapshot = secondLastBackStack.get().plus(finalElement)
                     secondLastBackStack.set(mutatedSecondSnapshot as List<Nothing>, History.NavType.Forward)
 
-                    val went = goBack() != null
-                    secondLastBackStack.set(listOf(last) as List<Nothing>, History.NavType.Forward)
-                    return went
+                    return goBack() != null
                 }
             }
 
@@ -856,6 +909,15 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         return false
+    }
+
+    /**
+     * Jump back to the root destination of the leaf navigation.
+     */
+    @UnstableNavigatorApi
+    public fun goBackToRoot() : Boolean {
+        val leafRoute = getAllHistory().first()::class
+        return goBackUntil(leafRoute, inclusive = false)
     }
 
     private val backPressHandler = object : OnBackPressedCallback(true) {
@@ -952,11 +1014,13 @@ public class ComposeNavigator private constructor(private val activity: Componen
         Inner {
             // recompose on history change
             CompositionLocalProvider(compositionLocalScope provides controllerInternal, LocalNavigator provides this) {
-                val record = history.peek()
-                val animation = if (history.lastTransactionStatus == History.NavType.Forward) record.animation else history.getCurrentRecord().animation
-                CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
-                    saveableStateHolder.SaveableStateProvider(key = peek) {
-                        content(peek)
+                if (backStackMap.containsValue(history)) {
+                    val record = history.peek()
+                    val animation = if (history.lastTransactionStatus == History.NavType.Forward) record.animation else history.getCurrentRecord().animation
+                    CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
+                        saveableStateHolder.SaveableStateProvider(key = peek) {
+                            content(peek)
+                        }
                     }
                 }
             }
@@ -1061,10 +1125,45 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
 private val LocalNavigator = staticCompositionLocalOf<ComposeNavigator> { throw Exception("Compose Navigator not set. Did you forgot to call \"Navigator.Setup\"?") }
 
+private val<K, V> Map<K, V>.lastIndex get() = size - 1
 private fun<K, V> Map<K,V>.lastKey(): K? = keys.lastOrNull()
 private fun<K, V> Map<K,V>.lastValue(): V? = get(keys.lastOrNull())
 private fun<K, V> MutableMap<K,V>.removeLastOrNull(): V? = remove(keys.lastOrNull())
 private fun<K, V> MutableMap<K, V>.bringToTop(key: K) = remove(key)?.let { put(key, it) }
+private fun<K, V> MutableMap<K, V>.moveItemIndex(src: Int, dest: Int) {
+    val tempMap = mutableMapOf<K, V>()
+
+    val keyList = keys.toList()
+    val sourceKey = keyList[src]
+    if (dest > keyList.lastIndex) {
+        val value = remove(sourceKey)!!
+        put(sourceKey, value)
+        return
+    }
+    val destKey = keyList[minOf(dest, keyList.lastIndex)]
+
+    if (sourceKey == destKey) return
+
+    forEach { (key, value) ->
+        if (key != sourceKey && key != destKey) {
+            tempMap[key] = value
+        } else if (key == destKey) {
+            tempMap[sourceKey] = get(sourceKey)!!
+            tempMap[key] = value
+        }
+    }
+
+    clear()
+
+    tempMap.forEach { put(it.key, it.value) }
+    tempMap.clear()
+}
+private fun <K, V> Map<K, V>.indexOfKey(key: K) : Int {
+    return keys.indexOf(key)
+}
+private fun <K, V> Map<K, V>.getIndex(index: Int) : Map.Entry<K, V> {
+    return entries.elementAt(index)
+}
 
 /**
  * Remember the value produced by @[Composable] that does not have a [Unit] return type.
