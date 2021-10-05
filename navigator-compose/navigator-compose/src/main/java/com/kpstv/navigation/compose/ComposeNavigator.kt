@@ -806,6 +806,8 @@ public class ComposeNavigator private constructor(private val activity: Componen
                             return goBackUntil(previousEntryLastKey::class, inclusive = true)
                         }
                         return goBackUntil(previousEntryLastKey::class, inclusive = false)
+                    } else if (newIndex == 0 && sourceItem.value.get().size == 1) {
+                        return goBackUntil(associatedItem.value.get().first().key::class, inclusive = false)
                     }
                 }
             } else if (sourceItem.value.associateKey != null && (sourceKeyIndex != backStackMap.lastIndex || sourceItem.value.get().indexOfFirst { it.key::class == finalDestKey } == 0)) {
@@ -1014,7 +1016,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
         Inner {
             // recompose on history change
             CompositionLocalProvider(compositionLocalScope provides controllerInternal, LocalNavigator provides this) {
-                if (backStackMap.containsValue(history)) {
+                if (backStackMap.containsKey(key)) {
                     val record = history.peek()
                     val animation = if (history.lastTransactionStatus == History.NavType.Forward) record.animation else history.getCurrentRecord().animation
                     CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->

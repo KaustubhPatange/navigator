@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-- **Updated**: Jetpack Compose to version `v1.0.3` (requires Kotlin `v1.5.30`).
 - **Breaking Change**: `popUpTo` doesn't require destination instance, instead they now accept `Route` keys.
 - **Behavioral Change** `popUpTo`'s inclusive parameter is now `false` by default.
 - **Added**: `goBackUntil(dest)` similar to popUntil for `Controller<T>` as well as navigator.

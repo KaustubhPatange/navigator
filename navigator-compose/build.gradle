@@ -3,9 +3,9 @@ apply plugin: 'binary-compatibility-validator'
 
 buildscript {
     ext {
-        kotlin_version = '1.5.30'
+        kotlin_version = '1.5.21'
         lintVersion = '30.1.0-alpha03'
-        compose_version = '1.0.3'
+        compose_version = '1.0.2'
         versions = [
                 "navigator_compose": "0.1-alpha22"
         ]
