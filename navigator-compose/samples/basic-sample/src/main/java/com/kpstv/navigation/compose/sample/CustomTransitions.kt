@@ -4,11 +4,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import com.kpstv.navigation.compose.ComposeTransition
 import com.kpstv.navigation.compose.NavigatorTransition
+import com.kpstv.navigation.compose.TransitionKey
 
 val SlideWithFadeRight get() = SlideWithFadeRightTransition.key
 val SlideWithFadeLeft get() = SlideWithFadeLeftTransition.key
 
 internal val SlideWithFadeRightTransition = object : NavigatorTransition() {
+    override val key: TransitionKey = TransitionKey("com.kpstv.navigation.compose.sample:SlideWithFadeRightTransition")
     override val forwardTransition: ComposeTransition = ComposeTransition { modifier, width, _, progress ->
         modifier.then(Modifier.graphicsLayer {
             alpha = progress
@@ -28,6 +30,7 @@ internal val SlideWithFadeRightTransition = object : NavigatorTransition() {
 }
 
 internal val SlideWithFadeLeftTransition = object : NavigatorTransition() {
+    override val key: TransitionKey = TransitionKey("com.kpstv.navigation.compose.sample:SlideWithFadeLeftTransition")
     override val forwardTransition: ComposeTransition = ComposeTransition { modifier, width, _, progress ->
         modifier.then(Modifier.graphicsLayer {
             alpha = progress

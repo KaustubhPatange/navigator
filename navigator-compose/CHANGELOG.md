@@ -7,6 +7,12 @@
 - **Added**: `goBackUntil(dest)` similar to popUntil for `Controller<T>` as well as navigator.
 - **Added**: Exposed `navigator.goBack()` for managing backstack or manual handling of `onBackPressed()`.
 
+## Version `0.1-alpha23` _(2021-10-05)_
+
+- **Breaking Change**: Implementing a custom transition now requires to explicitly specify `TransitionKey`.
+- **Updated**: Jetpack Compose to version v1.0.3 (requires Kotlin v1.5.30).
+- **Fixed**: Transitions not working when R8 in full mode is enabled.
+
 ## Version `0.1-alpha22` _(2021-09-29)_
 
 - **Breaking Change**: `rememberController` renamed to `rememberNavController`.
