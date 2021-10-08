@@ -16,6 +16,10 @@ defaults:
   run:
     working-directory: ./navigator-compose
 
+concurrency:
+  group: ${{ github.head.ref }}
+  cancel-in-progress: true
+
 jobs:
   buildAndTestJob:
     runs-on: macos-latest

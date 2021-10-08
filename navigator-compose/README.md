@@ -47,10 +47,13 @@ Snapshots of the current development version of `navigator-compose` are availabl
 - [Hands on Tutorials](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials)
   - [Navigating with arguments](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigating-with-arguments)
   - [Navigating with animation](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigating-with-animation)
-  - [Navigate with single top instance & `popUpTo`](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigate-with-single-top-instance-&-popUpTo)
+    - [Creating custom animations](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#custom-animations)
   - [Implementing Nested Navigation](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#implementing-nested-navigation)
+  - [Navigate with single top instance & `popUpTo`](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigate-with-single-top-instance-&-popUpTo)
+  - [Navigate with `goBackUntil` or `goBackToRoot`](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigate-with-gobackuntil-or-gobacktoroot)
   - [Implementing Dialogs](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#implementing-dialogs)
   - [Navigation in Dialogs](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigation-in-dialogs)
+  - [Managing `onBackPressed` manually](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#managing-onbackpressed-manually)
 
 ## Apps using `navigator-compose`
 

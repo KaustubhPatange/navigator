@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## Version `0.1-alpha24` _(2021-10-08)_
 
 - **Breaking Change**: `popUpTo` doesn't require destination instance, instead they now accept `Route` keys.
 - **Behavioral Change** `popUpTo`'s inclusive parameter is now `false` by default.
 - **Added**: `goBackUntil(dest)` similar to popUntil for `Controller<T>` as well as navigator.
+- **Added**: `goBackToRoot()` i.e jump to root destination functionality for `Controller<T>` as well as navigator.
 - **Added**: Exposed `navigator.goBack()` for managing backstack or manual handling of `onBackPressed()`.
 
 ## Version `0.1-alpha23` _(2021-10-05)_
