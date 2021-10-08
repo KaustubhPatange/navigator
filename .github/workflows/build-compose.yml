@@ -16,9 +16,7 @@ defaults:
   run:
     working-directory: ./navigator-compose
 
-concurrency:
-  group: ${{ github.head.ref }}
-  cancel-in-progress: true
+concurrency: staging_environment
 
 jobs:
   buildAndTestJob:
