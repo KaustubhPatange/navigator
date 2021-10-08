@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Breaking Change**: `popUpTo` doesn't require destination instance, instead they now accept `Route` keys.
+- **Behavioral Change** `popUpTo`'s inclusive parameter is now `false` by default.
+- **Added**: `goBackUntil(dest)` similar to popUntil for `Controller<T>` as well as navigator.
+- **Added**: Exposed `navigator.goBack()` for managing backstack or manual handling of `onBackPressed()`.
+
 ## Version `0.1-alpha23` _(2021-10-05)_
 
 - **Breaking Change**: Implementing a custom transition now requires to explicitly specify `TransitionKey`.

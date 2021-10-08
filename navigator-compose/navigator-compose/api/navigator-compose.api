@@ -8,6 +8,10 @@ public final class com/kpstv/navigation/compose/ComposeNavigator {
 	public final fun getAllKeys ()Ljava/util/List;
 	public final fun getHistory (Lkotlin/reflect/KClass;)Ljava/util/List;
 	public final fun getSuppressBackPress ()Z
+	public final fun goBack ()Lcom/kpstv/navigation/compose/Route;
+	public final fun goBackToRoot ()Z
+	public final fun goBackUntil (Lkotlin/reflect/KClass;Z)Z
+	public static synthetic fun goBackUntil$default (Lcom/kpstv/navigation/compose/ComposeNavigator;Lkotlin/reflect/KClass;ZILjava/lang/Object;)Z
 	public final fun onSaveInstanceState (Landroid/os/Bundle;)V
 	public final fun setSuppressBackPress (Z)V
 }
@@ -34,6 +38,9 @@ public final class com/kpstv/navigation/compose/ComposeNavigator$Controller {
 	public final fun getCurrentRouteAsFlow ()Lkotlinx/coroutines/flow/Flow;
 	public final fun getEnableDialogOverlay ()Z
 	public final fun goBack ()Lcom/kpstv/navigation/compose/Route;
+	public final fun goBackToRoot ()Ljava/util/List;
+	public final fun goBackUntil (Lkotlin/reflect/KClass;Z)Ljava/util/List;
+	public static synthetic fun goBackUntil$default (Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;Lkotlin/reflect/KClass;ZILjava/lang/Object;)Ljava/util/List;
 	public final fun navigateTo (Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun navigateTo$default (Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun setEnableDialogOverlay (Z)V
@@ -79,8 +86,8 @@ public final class com/kpstv/navigation/compose/NavOptions {
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getSingleTop ()Z
 	public fun hashCode ()I
-	public final fun popUpTo (Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;)V
-	public static synthetic fun popUpTo$default (Lcom/kpstv/navigation/compose/NavOptions;Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun popUpTo (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun popUpTo$default (Lcom/kpstv/navigation/compose/NavOptions;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun setSingleTop (Z)V
 	public fun toString ()Ljava/lang/String;
 	public final fun withAnimation (Lkotlin/jvm/functions/Function1;)V
@@ -109,12 +116,12 @@ public final class com/kpstv/navigation/compose/NavOptions$NavAnimation : androi
 
 public final class com/kpstv/navigation/compose/NavOptions$PopUpOptions {
 	public static final field $stable I
-	public fun <init> (Lcom/kpstv/navigation/compose/Route;ZZ)V
-	public synthetic fun <init> (Lcom/kpstv/navigation/compose/Route;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lkotlin/reflect/KClass;ZZ)V
+	public synthetic fun <init> (Lkotlin/reflect/KClass;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component2 ()Z
 	public final fun component3 ()Z
-	public final fun copy (Lcom/kpstv/navigation/compose/Route;ZZ)Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;
-	public static synthetic fun copy$default (Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;Lcom/kpstv/navigation/compose/Route;ZZILjava/lang/Object;)Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;
+	public final fun copy (Lkotlin/reflect/KClass;ZZ)Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;
+	public static synthetic fun copy$default (Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;Lkotlin/reflect/KClass;ZZILjava/lang/Object;)Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAll ()Z
 	public final fun getInclusive ()Z
@@ -152,5 +159,8 @@ public final class com/kpstv/navigation/compose/TransitionKey : android/os/Parce
 	public final synthetic fun unbox-impl ()Ljava/lang/String;
 	public fun writeToParcel (Landroid/os/Parcel;I)V
 	public static fun writeToParcel-impl (Ljava/lang/String;Landroid/os/Parcel;I)V
+}
+
+public abstract interface annotation class com/kpstv/navigation/compose/UnstableNavigatorApi : java/lang/annotation/Annotation {
 }
 
