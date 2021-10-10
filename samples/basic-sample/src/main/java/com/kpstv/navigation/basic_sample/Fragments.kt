@@ -10,9 +10,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
-import com.kpstv.navigation.AnimationDefinition
-import com.kpstv.navigation.BaseArgs
-import com.kpstv.navigation.ValueFragment
+import com.kpstv.navigation.*
 import kotlinx.parcelize.Parcelize
 
 class MainFragment : ValueFragment() {
@@ -52,7 +50,7 @@ class MainFragment : ValueFragment() {
 }
 
 @Parcelize
-data class AbstractArgs(val title: String) : BaseArgs(), Parcelable
+data class AbstractArgs(val title: String) : BaseArgs()
 
 open class AbstractTextFragment : ValueFragment(R.layout.fragment_common) {
     private val textView: TextView by lazy { requireView().findViewById(R.id.textView) }

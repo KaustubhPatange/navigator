@@ -64,7 +64,7 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
     abstract fun getNextFragment(): KClass<out Fragment>?
 
     @Parcelize
-    data class Args(val title: String, @ColorRes val background: Int, @ColorRes val nextColor: Int, val hasNext: Boolean = true) : BaseArgs(), Parcelable
+    data class Args(val title: String, @ColorRes val background: Int, @ColorRes val nextColor: Int, val hasNext: Boolean = true) : BaseArgs()
 }
 
 class FirstFragment : AbstractWelcomeFragment() {

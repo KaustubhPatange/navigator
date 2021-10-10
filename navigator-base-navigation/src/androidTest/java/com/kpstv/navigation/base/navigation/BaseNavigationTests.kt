@@ -8,6 +8,8 @@ import androidx.test.filters.LargeTest
 import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.ValueFragment
 import com.kpstv.navigation.base.navigation.internals.*
+import com.kpstv.navigation.getKeyArgs
+import com.kpstv.navigation.hasKeyArgs
 import com.kpstv.navigation.internals.ViewStateFragment
 import com.kpstv.navigator.test.*
 import org.junit.Before

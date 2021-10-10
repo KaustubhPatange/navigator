@@ -41,35 +41,6 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     open val forceBackPress = false
 
     /**
-     * Checks if the fragment has any arguments passed during [FragmentNavigator.navigateTo] call.
-     *
-     * @see BaseArgs
-     */
-    inline fun<reified T : BaseArgs> hasKeyArgs(): Boolean {
-        return arguments?.containsKey(createArgKey(T::class.qualifiedName!!)) ?: false
-    }
-
-    /**
-     * Parse the typed arguments from the bundle. It is best practice to check [hasKeyArgs]
-     * & then proceed with this call.
-     *
-     * @throws NullPointerException When it does not exist.
-     * @see BaseArgs
-     */
-    inline fun <reified T : BaseArgs> getKeyArgs(): T {
-        return arguments?.getParcelable<T>(createArgKey(T::class.qualifiedName!!)) as T
-    }
-
-    /**
-     * Remove the typed arguments from the bundle.
-     *
-     * @see BaseArgs
-     */
-    inline fun <reified T: BaseArgs> clearArgs() {
-        arguments?.remove(createArgKey(T::class.qualifiedName!!))
-    }
-
-    /**
      * @see FragmentNavigator.goBack
      */
     fun goBack() {

@@ -51,7 +51,7 @@ data class TestArgs(
     val enum: TestEnum,
     val arrayList: ArrayList<Int>,
     val model: MyModel
-) : BaseArgs(), Parcelable {
+) : BaseArgs() {
     companion object {
         fun create() = TestArgs("Test", TestEnum.First, arrayListOf(1,2,3), MyModel(true))
     }

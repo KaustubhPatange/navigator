@@ -18,6 +18,8 @@ on:
 env:
   GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=false -Dkotlin.incremental=false"
 
+concurrency: staging_environment
+
 jobs:
   buildJob:
     runs-on: macos-latest

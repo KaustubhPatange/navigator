@@ -74,11 +74,8 @@ public final class com/kpstv/navigation/AnimationDefinition$Zoom : com/kpstv/nav
 	public static final field INSTANCE Lcom/kpstv/navigation/AnimationDefinition$Zoom;
 }
 
-public class com/kpstv/navigation/BaseArgs : android/os/Parcelable {
-	public static final field CREATOR Landroid/os/Parcelable$Creator;
+public abstract class com/kpstv/navigation/BaseArgs : android/os/Parcelable {
 	public fun <init> ()V
-	public fun describeContents ()I
-	public fun writeToParcel (Landroid/os/Parcel;I)V
 }
 
 public final class com/kpstv/navigation/Destination {
