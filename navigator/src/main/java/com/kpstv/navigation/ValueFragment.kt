@@ -44,14 +44,14 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      * @see FragmentNavigator.goBack
      */
     fun goBack() {
-        getParentNavigator().goBack()
+        parentNavigator.goBack()
     }
 
     /**
      * Get Navigator associated with the context of the container view in which this fragment
      * is inflated.
      */
-    fun getParentNavigator(): FragmentNavigator {
+    val parentNavigator: FragmentNavigator get() {
         return if (parentFragment != null) {
             (requireParentFragment() as FragmentNavigator.Transmitter).getNavigator()
         } else {
@@ -65,9 +65,9 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
      *
      * @see SimpleNavigator
      */
-    fun getSimpleNavigator(): SimpleNavigator {
+    val simpleNavigator: SimpleNavigator get() {
         if (!isSimpleNavigatorInitialized()) throw IllegalAccessException("You must call it between onViewCreated() & onDestroy()")
-        return simpleNavigator
+        return internalSimpleNavigator
     }
 
     /**
@@ -86,23 +86,23 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        simpleNavigator = SimpleNavigator(requireContext(), childFragmentManager)
+        internalSimpleNavigator = SimpleNavigator(requireContext(), childFragmentManager)
         if (savedInstanceState != null) {
-            simpleNavigator.restoreState(this.toIdentifier(), savedInstanceState)
+            internalSimpleNavigator.restoreState(this.toIdentifier(), savedInstanceState)
         } else {
-            simpleNavigator.restoreState(this.toIdentifier(), simpleNavigateState)
+            internalSimpleNavigator.restoreState(this.toIdentifier(), simpleNavigateState)
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         if (isSimpleNavigatorInitialized()) {
-            simpleNavigator.saveState(this.toIdentifier(), outState)
+            internalSimpleNavigator.saveState(this.toIdentifier(), outState)
         }
         super.onSaveInstanceState(outState)
     }
 
     override fun onStop() {
-        simpleNavigator.restoreState(this.toIdentifier(), simpleNavigateState)
+        internalSimpleNavigator.restoreState(this.toIdentifier(), simpleNavigateState)
         super.onStop()
     }
 
@@ -111,9 +111,9 @@ open class ValueFragment(@LayoutRes id: Int) : ViewStateFragment(id) {
     internal var tabNavigationState: Bundle? = null
 
     private var simpleNavigateState = Bundle()
-    private lateinit var simpleNavigator: SimpleNavigator
+    private lateinit var internalSimpleNavigator: SimpleNavigator
 
-    private fun isSimpleNavigatorInitialized(): Boolean = ::simpleNavigator.isInitialized
+    private fun isSimpleNavigatorInitialized(): Boolean = ::internalSimpleNavigator.isInitialized
 
     private fun Context.findFragmentTransmitter(): FragmentNavigator.Transmitter {
         if (this is FragmentActivity && this is FragmentNavigator.Transmitter) return this

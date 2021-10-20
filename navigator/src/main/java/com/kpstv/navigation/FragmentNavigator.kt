@@ -402,7 +402,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
                     }
                 }
                 override fun onActivityDestroyed(act: Activity) {
-                    if (act === act) act.application.unregisterActivityLifecycleCallbacks(this)
+                    if (activity === act) act.application.unregisterActivityLifecycleCallbacks(this)
                 }
                 override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
                 override fun onActivityStarted(activity: Activity) {}
