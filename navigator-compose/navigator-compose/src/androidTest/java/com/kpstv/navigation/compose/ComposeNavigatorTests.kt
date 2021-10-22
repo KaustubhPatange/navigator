@@ -430,9 +430,9 @@ public class ComposeNavigatorTests {
             val thirdRouteHistory = ComposeNavigator.History(ThirdRoute.key, NextRoute.Second::class, ThirdRoute.Primary())
             thirdRouteHistory.push(ThirdRoute.Secondary(GalleryItem("test", 0)))
 
-            navigator.backStackMap[StartRoute::class] = startRouteHistory
-            navigator.backStackMap[NextRoute::class] = nextRouteHistory
-            navigator.backStackMap[ThirdRoute::class] = thirdRouteHistory
+            navigator.backStackMap[StartRoute.key] = startRouteHistory
+            navigator.backStackMap[NextRoute.key] = nextRouteHistory
+            navigator.backStackMap[ThirdRoute.key] = thirdRouteHistory
             return navigator
         }
 
@@ -518,9 +518,9 @@ public class ComposeNavigatorTests {
             val thirdRouteHistory = ComposeNavigator.History(ThirdRoute.key, NextRoute.Second::class, ThirdRoute.Primary())
             thirdRouteHistory.push(ThirdRoute.Secondary(GalleryItem("test", 0)))
 
-            navigator.backStackMap[StartRoute::class] = startRouteHistory
-            navigator.backStackMap[NextRoute::class] = nextRouteHistory
-            navigator.backStackMap[ThirdRoute::class] = thirdRouteHistory
+            navigator.backStackMap[StartRoute.key] = startRouteHistory
+            navigator.backStackMap[NextRoute.key] = nextRouteHistory
+            navigator.backStackMap[ThirdRoute.key] = thirdRouteHistory
             return navigator
         }
 
@@ -560,9 +560,9 @@ public class ComposeNavigatorTests {
             val thirdRouteHistory = ComposeNavigator.History(ThirdRoute.key, NextRoute.First::class, ThirdRoute.Primary())
             thirdRouteHistory.push(ThirdRoute.Secondary(GalleryItem("test", 0)))
 
-            navigator.backStackMap[StartRoute::class] = startRouteHistory
-            navigator.backStackMap[NextRoute::class] = nextRouteHistory
-            navigator.backStackMap[ThirdRoute::class] = thirdRouteHistory
+            navigator.backStackMap[StartRoute.key] = startRouteHistory
+            navigator.backStackMap[NextRoute.key] = nextRouteHistory
+            navigator.backStackMap[ThirdRoute.key] = thirdRouteHistory
             return navigator
         }
 
@@ -600,18 +600,18 @@ public class ComposeNavigatorTests {
                 .disableOnSaveStateInstance()
                 .initialize()
 
-            val m1Route = ComposeNavigator.History(Routes.MainFirstRoute::class, Routes.MainRoute.First::class, Routes.MainFirstRoute.First())
+            val m1Route = ComposeNavigator.History(Routes.MainFirstRoute.key, Routes.MainRoute.First::class, Routes.MainFirstRoute.First())
 
-            val mRoute = ComposeNavigator.History(Routes.MainRoute::class, null, Routes.MainRoute.First())
+            val mRoute = ComposeNavigator.History(Routes.MainRoute.key, null, Routes.MainRoute.First())
             mRoute.push(Routes.MainRoute.Second())
 
-            val m21Route = ComposeNavigator.History(Routes.MainSecondFirstRoute::class, Routes.MainSecondRoute.First::class, Routes.MainSecondFirstRoute.First())
+            val m21Route = ComposeNavigator.History(Routes.MainSecondFirstRoute.key, Routes.MainSecondRoute.First::class, Routes.MainSecondFirstRoute.First())
 
-            val m2Route = ComposeNavigator.History(Routes.MainSecondRoute::class, Routes.MainRoute.Second::class, Routes.MainSecondRoute.First())
+            val m2Route = ComposeNavigator.History(Routes.MainSecondRoute.key, Routes.MainRoute.Second::class, Routes.MainSecondRoute.First())
             m2Route.push(Routes.MainSecondRoute.Second())
             m2Route.push(Routes.MainSecondRoute.Third())
 
-            val m23Route = ComposeNavigator.History(Routes.MainSecondThirdRoute::class, Routes.MainSecondRoute.Third::class, Routes.MainSecondThirdRoute.First())
+            val m23Route = ComposeNavigator.History(Routes.MainSecondThirdRoute.key, Routes.MainSecondRoute.Third::class, Routes.MainSecondThirdRoute.First())
             m23Route.push(Routes.MainSecondThirdRoute.Second())
 
             navigator.backStackMap[m1Route.key] = m1Route

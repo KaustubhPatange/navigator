@@ -39,7 +39,7 @@ fun MainSecondScreen() {
                     .wrapContentSize(Alignment.TopStart)
             ) {
                 when (dest) {
-                    is MenuItem.Home -> MenuHomeScreen()
+                    is MenuItem.Home -> MenuHomeScreen(routeKey = MenuHomeRouteKey.key)
                     is MenuItem.Favourite -> MenuFavouriteScreen()
                     is MenuItem.Settings -> MenuSettingScreen()
                 }

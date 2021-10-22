@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.kpstv.navigation.compose.DialogRoute
 import com.kpstv.navigation.compose.Route
-import com.kpstv.navigation.compose.findController
+import com.kpstv.navigation.compose.findNavController
 import com.kpstv.navigation.compose.rememberNavController
 import com.kpstv.navigation.compose.sample.ui.componenets.CommonItem
 import com.kpstv.navigation.compose.sample.ui.componenets.MenuItem
@@ -46,14 +46,12 @@ private sealed class DialogScopeRoute : Route {
     data class First(private val noArg: String = "") : DialogScopeRoute()
     @Parcelize
     data class Second(private val noArg: String = "") : DialogScopeRoute()
-    companion object {
-        val key = DialogScopeRoute::class
-    }
+    companion object Key : Route.Key<DialogScopeRoute>
 }
 
 @Composable
 fun MenuFavouriteScreen() {
-    val controller = findController(key = MenuItem.key)
+    val controller = findNavController(key = MenuItem.key)
 
     /* try uncommenting the below line to enable dialog overlays */
 //    controller.enableDialogOverlay = true
