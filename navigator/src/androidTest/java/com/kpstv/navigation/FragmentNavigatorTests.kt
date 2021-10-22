@@ -164,7 +164,7 @@ class FragmentNavigatorTests {
             val currentFragment = getNavigator().getCurrentFragment() as ValueFragment
 
             val args = TestArgs.create()
-            currentFragment.getSimpleNavigator().show(FirstSheet::class, args)
+            currentFragment.simpleNavigator.show(FirstSheet::class, args)
             currentFragment.childFragmentManager.executePendingTransactions()
 
             // Check if dialog is showing.
@@ -176,28 +176,28 @@ class FragmentNavigatorTests {
             assert(args == sheetArgs)
 
             // Show multiple instance of this fragment.
-            currentFragment.getSimpleNavigator().show(FirstSheet::class)
-            currentFragment.getSimpleNavigator().show(FirstSheet::class)
-            currentFragment.getSimpleNavigator().show(FirstSheet::class)
+            currentFragment.simpleNavigator.show(FirstSheet::class)
+            currentFragment.simpleNavigator.show(FirstSheet::class)
+            currentFragment.simpleNavigator.show(FirstSheet::class)
             currentFragment.childFragmentManager.executePendingTransactions()
 
             // Now dismiss 4 times
             var dismissed = true
-            dismissed = dismissed and currentFragment.getSimpleNavigator().pop()
-            dismissed = dismissed and currentFragment.getSimpleNavigator().pop()
-            dismissed = dismissed and currentFragment.getSimpleNavigator().pop()
-            dismissed = dismissed and currentFragment.getSimpleNavigator().pop()
+            dismissed = dismissed and currentFragment.simpleNavigator.pop()
+            dismissed = dismissed and currentFragment.simpleNavigator.pop()
+            dismissed = dismissed and currentFragment.simpleNavigator.pop()
+            dismissed = dismissed and currentFragment.simpleNavigator.pop()
             currentFragment.childFragmentManager.executePendingTransactions()
 
             assert(dismissed)
 
             // Test dialog listener
             var called = false
-            currentFragment.getSimpleNavigator().show(SecondSheet::class) {
+            currentFragment.simpleNavigator.show(SecondSheet::class) {
                 called = true
             }
             currentFragment.childFragmentManager.executePendingTransactions()
-            currentFragment.getSimpleNavigator().pop()
+            currentFragment.simpleNavigator.pop()
             currentFragment.childFragmentManager.executePendingTransactions()
 
             assert(called)

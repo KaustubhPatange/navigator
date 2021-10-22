@@ -39,7 +39,7 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
                     animation = AnimationDefinition.Fade,
                     historyOptions = HistoryOptions.ClearHistory
                 )
-                getParentNavigator().navigateTo(nextFragment, options)
+                parentNavigator.navigateTo(nextFragment, options)
             } else {
                 val rect = Rect()
                 binding.btnNext.getGlobalVisibleRect(rect)
@@ -50,7 +50,7 @@ abstract class AbstractWelcomeFragment : ValueFragment(R.layout.fragment_disclai
                     remember = true,
 
                 )
-                getParentNavigator().navigateTo(nextFragment, options)
+                parentNavigator.navigateTo(nextFragment, options)
             }
         }
     }
