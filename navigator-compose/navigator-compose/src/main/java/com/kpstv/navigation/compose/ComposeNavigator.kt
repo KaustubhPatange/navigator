@@ -28,6 +28,14 @@ import kotlinx.coroutines.flow.*
 import kotlinx.parcelize.Parcelize
 import kotlin.reflect.KClass
 
+/**
+ * Navigation route key to be provided during `ComposeNavigator.Setup(...)` to make current navigation
+ * unique in the backstack & to enforce correct typesafe navigation.
+ *
+ * @see Route.Key
+ */
+public typealias RouteKey<T> = KClass<out Route.Key<T>>
+
 @RequiresOptIn("The method might be unstable and may not work correct in some edge cases.", RequiresOptIn.Level.WARNING)
 public annotation class UnstableNavigatorApi
 
@@ -41,7 +49,7 @@ public fun findComposeNavigator() : ComposeNavigator = LocalNavigator.current
  * Find & remember the [ComposeNavigator.Controller] provided by the nearest CompositionLocalProvider for [key].
  */
 @Composable
-public fun <T : Route> findController(key: KClass<T>): ComposeNavigator.Controller<T> {
+public fun <T : Route> findNavController(key: RouteKey<T>): ComposeNavigator.Controller<T> {
     val localNavigator = LocalNavigator.current
     return rememberComposable {
         localNavigator.getLocalController(key).current ?: throw Exception("Could not find Controller for key \"${key.qualifiedName}\". Did you forgot to call \"Navigator.Setup\"?")
@@ -65,9 +73,35 @@ public fun <T : Route> rememberNavController(): ComposeNavigator.Controller<T> {
 }
 
 /**
- * Destination must implement this interface to identify as Key for the root.
+ * Destination must implement this interface to identify as navigation route. Each navigation
+ * route should have [Key] to identify this route as a unique route in the backstack.
+ *
+ * ```
+ * sealed class MyRoute : Route {  // <-- Navigation root
+ *    @Parcelize @Immutable
+ *    data class First(val arg: String) : MyRoute()   // <-- Destination of MyRoute
+ * }
+ * ```
  */
-public interface Route : Parcelable
+public interface Route : Parcelable {
+    /**
+     * A [key] for Route [T] to make this navigation unique in the backstack.
+     *
+     * ```
+     * sealed class MyRoute : Route {
+     *    ...
+     *    companion object Key : Key<MyRoute> // <-- Key implementation
+     * }
+     * ```
+     * or
+     * ```
+     * class MyRouteKey { companion object : Route.Key<MyRoute> }
+     * ```
+     */
+    public interface Key<T : Route> {
+        public val key: KClass<out Key<T>> get() = this::class
+    }
+}
 /**
  * Destination must implement this interface to identify as Route for Dialog.
  */
@@ -272,7 +306,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
     /**
      * [associateKey] A parent key for this [key]. This means [associateKey] has setup navigation for this [key].
      */
-    internal class History<T : Route> internal constructor(internal val key: KClass<T>, internal var associateKey: KClass<out Route>?, internal val initial: T) {
+    internal class History<T : Route> internal constructor(internal val key: RouteKey<T>, internal var associateKey: KClass<out Route>?, internal val initial: T) {
         companion object {
             private const val LAST_REMOVED_ITEM_KEY = "history:last_item:key"
             private const val LAST_REMOVED_ITEM_ANIMATION = "history:last_item:animation"
@@ -453,14 +487,14 @@ public class ComposeNavigator private constructor(private val activity: Componen
      * This should be used to handle forward as well as backward navigation.
      */
     public class Controller<T : Route> internal constructor() {
-        internal lateinit var key: KClass<out Route>
+        internal lateinit var routeKey: RouteKey<out Route>
         private var navigator: ComposeNavigator? = null
         private var history: History<T>? = null
 
         private val dialogCreateStack = arrayListOf<KClass<out DialogRoute>>()
 
-        internal fun setup(key: KClass<out Route>, navigator: ComposeNavigator, history: History<T>) {
-            this.key = key; this.navigator = navigator; this.history = history
+        internal fun setup(key: RouteKey<out Route>, navigator: ComposeNavigator, history: History<T>) {
+            this.routeKey = key; this.navigator = navigator; this.history = history
         }
 
         /**
@@ -506,11 +540,11 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
             snapshot.add(History.BackStackRecord(destination, current.animationOptions))
 
-            if (!navigator.backStackMap.containsKey(key)) {
+            if (!navigator.backStackMap.containsKey(routeKey)) {
                 // This should not happen but it happened!
-                navigator.backStackMap[key] = history
+                navigator.backStackMap[routeKey] = history
             }
-            navigator.backStackMap.bringToTop(key)
+            navigator.backStackMap.bringToTop(routeKey)
 
             history.set(snapshot, History.NavType.Forward)
         }
@@ -652,7 +686,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
      * @return A snapshot of all the keys that were used during setup of navigation including
      *         the nested ones (if they are present).
      */
-    public fun getAllKeys(): List<KClass<out Route>> {
+    public fun getAllKeys(): List<RouteKey<out Route>> {
         return backStackMap.map { it.key }
     }
 
@@ -671,7 +705,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
      * @param key Key which is used during the setup of navigation.
      * @return A snapshot of the history for the [key] including all dialog routes.
      */
-    public fun getHistory(key: KClass<out Route>): List<Route> {
+    public fun getHistory(key: RouteKey<out Route>): List<Route> {
         val value = backStackMap[key] ?: throw RuntimeException("No navigation was setup using key: $key")
         return value.get().map { it.key } + value.dialogHistory.get()
     }
@@ -722,7 +756,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
         popped?.let { removeFromSaveableStateHolder(it.key) }
         last?.let { _ ->
             val currentLastKey = last.get().last().key::class
-            var associateKey: KClass<out Route>? = null
+            var associateKey: RouteKey<out Route>? = null
             backStackMap.forEach call@{ (key, history) ->
                 if (history.associateKey == currentLastKey) {
                     associateKey = key
@@ -954,7 +988,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
     }
 
-    internal val backStackMap = mutableMapOf<KClass<out Route>, History<*>>()
+    internal val backStackMap = mutableMapOf<RouteKey<out Route>, History<*>>()
     private lateinit var saveableStateHolder: SaveableStateHolder
     private val navigatorTransitions: ArrayList<NavigatorTransition> = arrayListOf()
     private var savedState: Bundle? = null
@@ -966,7 +1000,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
         savedState = savedInstanceState?.getBundle("${activity::class.qualifiedName}$NAVIGATOR_SAVED_STATE_SUFFIX")
     }
 
-    private fun<T : Route> fetchOrUpdateHistory(key: KClass<T>, associateKey: KClass<out Route>?, initial: T): History<T> {
+    private fun<T : Route> fetchOrUpdateHistory(key: RouteKey<T>, associateKey: KClass<out Route>?, initial: T): History<T> {
         val present = backStackMap.containsKey(key)
         if (!present) {
             // restore from saved state
@@ -999,8 +1033,8 @@ public class ComposeNavigator private constructor(private val activity: Componen
      * @see Controller
      */
     @Composable
-    public fun<T : Route> Setup(modifier: Modifier = Modifier, key: KClass<T>, controller: Controller<T>, initial: T, content: @Composable (currentRoute: T) -> Unit) {
-        val associateKey = remember {
+    public fun<T : Route> Setup(modifier: Modifier = Modifier, key: RouteKey<T>, controller: Controller<T>, initial: T, content: @Composable (currentRoute: T) -> Unit) {
+        val associateKey : KClass<out Route>? = remember {
             if (backStackMap.isNotEmpty()) {
                 backStackMap.lastValue()!!.getCurrentRecord().key::class
             } else null
@@ -1115,10 +1149,10 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
     private val compositionLocalScopeList = arrayListOf<ProvidableCompositionLocal<*>>() // for memoization
     @Composable
-    internal fun<T: Route> getLocalController(key: KClass<T>): ProvidableCompositionLocal<Controller<T>?> {
+    internal fun<T: Route> getLocalController(key: RouteKey<T>): ProvidableCompositionLocal<Controller<T>?> {
         compositionLocalScopeList.asReversed().fastForEach { scope ->
             val controller = scope.current as? Controller<*>
-            if (controller?.key == key) return scope as ProvidableCompositionLocal<Controller<T>?>
+            if (controller?.routeKey == key) return scope as ProvidableCompositionLocal<Controller<T>?>
         }
         val scope = compositionLocalOf<Controller<T>?> { null }
         compositionLocalScopeList.add(scope)

@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kpstv.navigation.compose.*
-import com.kpstv.navigation.compose.sample.ui.componenets.MenuItem
 import kotlinx.parcelize.Parcelize
 
 sealed class MenuSettingRoute : Route {
@@ -19,7 +18,8 @@ sealed class MenuSettingRoute : Route {
     data class First(private val noArg: String = "") : MenuSettingRoute()
     @Parcelize @Immutable
     data class Second(private val noArg: String = "") : MenuSettingRoute()
-    companion object { val key = MenuSettingRoute::class }
+    companion object Key : Route.Key<MenuSettingRoute>
+//    companion object { val key = MenuSettingRoute::class }
 }
 
 @Composable
@@ -38,7 +38,7 @@ fun MenuSettingScreen() {
 @Composable
 private fun MenuSettingFirstScreen() {
     val navigator = findComposeNavigator()
-    val settingController = findController(key = MenuSettingRoute.key)
+    val settingController = findNavController(key = MenuSettingRoute.key)
     Column(
         modifier = Modifier
             .fillMaxSize()

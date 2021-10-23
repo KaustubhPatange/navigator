@@ -33,10 +33,12 @@ public class Routes {
         public data class First(private val noArg: String = "") : MainRoute()
         @Parcelize
         public data class Second(private val noArg: String = "") : MainRoute()
+        public companion object Key : Route.Key<MainRoute>
     }
     public sealed class MainFirstRoute : Route {
         @Parcelize
         public data class First(private val noArg: String = "") : MainFirstRoute()
+        public companion object Key : Route.Key<MainFirstRoute>
     }
     public sealed class MainSecondRoute : Route {
         @Parcelize
@@ -45,15 +47,19 @@ public class Routes {
         public data class Second(private val noArg: String = "") : MainSecondRoute()
         @Parcelize
         public data class Third(private val noArg: String = "") : MainSecondRoute()
+        public companion object Key : Route.Key<MainSecondRoute>
     }
     public sealed class MainSecondFirstRoute : Route {
         @Parcelize
         public data class First(private val noArg: String = "") : MainSecondFirstRoute()
+        public companion object Key : Route.Key<MainSecondFirstRoute>
     }
     public sealed class MainSecondThirdRoute : Route {
         @Parcelize
         public data class First(private val noArg: String = "") : MainSecondThirdRoute()
         @Parcelize
         public data class Second(private val noArg: String = "") : MainSecondThirdRoute()
+        public companion object Key : Route.Key<MainSecondThirdRoute>
+
     }
 }

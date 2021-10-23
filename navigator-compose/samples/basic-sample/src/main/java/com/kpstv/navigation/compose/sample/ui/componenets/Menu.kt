@@ -36,9 +36,7 @@ sealed class MenuItem : Route {
         override fun toString() = "Settings"
         companion object { val key = Settings::class }
     }
-    companion object {
-        val key = MenuItem::class
-    }
+    companion object Key : Route.Key<MenuItem>
 }
 
 interface Menu {

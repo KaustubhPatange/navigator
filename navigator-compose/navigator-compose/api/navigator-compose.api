@@ -57,7 +57,7 @@ public final class com/kpstv/navigation/compose/ComposeNavigator$DialogScope {
 
 public final class com/kpstv/navigation/compose/ComposeNavigatorKt {
 	public static final fun findComposeNavigator (Landroidx/compose/runtime/Composer;I)Lcom/kpstv/navigation/compose/ComposeNavigator;
-	public static final fun findController (Lkotlin/reflect/KClass;Landroidx/compose/runtime/Composer;I)Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;
+	public static final fun findNavController (Lkotlin/reflect/KClass;Landroidx/compose/runtime/Composer;I)Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;
 	public static final fun rememberNavController (Landroidx/compose/runtime/Composer;I)Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;
 }
 
@@ -141,6 +141,14 @@ public abstract class com/kpstv/navigation/compose/NavigatorTransition {
 }
 
 public abstract interface class com/kpstv/navigation/compose/Route : android/os/Parcelable {
+}
+
+public abstract interface class com/kpstv/navigation/compose/Route$Key {
+	public abstract fun getKey ()Lkotlin/reflect/KClass;
+}
+
+public final class com/kpstv/navigation/compose/Route$Key$DefaultImpls {
+	public static fun getKey (Lcom/kpstv/navigation/compose/Route$Key;)Lkotlin/reflect/KClass;
 }
 
 public final class com/kpstv/navigation/compose/TransitionKey : android/os/Parcelable {

@@ -42,8 +42,7 @@ public sealed class MultipleStack : Route {
     @Parcelize public data class Second(private val noArg: String = ""): MultipleStack()
     @Parcelize public data class Third(private val noArg: String = ""): MultipleStack()
 
-    internal companion object {
-        val key = MultipleStack::class
+    internal companion object : Route.Key<MultipleStack> {
         internal fun getRouteFromIndex(index: Int) = when(index) {
             0 -> First()
             1 -> Second()
@@ -63,9 +62,7 @@ internal fun ReusableScreen(text: String) {
 public sealed class NextRoute : Route {
     @Parcelize public data class First(private val noArg: String = ""): NextRoute()
     @Parcelize public data class Second(private val noArg: String = ""): NextRoute()
-    internal companion object {
-        val key = NextRoute::class
-    }
+    internal companion object Key : Route.Key<NextRoute>
 }
 
 @Composable
@@ -93,6 +90,7 @@ internal sealed class NavigationDialogRoute : Route {
     data class First(private val noArg: String = ""): NavigationDialogRoute()
     @Parcelize
     data class Second(val message: String): NavigationDialogRoute()
+    companion object Key : Route.Key<NavigationDialogRoute>
 }
 
 @Parcelize
@@ -100,7 +98,7 @@ internal object DismissDialog : DialogRoute
 
 @Composable
 internal fun NextScreenFirst(next: () -> Unit) {
-    val nextScreenController = findController(key = NextRoute.key)
+    val nextScreenController = findNavController(key = NextRoute.key)
 
     nextScreenController.enableDialogOverlay = true
 
@@ -171,7 +169,7 @@ internal fun NextScreenFirst(next: () -> Unit) {
             .fillMaxWidth()
             .background(MaterialTheme.colors.background)) {
             val controller = rememberNavController<NavigationDialogRoute>()
-            dialogNavigator.Setup(key = NavigationDialogRoute::class, initial = NavigationDialogRoute.First(), controller = controller) { dest ->
+            dialogNavigator.Setup(key = NavigationDialogRoute.key, initial = NavigationDialogRoute.First(), controller = controller) { dest ->
                 when(dest) {
                     is NavigationDialogRoute.First -> {
                         Column(modifier = Modifier.height(300.dp)) {

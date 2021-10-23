@@ -26,9 +26,7 @@ sealed interface MainRoute : Route {
     @Immutable
     @Parcelize
     data class Second(private val noArgPlaceholder: String = "") : MainRoute
-    companion object {
-        val key = MainRoute::class
-    }
+    companion object Key : Route.Key<MainRoute>
 }
 
 @Parcelize

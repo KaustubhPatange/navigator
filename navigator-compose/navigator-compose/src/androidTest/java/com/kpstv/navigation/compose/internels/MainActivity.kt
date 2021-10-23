@@ -45,9 +45,7 @@ public sealed class StartRoute : Route {
     @Parcelize
     public data class Third(private val noArg: String = "") : StartRoute()
     @Parcelize public data class Forth(private val noArg: String = "") : StartRoute()
-    internal companion object {
-        val key = StartRoute::class
-    }
+    internal companion object : Route.Key<StartRoute>
 }
 
 @Composable
@@ -86,7 +84,7 @@ public fun StartFirstScreen(data: String, goToSecond: () -> Unit, goToThird: () 
 
 @Composable
 public fun StartSecondScreen() {
-    val controller = findController(StartRoute.key)
+    val controller = findNavController(StartRoute.key)
     Column {
         Text(text = stringResource(id = R.string.second_screen))
         IconButton(onClick = { controller.goBack() }, Modifier.testTag("icon_button")) {
@@ -109,9 +107,7 @@ public sealed class ThirdRoute : Route {
     public data class Primary(private val noArg: String = "") : ThirdRoute()
     @Parcelize
     public data class Secondary(val item: GalleryItem) : ThirdRoute()
-    internal companion object {
-        val key = ThirdRoute::class
-    }
+    internal companion object Key : Route.Key<ThirdRoute>
 }
 
 @Composable

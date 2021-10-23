@@ -18,7 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kpstv.navigation.compose.Route
 import com.kpstv.navigation.compose.findComposeNavigator
-import com.kpstv.navigation.compose.findController
+import com.kpstv.navigation.compose.findNavController
 import com.kpstv.navigation.compose.rememberNavController
 import com.kpstv.navigation.compose.sample.SlideWithFadeLeft
 import com.kpstv.navigation.compose.sample.SlideWithFadeRight
@@ -31,10 +31,12 @@ sealed interface MainFirstThirdRoute : Route {
 
     @Immutable
     @Parcelize
+    data class MainFirstThirdHome(private val noArg: String = "") : MainFirstThirdRoute
+
+    @Immutable
+    @Parcelize
     data class MainFirstThirdSecondary(private val noArg: String = "") : MainFirstThirdRoute
-    companion object {
-        val key = MainFirstThirdRoute::class
-    }
+    companion object Key : Route.Key<MainFirstThirdRoute>
 }
 
 @Composable
@@ -55,6 +57,7 @@ fun MainFirstThirdScreen() {
         }
         when (dest) {
             is MainFirstThirdRoute.MainFirstThirdPrimary -> MainFirstThirdPrimaryScreen(onChanged)
+            is MainFirstThirdRoute.MainFirstThirdHome -> MainFirstThirdHome()
             is MainFirstThirdRoute.MainFirstThirdSecondary -> MainFirstThirdSecondaryScreen()
         }
     }
@@ -62,7 +65,7 @@ fun MainFirstThirdScreen() {
 
 @Composable
 private fun MainFirstThirdPrimaryScreen(change: (MainFirstThirdRoute) -> Unit) {
-    val controller = findController(MainFirstThirdRoute.key)
+    val controller = findNavController(MainFirstThirdRoute.key)
     val navigator = findComposeNavigator()
     Column(
         modifier = Modifier
@@ -72,7 +75,7 @@ private fun MainFirstThirdPrimaryScreen(change: (MainFirstThirdRoute) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            "Third Screen 1\n\nBack navigation is suppressed for this screen & can only be triggered by pressing the icon below.\n\nBehold! This button has a custom transition defined.",
+            "Third Screen 1\n\nBack navigation is suppressed for this screen & can only be triggered by pressing the icon below.\n\nBehold! These navigation uses a custom defined transition.",
             modifier = Modifier.padding(20.dp),
             textAlign = TextAlign.Center
         )
@@ -81,6 +84,12 @@ private fun MainFirstThirdPrimaryScreen(change: (MainFirstThirdRoute) -> Unit) {
             modifier = Modifier.padding(top = 10.dp)
         ) {
             Text("Go to third screen")
+        }
+        Button(
+            onClick = { change.invoke(MainFirstThirdRoute.MainFirstThirdHome()) },
+            modifier = Modifier.padding(top = 10.dp)
+        ) {
+            Text("Go to home screen")
         }
         Spacer(modifier = Modifier.height(10.dp))
         IconButton(onClick = { controller.goBack() }) {

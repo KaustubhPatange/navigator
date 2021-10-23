@@ -47,7 +47,7 @@ class MultipleBackStackTests {
             baseNavigation = CustomCommonNavigationImpl(navFragment.getNavigator(), bottomNav.fragments, bottomNav)
             baseNavigation.onCreate(null)
             navFragment.apply base@ {
-                getParentNavigator().getFragmentManager().registerFragmentLifecycleCallbacks(
+                parentNavigator.getFragmentManager().registerFragmentLifecycleCallbacks(
                     FragmentNavigationLifecycle(navFragment, baseNavigation) { f, b ->
                         // Verify bundle
                         assert(!b.isEmpty && b["key_index"] is Int)
@@ -58,7 +58,7 @@ class MultipleBackStackTests {
                 (getNavigator().getCurrentFragment() as NavigatorFragment).apply {
                     tabNavigation = CustomCommonNavigationImpl(getNavigator(), tabNav.fragments, tabNav)
                     tabNavigation.onCreate(null)
-                    getParentNavigator().getFragmentManager().registerFragmentLifecycleCallbacks(
+                    parentNavigator.getFragmentManager().registerFragmentLifecycleCallbacks(
                         FragmentNavigationLifecycle(this, tabNavigation) { f, b ->
                             // Verify bundle
                             assert(!b.isEmpty && b["key_index"] is Int)

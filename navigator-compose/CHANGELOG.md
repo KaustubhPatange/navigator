@@ -1,5 +1,10 @@
 # Changelog
 
+## Version Unreleased
+
+- **Breaking Change**: Renamed `findController` to `findNavController`.
+- **Breaking Change**: Navigation Route is not tied to the class. Instead defined key using `Route.Key`.
+
 ## Version `0.1-alpha24` _(2021-10-08)_
 
 - **Breaking Change**: `popUpTo` doesn't require destination instance, instead they now accept `Route` keys.

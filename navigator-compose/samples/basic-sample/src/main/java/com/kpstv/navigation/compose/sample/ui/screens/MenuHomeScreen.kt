@@ -18,29 +18,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.kpstv.navigation.R
-import com.kpstv.navigation.compose.Fade
-import com.kpstv.navigation.compose.Route
-import com.kpstv.navigation.compose.findComposeNavigator
-import com.kpstv.navigation.compose.rememberNavController
+import com.kpstv.navigation.compose.*
 import com.kpstv.navigation.compose.sample.ui.componenets.CommonItem
 import com.kpstv.navigation.compose.sample.ui.componenets.sampleCommonItems
 import kotlinx.parcelize.Parcelize
 
-private sealed interface MenuHomeRoute : Route {
+sealed interface MenuHomeRoute : Route {
     @Immutable @Parcelize
     data class Primary(private val noArg: String = "") : MenuHomeRoute
     @Immutable @Parcelize
     data class Detail(val item: CommonItem) : MenuHomeRoute
-    companion object {
-        val key = MenuHomeRoute::class
-    }
 }
 
+class MenuHomeRouteKey { companion object Key : Route.Key<MenuHomeRoute> }
+
 @Composable
-fun MenuHomeScreen() {
+fun MenuHomeScreen(routeKey: RouteKey<MenuHomeRoute>) {
     val navigator = findComposeNavigator()
     val galleryController = rememberNavController<MenuHomeRoute>()
-    navigator.Setup(key = MenuHomeRoute.key, initial = MenuHomeRoute.Primary(), controller = galleryController) { dest ->
+    navigator.Setup(key = routeKey, initial = MenuHomeRoute.Primary(), controller = galleryController) { dest ->
         when (dest) {
             is MenuHomeRoute.Primary -> MenuHomePrimaryScreen {
                 galleryController.navigateTo(MenuHomeRoute.Detail(it)) {

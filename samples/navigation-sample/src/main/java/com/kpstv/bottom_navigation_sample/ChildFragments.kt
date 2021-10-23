@@ -44,7 +44,7 @@ class SettingFragment1 : AbstractFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupButton(view, "Go to Second Fragment") {
-            getParentNavigator().navigateTo(SettingFragment2::class, FragmentNavigator.NavOptions(remember = true))
+            parentNavigator.navigateTo(SettingFragment2::class, FragmentNavigator.NavOptions(remember = true))
         }
     }
 }

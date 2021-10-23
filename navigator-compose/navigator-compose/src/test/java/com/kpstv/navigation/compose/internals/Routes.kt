@@ -20,9 +20,7 @@ public sealed class TestRoute : Route {
     public data class Second4(private val noArg: String = "") : TestRoute()
     @Parcelize
     public data class Second5(private val noArg: String = "") : TestRoute()
-    internal companion object {
-        val key = TestRoute::class
-    }
+    internal companion object Key : Route.Key<TestRoute>
 }
 
 @Parcelize
