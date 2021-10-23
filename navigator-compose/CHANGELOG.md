@@ -1,6 +1,6 @@
 # Changelog
 
-## Version Unreleased
+## Version `0.1-alpha25` _(2021-10-23)_
 
 - **Breaking Change**: Renamed `findController` to `findNavController`.
 - **Breaking Change**: Navigation Route is not tied to the class. Instead defined key using `Route.Key`.
