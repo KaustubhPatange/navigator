@@ -139,7 +139,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
      * @return True means it is safe to [goBack].
      */
     fun canGoBack(): Boolean {
-        val count = getBackStackCount() // or history count if that's something should be done.
+        val count = history.count()
         if (count == 0) {
             val fragment = getCurrentFragment() ?: return false
             if (fragment is DialogFragment) return true
