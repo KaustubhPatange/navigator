@@ -3,7 +3,7 @@
 [![CI](https://github.com/KaustubhPatange/navigator/actions/workflows/build-compose.yml/badge.svg)](https://github.com/KaustubhPatange/navigator/actions/workflows/build-compose.yml)
 ![Maven Central](https://img.shields.io/maven-central/v/io.github.kaustubhpatange/navigator-compose)
 
-An implementation of [`navigator`](https://github.com/KaustubhPatange/navigator) for Jetpack Compose to handle navigation.
+A type-safe navigation library for Jetpack Compose.
 
 **What are the benefits?**
 
