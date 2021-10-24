@@ -1,5 +1,6 @@
 package com.kpstv.navigation.compose.sample.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,12 @@ fun MainFirstScreen(data: String, goToSecond: (MainRoute) -> Unit) {
 
 @Composable
 private fun MainFirstPrimaryScreen(data: String, goToSecond: (MainRoute) -> Unit, goToThird: (MainFirstRoute) -> Unit) {
+    val navigator = findComposeNavigator()
+    val controller = findNavController(key = MainRoute.key)
+
+    // show close dialog when backstack is empty.
+    BackHandler(!navigator.canGoBack()) { controller.showDialog(CloseDialog) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
