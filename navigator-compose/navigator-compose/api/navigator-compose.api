@@ -7,13 +7,11 @@ public final class com/kpstv/navigation/compose/ComposeNavigator {
 	public final fun getAllHistory ()Ljava/util/List;
 	public final fun getAllKeys ()Ljava/util/List;
 	public final fun getHistory (Lkotlin/reflect/KClass;)Ljava/util/List;
-	public final fun getSuppressBackPress ()Z
 	public final fun goBack ()Lcom/kpstv/navigation/compose/Route;
 	public final fun goBackToRoot ()Z
 	public final fun goBackUntil (Lkotlin/reflect/KClass;Z)Z
 	public static synthetic fun goBackUntil$default (Lcom/kpstv/navigation/compose/ComposeNavigator;Lkotlin/reflect/KClass;ZILjava/lang/Object;)Z
 	public final fun onSaveInstanceState (Landroid/os/Bundle;)V
-	public final fun setSuppressBackPress (Z)V
 }
 
 public final class com/kpstv/navigation/compose/ComposeNavigator$Builder {
