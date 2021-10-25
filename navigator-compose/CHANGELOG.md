@@ -1,5 +1,9 @@
 # Changelog
 
+## Version unreleased
+
+- **Breaking Change**: Removed `suppressBackPress` as there is no real use-case for it.
+
 ## Version `0.1-alpha25` _(2021-10-23)_
 
 - **Breaking Change**: Renamed `findController` to `findNavController`.

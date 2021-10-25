@@ -959,7 +959,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
     private val backPressHandler = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            if (!shouldSuppressBackPress()) goBack()
+            goBack()
         }
     }
 
@@ -976,8 +976,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
             }
         }
     }
-
-    private fun shouldSuppressBackPress() : Boolean = suppressBackPress
 
     private fun removeFromSaveableStateHolder(vararg items: Route) {
         removeFromSaveableStateHolder(items.toList())
@@ -1011,14 +1009,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
         return (backStackMap[key] as History<T>)
     }
-
-    /**
-     * When enabled, the back navigation will be disabled & no destinations will be popped from the history.
-     *
-     * This is different from [Builder.disableDefaultBackPressLogic] where if set to `False` then you need to manually handle
-     * Activity's `onBackPressed()` logic.
-     */
-    public var suppressBackPress: Boolean = false
 
     /**
      * An entry to the navigation composable.

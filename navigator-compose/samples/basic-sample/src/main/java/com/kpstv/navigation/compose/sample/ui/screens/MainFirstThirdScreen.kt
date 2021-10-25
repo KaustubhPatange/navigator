@@ -66,7 +66,6 @@ fun MainFirstThirdScreen() {
 @Composable
 private fun MainFirstThirdPrimaryScreen(change: (MainFirstThirdRoute) -> Unit) {
     val controller = findNavController(MainFirstThirdRoute.key)
-    val navigator = findComposeNavigator()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -75,7 +74,7 @@ private fun MainFirstThirdPrimaryScreen(change: (MainFirstThirdRoute) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            "Third Screen 1\n\nBack navigation is suppressed for this screen & can only be triggered by pressing the icon below.\n\nBehold! These navigation uses a custom defined transition.",
+            "Third Screen 1\n\nBehold! These navigation uses a custom defined transition.",
             modifier = Modifier.padding(20.dp),
             textAlign = TextAlign.Center
         )
@@ -94,13 +93,6 @@ private fun MainFirstThirdPrimaryScreen(change: (MainFirstThirdRoute) -> Unit) {
         Spacer(modifier = Modifier.height(10.dp))
         IconButton(onClick = { controller.goBack() }) {
             Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
-        }
-    }
-
-    DisposableEffect(key1 = controller) {
-        navigator.suppressBackPress = true
-        onDispose {
-            navigator.suppressBackPress = false
         }
     }
 }
