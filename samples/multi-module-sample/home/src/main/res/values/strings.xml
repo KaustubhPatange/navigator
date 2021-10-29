@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_title">HomeStartFragment</string>
+    <string name="state">ViewModel State: %1$s</string>
+    <string name="go_to_btn">Go To Internal Module Fragment</string>
+</resources>

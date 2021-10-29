@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_internal_title">Home Internal fragment</string>
+    <string name="go_to_next">Go To Home Second Internal</string>
+    <string name="btn_worker">Start Worker</string>
+    <string name="worker_status">Worker status: %1$s</string>
+</resources>

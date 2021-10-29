@@ -5,6 +5,11 @@
       <profile default="true" name="Default" enabled="true" />
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">
+      <module name="Navigator.app" target="11" />
+      <module name="Navigator.core" target="11" />
+      <module name="Navigator.home" target="11" />
+      <module name="Navigator.home-internal" target="11" />
+      <module name="Navigator.home-internal2" target="11" />
       <module name="Navigator.navigator" target="11" />
       <module name="Navigator.navigator-base-navigation" target="11" />
       <module name="Navigator.navigator-bottom-navigation" target="11" />
@@ -14,7 +19,9 @@
       <module name="Navigator.navigator-test-common" target="11" />
       <module name="Navigator.samples.backpress-sample" target="11" />
       <module name="Navigator.samples.basic-sample" target="11" />
+      <module name="Navigator.samples.multi-module-sample" target="11" />
       <module name="Navigator.samples.navigation-sample" target="11" />
+      <module name="Navigator.welcome" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>

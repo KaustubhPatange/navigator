@@ -22,10 +22,15 @@
             <option value="$PROJECT_DIR$/samples" />
             <option value="$PROJECT_DIR$/samples/backpress-sample" />
             <option value="$PROJECT_DIR$/samples/basic-sample" />
+            <option value="$PROJECT_DIR$/samples/multi-module-sample" />
+            <option value="$PROJECT_DIR$/samples/multi-module-sample/core" />
+            <option value="$PROJECT_DIR$/samples/multi-module-sample/home" />
+            <option value="$PROJECT_DIR$/samples/multi-module-sample/home-internal" />
+            <option value="$PROJECT_DIR$/samples/multi-module-sample/home-internal2" />
+            <option value="$PROJECT_DIR$/samples/multi-module-sample/welcome" />
             <option value="$PROJECT_DIR$/samples/navigation-sample" />
           </set>
         </option>
-        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
   </component>
