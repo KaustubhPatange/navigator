@@ -59,7 +59,8 @@ Snapshots of the current development version of `navigator` are available, which
 
 - [Basic sample](/samples/basic-sample) - Hands on with the introduction to some library features.
 - [Backpress sample](/samples/backpress-sample) - A sample focused on handling back press events effectively.
-- [Navigation Sample](/samples/navigation-sample) - A sample which demonstrate the use of Bottom & Tab navigation supporting multiple backstack through `navigator`.
+- [Navigation sample](/samples/navigation-sample) - A sample which demonstrate the use of Bottom & Tab navigation supporting multiple backstack through `navigator`.
+- [Multi-Module Navigation sample](/samples/multi-module-sample) - Multi-module navigation through `navigator` using Dagger-Hilt.
 - #### **Running the samples**
 
 ```
