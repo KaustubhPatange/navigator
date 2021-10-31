@@ -62,9 +62,13 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
      *
      */
     fun navigateTo(clazz: FragClazz, navOptions: NavOptions = NavOptions()) = with(navOptions) options@{
-        if (clazz == DialogFragment::class) show(clazz, args) // delegate to dialog navigation
-
         val newFragment = fm.newFragment(containerView.context, clazz)
+
+        if (newFragment is DialogFragment) {
+            show(clazz, args)
+            return@options
+        }
+
         val tagName = history.getUniqueBackStackName(clazz)
 
         // any one of the following will be true
