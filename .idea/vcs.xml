@@ -4,6 +4,5 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/docs" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/navigator-compose/samples/compose-samples" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/samples/multi-module-sample" vcs="Git" />
   </component>
 </project>
