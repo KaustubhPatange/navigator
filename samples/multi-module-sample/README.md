@@ -2,8 +2,7 @@
 
 The sample outline following things,
 
-- Multi-module navigation using `navigator`.
-- Tieing fragments using Hilt & Dagger with multimap bindings.
+- Multi-module navigation using `navigator` with Hilt DI.
 - Injecting WorkManager & ViewModel using Hilt.
 - Scoped navigation (root only knows `HomeFragment` & `WelcomeFragment` but `home` module manages `HomeStartFragment`, `HomeInternalFragment`, `HomeInternal2Fragment`)
 
