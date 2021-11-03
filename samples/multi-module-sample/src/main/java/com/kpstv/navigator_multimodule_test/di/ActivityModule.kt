@@ -1,20 +1,25 @@
 package com.kpstv.navigator_multimodule_test.di
 
-import androidx.fragment.app.FragmentFactory
-import com.kpstv.core.di.DaggerFragmentFactory
+import com.kpstv.home.di.HomeScope
+import com.kpstv.home.HomeFragment
 import com.kpstv.navigator_multimodule_test.navigation.welcome.WelcomeButtonClickImpl
 import com.kpstv.welcome.WelcomeButtonClick
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.migration.DisableInstallInCheck
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
 
 @Module
-@DisableInstallInCheck
+@InstallIn(ActivityComponent::class)
 abstract class ActivityModule {
   @Binds
   abstract fun provideWelcomeButtonClick(welcomeButtonClick: WelcomeButtonClickImpl) : WelcomeButtonClick
+}
 
-  @Binds
-  abstract fun fragmentFactory(daggerFragmentFactory: DaggerFragmentFactory): FragmentFactory
+@Module
+@InstallIn(ActivityComponent::class)
+class HomeFragmentModule {
+  @Provides @HomeScope
+  fun homeFragment() = HomeFragment()
 }

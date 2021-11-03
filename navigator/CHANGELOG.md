@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `0.1-alpha35`
+
+- **Added**: Methods for passing an instance of fragment for `navigateTo` & `show` call.
+
 ## Version `0.1-alpha34` 
 
 - **Fixed**: Issue where `navigateTo` a `DialogFragment` crashes the app.

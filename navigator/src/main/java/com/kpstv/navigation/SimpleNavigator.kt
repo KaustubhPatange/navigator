@@ -23,15 +23,28 @@ class SimpleNavigator internal constructor(private val context: Context, private
     /**
      * Navigate to a [DialogFragment].
      *
-     * @param clazz DialogFragment class to which it should navigate.
+     * @param clazz [DialogFragment] class to which it should navigate.
      * @param args Optional args to be passed.
      * @param onDismissListener Called when dialog is dismissed or canceled.
      */
     fun show(clazz: DialogFragClazz, args: BaseArgs? = null, onDismissListener: DialogDismissListener? = null) {
-        val dialog = fm.newFragment(context, clazz) as DialogFragment
+        val dialogFragment = fm.newFragment(context, clazz) as DialogFragment
+        show(dialogFragment, args, onDismissListener)
+    }
+
+    /**
+     * Navigate to a [DialogFragment].
+     *
+     * @param dialogFragment [DialogFragment] to which it should navigate.
+     * @param args Optional args to be passed.
+     * @param onDismissListener Called when dialog is dismissed or canceled.
+     */
+    fun show(dialogFragment: DialogFragment, args: BaseArgs? = null, onDismissListener: DialogDismissListener? = null) {
+        val clazz = dialogFragment::class
+
         val tagName = history.getUniqueBackStackName(clazz)
-        dialog.arguments = FragmentNavigator.createArguments(args)
-        dialog.show(fm, tagName)
+        dialogFragment.arguments = FragmentNavigator.createArguments(args)
+        dialogFragment.show(fm, tagName)
 
         if (onDismissListener != null) {
             dismissListeners[tagName] = onDismissListener

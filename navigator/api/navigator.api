@@ -108,9 +108,13 @@ public final class com/kpstv/navigation/FragmentNavigator {
 	public final fun getFragmentManager ()Landroidx/fragment/app/FragmentManager;
 	public final fun getHistory ()Lcom/kpstv/navigation/History;
 	public final fun goBack ()Z
+	public final fun navigateTo (Landroidx/fragment/app/Fragment;Lcom/kpstv/navigation/FragmentNavigator$NavOptions;)V
 	public final fun navigateTo (Lkotlin/reflect/KClass;Lcom/kpstv/navigation/FragmentNavigator$NavOptions;)V
+	public static synthetic fun navigateTo$default (Lcom/kpstv/navigation/FragmentNavigator;Landroidx/fragment/app/Fragment;Lcom/kpstv/navigation/FragmentNavigator$NavOptions;ILjava/lang/Object;)V
 	public static synthetic fun navigateTo$default (Lcom/kpstv/navigation/FragmentNavigator;Lkotlin/reflect/KClass;Lcom/kpstv/navigation/FragmentNavigator$NavOptions;ILjava/lang/Object;)V
+	public final fun show (Landroidx/fragment/app/DialogFragment;Lcom/kpstv/navigation/BaseArgs;Lkotlin/jvm/functions/Function1;)V
 	public final fun show (Lkotlin/reflect/KClass;Lcom/kpstv/navigation/BaseArgs;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun show$default (Lcom/kpstv/navigation/FragmentNavigator;Landroidx/fragment/app/DialogFragment;Lcom/kpstv/navigation/BaseArgs;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun show$default (Lcom/kpstv/navigation/FragmentNavigator;Lkotlin/reflect/KClass;Lcom/kpstv/navigation/BaseArgs;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 }
 
@@ -301,7 +305,9 @@ public class com/kpstv/navigation/NavAnimation {
 public final class com/kpstv/navigation/SimpleNavigator {
 	public static final field Companion Lcom/kpstv/navigation/SimpleNavigator$Companion;
 	public final fun pop ()Z
+	public final fun show (Landroidx/fragment/app/DialogFragment;Lcom/kpstv/navigation/BaseArgs;Lkotlin/jvm/functions/Function1;)V
 	public final fun show (Lkotlin/reflect/KClass;Lcom/kpstv/navigation/BaseArgs;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun show$default (Lcom/kpstv/navigation/SimpleNavigator;Landroidx/fragment/app/DialogFragment;Lcom/kpstv/navigation/BaseArgs;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun show$default (Lcom/kpstv/navigation/SimpleNavigator;Lkotlin/reflect/KClass;Lcom/kpstv/navigation/BaseArgs;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 }
 

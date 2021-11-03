@@ -106,7 +106,7 @@ internal class HistoryImpl internal constructor(private val fm: FragmentManager)
     }
 
     internal fun getUniqueBackStackName(clazz: FragClazz): String {
-        val name = "${clazz.simpleName}${BACKSTACK_SUFFIX}"
+        val name = "${clazz.qualifiedName}${BACKSTACK_SUFFIX}"
         var id = 0
         while (true) {
             val current = "$name$$id"

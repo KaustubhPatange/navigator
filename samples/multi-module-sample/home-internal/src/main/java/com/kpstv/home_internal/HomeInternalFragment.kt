@@ -2,20 +2,26 @@ package com.kpstv.home_internal
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
 import com.kpstv.home_internal.worker.HomeInternalWorker
 import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.ValueFragment
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-class HomeInternalFragment @Inject constructor(
-  private val homeButtonClicked: HomeButtonClicked
-) : ValueFragment(R.layout.fragment_home_internal) {
+@AndroidEntryPoint
+class HomeInternalFragment : ValueFragment(R.layout.fragment_home_internal) {
+
+  @Inject lateinit var homeButtonClicked: HomeButtonClicked
+
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    requireActivity().title = "Module: home-internal"
+    // don't do this, this is just for differentiating nested modules
+    requireParentFragment().requireView().findViewById<Toolbar>(R.id.toolbar).title = "Module: home-internal"
 
     val btnGoto = view.findViewById<Button>(R.id.btn_goto)
     btnGoto.setOnClickListener {

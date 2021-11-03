@@ -7,12 +7,14 @@ import android.widget.TextView
 import com.kpstv.core.SomeDependency
 import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.ValueFragment
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-class WelcomeFragment @Inject constructor(
-  private val someDependency: SomeDependency,
-  private val welcomeButtonClick: WelcomeButtonClick
-) : ValueFragment(R.layout.fragment_welcome) {
+@AndroidEntryPoint
+class WelcomeFragment : ValueFragment(R.layout.fragment_welcome) {
+
+  @Inject lateinit var someDependency: SomeDependency
+  @Inject lateinit var welcomeButtonClick: WelcomeButtonClick
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)

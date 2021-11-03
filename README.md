@@ -4,7 +4,7 @@
 
 > **Looking for Jetpack Compose implementation of `navigator`, see [here](navigator-compose)**.
 
-A small (Kotlin first) navigation library for Android to ease the use of fragment transactions with a `navigator.navigateTo`
+A small (Kotlin first) type-safe navigation library for Android to ease the use of fragment transactions with a `navigator.navigateTo`
 call (rest is handled for you) & navigating back is as simple as `navigator.goBack()`.
 
 You also get a separate `onBackPressed()` callback on the child fragments which will be called when `this` is the current visible fragment & is the one which is going to be removed upon back press.

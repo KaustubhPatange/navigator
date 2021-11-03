@@ -61,10 +61,22 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
      * @param navOptions Optional navigation options you can specify.
      *
      */
-    fun navigateTo(clazz: FragClazz, navOptions: NavOptions = NavOptions()) = with(navOptions) options@{
-        val newFragment = fm.newFragment(containerView.context, clazz)
+    fun navigateTo(clazz: FragClazz, navOptions: NavOptions = NavOptions()) {
+        val fragment = fm.newFragment(containerView.context, clazz)
+        navigateTo(fragment, navOptions)
+    }
 
-        if (newFragment is DialogFragment) {
+    /**
+     * Navigate to a [Fragment].
+     *
+     * @param fragment Fragment to which it should navigate.
+     * @param navOptions Optional navigation options you can specify.
+     *
+     */
+    fun navigateTo(fragment: Fragment, navOptions: NavOptions = NavOptions()) : Unit = with(navOptions) options@{
+        val clazz = fragment::class
+
+        if (fragment is DialogFragment) {
             show(clazz, args)
             return@options
         }
@@ -106,13 +118,13 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
                 // (maybe) should popUp it's childFragmentManager in this case.
                 show(sameFragment)
             } else {
-                newFragment.arguments = bundle
+                fragment.arguments = bundle
                 when (transaction) {
-                    TransactionType.REPLACE -> replace(containerView.id, newFragment, tagName)
-                    TransactionType.ADD -> add(containerView.id, newFragment, tagName)
+                    TransactionType.REPLACE -> replace(containerView.id, fragment, tagName)
+                    TransactionType.ADD -> add(containerView.id, fragment, tagName)
                 }
             }
-            setPrimaryNavigationFragment(newFragment)
+            setPrimaryNavigationFragment(fragment)
             // Cannot add to back stack when popUpTo is true
             if (!clearAllHistory && (remember || innerAddToBackStack)) {
                 history.add(BackStackRecord(tagName, clazz))
@@ -127,6 +139,13 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
      */
     fun show(clazz: DialogFragClazz, args: BaseArgs? = null, onDismissListener: DialogDismissListener? = null) {
         simpleNavigator.show(clazz, args, onDismissListener)
+    }
+
+    /**
+     * @see SimpleNavigator.show
+     */
+    fun show(dialogFragment: DialogFragment, args: BaseArgs? = null, onDismissListener: DialogDismissListener? = null) {
+        simpleNavigator.show(dialogFragment, args, onDismissListener)
     }
 
     /**
@@ -473,7 +492,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
             return null
         }
 
-        internal fun getFragmentTagName(clazz: FragClazz): String = clazz.java.simpleName + FRAGMENT_SUFFIX
+        internal fun getFragmentTagName(clazz: FragClazz): String = clazz.qualifiedName + FRAGMENT_SUFFIX
 
         internal fun createArguments(args: BaseArgs?) = Bundle().apply {
             if (args != null) {
