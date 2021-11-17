@@ -46,7 +46,7 @@ class FragmentNavigatorTests {
             assert(getNavigator().getFragmentManager().backStackEntryCount > 0)
 
             // Check if the backstack has unique name.
-            val name = "SecondFragment_navigator$0"
+            val name = "${SecondFragment::class.qualifiedName}_navigator$0"
             assert(getNavigator().getFragmentManager().getBackStackEntryAt(0).name == name)
 
             // Check a new unique backstack name for SecondFragment is not same as the above.
@@ -76,14 +76,16 @@ class FragmentNavigatorTests {
         activity.with {
             preSetupForHistoryTest(this)
 
+            val secondFragment = SecondFragment::class.qualifiedName
+
             // Check the backstack count
             assert(getNavigator().getFragmentManager().backStackEntryCount == 4)
 
             // Get the last backstack name
-            assert(getNavigator().getHistory().getBackStackName(SecondFragment::class) == "SecondFragment_navigator$2")
+            assert(getNavigator().getHistory().getBackStackName(SecondFragment::class) == "${secondFragment}_navigator$2")
 
             // Get the top backstack name
-            assert(getNavigator().getHistory().getTopBackStackName(SecondFragment::class) == "SecondFragment_navigator$0")
+            assert(getNavigator().getHistory().getTopBackStackName(SecondFragment::class) == "${secondFragment}_navigator$0")
 
             // Get all backstack name
             var list = getNavigator().getHistory().getAllBackStackName(SecondFragment::class)
@@ -101,14 +103,14 @@ class FragmentNavigatorTests {
             getNavigator().getFragmentManager().executePendingTransactions()
             list = getNavigator().getHistory().getAllBackStackName(SecondFragment::class)
             assert(list.count() == 2)
-            assert(list.last() == "SecondFragment_navigator$1")
+            assert(list.last() == "${secondFragment}_navigator$1")
 
             // Clear up to SecondFragment not inclusive & all
             getNavigator().getHistory().clearUpTo(SecondFragment::class, inclusive = false, all = true)
             getNavigator().getFragmentManager().executePendingTransactions()
             list = getNavigator().getHistory().getAllBackStackName(SecondFragment::class)
             assert(list.count() == 1)
-            assert(list[0] == "SecondFragment_navigator$0")
+            assert(list[0] == "${secondFragment}_navigator$0")
 
             // Check if pop works
             getNavigator().getHistory().pop()
@@ -168,7 +170,7 @@ class FragmentNavigatorTests {
             currentFragment.childFragmentManager.executePendingTransactions()
 
             // Check if dialog is showing.
-            val sheetFragment = currentFragment.childFragmentManager.findFragmentByTag("FirstSheet_navigator$0") as DialogFragment
+            val sheetFragment = currentFragment.childFragmentManager.findFragmentByTag("${FirstSheet::class.qualifiedName}_navigator$0") as DialogFragment
             assert(sheetFragment::class == FirstSheet::class)
 
             // Check for arguments equality.
