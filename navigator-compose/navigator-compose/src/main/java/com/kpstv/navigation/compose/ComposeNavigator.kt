@@ -818,7 +818,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
         var secondIterationSet = false
         if (backStackMap.isNotEmpty()) {
             var keys = backStackMap.keys.toList()
-            val lastRouteKey = backStackMap.lastKey()
             val associatedItem = backStackMap.filter { it.value.associateKey == finalDestKey }.firstNotNullOfOrNull { it }
             val sourceItem = backStackMap.filter { entry -> entry.value.get().any { it.key::class == finalDestKey } }.firstNotNullOf { it }
             val sourceKeyIndex = keys.indexOf(sourceItem.key)
@@ -828,6 +827,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     backStackMap.moveItemIndex(associatedKeyIndex, sourceKeyIndex + 1)
                     if (sourceItem.value.get().last().key::class != finalDestKey) {
                         sourceItem.value.popUntil(finalDestKey as KClass<Nothing>, inclusive = false)
+                            ?.also { removed -> removeFromSaveableStateHolder(removed.map { it.key }) }
                     }
                 }
                 if (!inclusive) {
@@ -852,6 +852,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     backStackMap.moveItemIndex(sourceKeyIndex, associatedKeyIndex + 1)
                     if (associatedKeyItem.value.get().last().key::class != sourceItem.value.associateKey) {
                         associatedKeyItem.value.popUntil(sourceItem.value.associateKey as KClass<Nothing>, inclusive = false)
+                            ?.also { removed -> removeFromSaveableStateHolder(removed.map { it.key }) }
                     }
                 }
                 if (inclusive && sourceItem.value.get().indexOfFirst { it.key::class == finalDestKey } == 0) {
@@ -860,6 +861,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             }
             // keys may have changed due to reordering so better to calculate it again.
             keys = backStackMap.keys.toList()
+            val lastRouteKey = backStackMap.lastKey()
 
             for (i in keys.size - 1 downTo 0) {
                 if (firstIterationSet && secondIterationSet) break

@@ -1,3 +1,5 @@
+@file:Suppress("invisible_reference", "invisible_member")
+
 package com.kpstv.navigation.compose
 
 import android.os.Bundle

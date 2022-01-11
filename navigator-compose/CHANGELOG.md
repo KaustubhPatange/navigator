@@ -3,6 +3,7 @@
 ## Version unreleased
 
 - **Breaking Change**: Removed `suppressBackPress` as there is no real use-case for it.
+- **Fixed**: `goBackUntil` doesn't correct remove keys from `saveableStateHolder` upon pop.
 
 ## Version `0.1-alpha25` _(2021-10-23)_
 
