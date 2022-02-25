@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `0.1-alpha36`
+
+- **Fixed**: `StateViewModel`'s history will also be considered during initial destination(s) creation.
+
 ## Version `0.1-alpha35`
 
 - **Added**: Methods for passing an instance of fragment for `navigateTo` & `show` call.

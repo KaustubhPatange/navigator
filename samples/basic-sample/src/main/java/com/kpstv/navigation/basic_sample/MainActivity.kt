@@ -22,7 +22,10 @@ class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
             .initialize(findViewById(R.id.container), Destination.of(MainFragment::class))
 
         viewModel.navigation.observe(this) { option ->
-            navigator.navigateTo(option.clazz, option.options)
+            if (!option.isConsumed()) {
+                navigator.navigateTo(option.clazz, option.options)
+                option.consumed()
+            }
         }
     }
 
@@ -30,6 +33,11 @@ class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
         MAIN(MainFragment::class),
         FIRST(FragFirst::class),
         SECOND(FragSecond::class)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        println("")
     }
 
     override fun onBackPressed() {
@@ -57,6 +65,12 @@ class MainViewModel : ViewModel() {
 
     class NavigationOptions(
         val clazz: KClass<out Fragment>,
-        val options: FragmentNavigator.NavOptions
-    )
+        val options: FragmentNavigator.NavOptions,
+    ) {
+        private var consumed: Boolean = false
+        fun consumed() {
+            consumed = true
+        }
+        fun isConsumed() = consumed
+    }
 }

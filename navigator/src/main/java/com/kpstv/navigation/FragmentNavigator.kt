@@ -394,16 +394,14 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
             navigator = FragmentNavigator(fragmentManager, containerView)
             navigator.owner = owner
             navigator.stateViewModel = ViewModelProvider(owner as ViewModelStoreOwner, StateViewModel.Factory()).get(SAVE_STATE_MODEL, StateViewModel::class.java)
-            navigator.savedInstanceState = savedInstanceState
-            if (savedInstanceState != null) {
-                navigator.restoreState(savedInstanceState)
-            } else {
-                val bundle = navigator.stateViewModel.getHistory(stateViewModelKey)
-                if (bundle != null && !bundle.isEmpty) {
-                    navigator.restoreState(bundle)
-                }
+            navigator.savedInstanceState = savedInstanceState ?: navigator.stateViewModel.getHistory(stateViewModelKey)
+
+            val bundle = navigator.savedInstanceState
+            if (bundle != null && !bundle.isEmpty) {
+                navigator.restoreState(bundle)
             }
-            if (initials != null && navigator.getHistory().isEmpty() && savedInstanceState == null) {
+
+            if (initials != null && navigator.getHistory().isEmpty() && bundle == null) {
                 initials.fragments.onEachIndexed { index, ( fragClass, baseArgs) ->
                     navigator.navigateTo(fragClass, NavOptions(args = baseArgs, remember = index != 0))
                 }
