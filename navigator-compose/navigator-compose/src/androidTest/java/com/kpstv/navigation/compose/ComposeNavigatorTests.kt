@@ -10,6 +10,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.kpstv.navigation.compose.internels.*
 import com.kpstv.navigation.compose.test.R
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,6 +19,11 @@ import org.junit.runner.RunWith
 public class ComposeNavigatorTests {
     @get:Rule
     public val composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity> = createAndroidComposeRule()
+
+    @Before
+    public fun init() {
+        LifecycleControllerStore.clear()
+    }
 
     @Test
     public fun NavigateToSecondScreenTests() {
@@ -637,5 +643,88 @@ public class ComposeNavigatorTests {
 
     private fun <T : Route> ComposeNavigator.History<T>.push(element: T) {
         push(ComposeNavigator.History.BackStackRecord(element))
+    }
+
+    @Test
+    public fun LifecycleControllerStoreTest() {
+        val go_to_second = composeTestRule.activity.getString(R.string.go_to_second)
+        val go_to_third = composeTestRule.activity.getString(R.string.go_to_third)
+
+        composeTestRule.activity.apply {
+            composeTestRule.onNodeWithText(go_to_second).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(go_to_third).performClick()
+            composeTestRule.waitForIdle()
+        }
+        composeTestRule.activityRule.scenario.recreate()
+        composeTestRule.activity.apply {
+            var snapshot = LifecycleControllerStore.getSnapshot()
+            assert(snapshot.isNotEmpty() && snapshot.size == 3)
+
+            // We will compare the routes by preserving the order.
+            var routes = snapshot.keys.map { it::class.qualifiedName }
+            var orderedRoutes = listOf(
+                StartRoute.Third::class.qualifiedName,
+                ThirdRoute.Primary::class.qualifiedName,
+                StartRoute.First::class.qualifiedName,
+            )
+            assert(routes == orderedRoutes)
+
+            onBackPressed()
+            composeTestRule.waitForIdle()
+
+            snapshot = LifecycleControllerStore.getSnapshot()
+            routes = snapshot.keys.map { it::class.qualifiedName }
+            orderedRoutes = listOf(
+                StartRoute.First::class.qualifiedName
+            )
+            assert(snapshot.size == 1)
+            assert(routes == orderedRoutes)
+        }
+    }
+
+    @Test
+    public fun ScopedViewModelTest() {
+        val go_to_viewmodel = composeTestRule.activity.getString(R.string.go_to_viewmodel_screen)
+
+        var global_testViewModelData: ArrayList<String>? = null
+        var global_differentViewModelData: ArrayList<String>? = null
+
+        fun verifyOrCaptureBundle(navigator: ComposeNavigator) {
+            val bundle = Bundle()
+            navigator.onSaveInstanceState(bundle)
+
+            val firstKey = bundle.keySet().toList()[0]
+            val navigatorBundle = bundle.getBundle(firstKey)!!
+            val innerBundle = navigatorBundle.getBundle(navigatorBundle.keySet().toList()[0])!!
+            val savedStateBundle = innerBundle.getBundle("androidx.lifecycle.BundlableSavedStateRegistry.key")!!
+            val testViewModelBundle = savedStateBundle.getBundle("androidx.lifecycle.ViewModelProvider.DefaultKey:${TestViewModel::class.qualifiedName}")!!
+            val testViewModelData = testViewModelBundle.getStringArrayList("values")
+
+            val differentViewModelBundle = savedStateBundle.getBundle("different")!!
+            val differentViewModelData = differentViewModelBundle.getStringArrayList("values")
+
+            if (global_testViewModelData == null && global_differentViewModelData == null) {
+                global_testViewModelData = testViewModelData
+                global_differentViewModelData = differentViewModelData
+                return
+            }
+
+            assert(global_testViewModelData == testViewModelData)
+            assert(global_differentViewModelData == differentViewModelData)
+        }
+
+        composeTestRule.activity.apply {
+            composeTestRule.onNodeWithText(go_to_viewmodel).performClick()
+            composeTestRule.waitForIdle()
+
+            // automatically should tests viewmodels
+            verifyOrCaptureBundle(navigator)
+        }
+        composeTestRule.activityRule.scenario.recreate()
+        composeTestRule.activity.apply {
+            verifyOrCaptureBundle(navigator)
+        }
     }
 }

@@ -45,6 +45,7 @@ public sealed class StartRoute : Route {
     @Parcelize
     public data class Third(private val noArg: String = "") : StartRoute()
     @Parcelize public data class Forth(private val noArg: String = "") : StartRoute()
+    @Parcelize public data class ViewModelRoute(private val noArg: String = "") : StartRoute()
     internal companion object : Route.Key<StartRoute>
 }
 
@@ -57,17 +58,19 @@ public fun StartScreen(navigator: ComposeNavigator) {
                 data = dest.data,
                 goToSecond = { controller.navigateTo(StartRoute.Second()) },
                 goToThird = { controller.navigateTo(StartRoute.Third()) },
-                goToForth = { controller.navigateTo(StartRoute.Forth()) }
+                goToForth = { controller.navigateTo(StartRoute.Forth()) },
+                goToViewModel = { controller.navigateTo(StartRoute.ViewModelRoute()) }
             )
             is StartRoute.Second -> StartSecondScreen()
             is StartRoute.Third -> ThirdScreen()
             is StartRoute.Forth -> MultipleStackScreen()
+            is StartRoute.ViewModelRoute -> ViewModelScreen()
         }
     }
 }
 
 @Composable
-public fun StartFirstScreen(data: String, goToSecond: () -> Unit, goToThird: () -> Unit, goToForth: () -> Unit) {
+public fun StartFirstScreen(data: String, goToSecond: () -> Unit, goToThird: () -> Unit, goToForth: () -> Unit, goToViewModel: () -> Unit) {
     Column {
         Text(data)
         Button(onClick = { goToSecond.invoke() }) {
@@ -78,6 +81,9 @@ public fun StartFirstScreen(data: String, goToSecond: () -> Unit, goToThird: () 
         }
         Button(onClick = { goToForth.invoke() }) {
             Text(text = stringResource(id = R.string.go_to_forth))
+        }
+        Button(onClick = { goToViewModel.invoke() }) {
+            Text(text = stringResource(id = R.string.go_to_viewmodel_screen))
         }
     }
 }
