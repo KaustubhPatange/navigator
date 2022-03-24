@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kpstv.navigation.compose">
-    <application android:label="Compose Navigator Test">
-        <activity android:name=".internels.MainActivity" android:exported="true">
+    package="com.kpstv.navigation.compose.hilt">
+    <application android:name=".internals.App" android:label="Compose Navigator Hilt Test">
+        <activity android:name=".internals.MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

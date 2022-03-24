@@ -1126,7 +1126,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
      * @see Controller
      */
     @Composable
-    public fun<T : Route> Setup(modifier: Modifier = Modifier, key: RouteKey<T>, controller: Controller<T>, initial: T, content: @Composable (currentRoute: T) -> Unit) {
+    public fun<T : Route> Setup(modifier: Modifier = Modifier, key: RouteKey<T>, initial: T, controller: Controller<T>, content: @Composable (currentRoute: T) -> Unit) {
         val associateKey : KClass<out Route>? = remember {
             if (backStackMap.isNotEmpty()) {
                 backStackMap.lastValue()!!.getCurrentRecord().key::class

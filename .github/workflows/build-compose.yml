@@ -65,7 +65,9 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle-
 
       - name: Verify binary compatibility
-        run: ./gradlew navigator-compose:apiCheck
+        run: |
+          ./gradlew navigator-compose:apiCheck
+          ./gradlew navigator-compose-hilt:apiCheck
 
       # Publishing library locally
       - name: Publishing libraries to local maven
@@ -86,6 +88,14 @@ jobs:
         with:
           api-level: 29
           script: ./navigator-compose/run_test.sh
+
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: test-results
+          path: |
+            navigator-compose/build/reports/androidTests/
+            navigator-compose-hilt/build/reports/androidTests/
 
       - name: Publishing snapshots to Sonatype
         if: github.ref == 'refs/heads/master' && github.event_name == 'push' # only on push & master

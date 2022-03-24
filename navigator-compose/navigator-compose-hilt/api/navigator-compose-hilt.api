@@ -1,0 +1,25 @@
+public final class com/kpstv/navigation/compose/hilt/HiltViewModelKt {
+	public static final fun findActivity (Landroid/content/Context;)Landroidx/activity/ComponentActivity;
+}
+
+public abstract interface class com/kpstv/navigation/compose/hilt/HiltWrapper_NavigatorHiltViewModelFactories_ViewModelFactoryEntryPoint : com/kpstv/navigation/compose/hilt/NavigatorHiltViewModelFactories$ViewModelFactoryEntryPoint {
+}
+
+public final class com/kpstv/navigation/compose/hilt/NavigatorHiltViewModelFactories {
+	public static final field $stable I
+	public static final field INSTANCE Lcom/kpstv/navigation/compose/hilt/NavigatorHiltViewModelFactories;
+	public final fun getFactory (Landroidx/activity/ComponentActivity;Landroidx/savedstate/SavedStateRegistryOwner;Landroidx/lifecycle/ViewModelProvider$Factory;)Landroidx/lifecycle/ViewModelProvider$Factory;
+}
+
+public final class com/kpstv/navigation/compose/hilt/NavigatorHiltViewModelFactories_InternalViewModelFactory_Factory : dagger/internal/Factory {
+	public fun <init> (Ljavax/inject/Provider;Ljavax/inject/Provider;Ljavax/inject/Provider;)V
+	public static fun create (Ljavax/inject/Provider;Ljavax/inject/Provider;Ljavax/inject/Provider;)Lcom/kpstv/navigation/compose/hilt/NavigatorHiltViewModelFactories_InternalViewModelFactory_Factory;
+	public fun get ()Lcom/kpstv/navigation/compose/hilt/NavigatorHiltViewModelFactories$InternalViewModelFactory;
+	public synthetic fun get ()Ljava/lang/Object;
+	public static fun newInstance (Landroid/app/Application;Ljava/util/Set;Ldagger/hilt/android/internal/builders/ViewModelComponentBuilder;)Lcom/kpstv/navigation/compose/hilt/NavigatorHiltViewModelFactories$InternalViewModelFactory;
+}
+
+public class hilt_aggregated_deps/_com_kpstv_navigation_compose_hilt_HiltWrapper_NavigatorHiltViewModelFactories_ViewModelFactoryEntryPoint {
+	public fun <init> ()V
+}
+
