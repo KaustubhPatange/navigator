@@ -9,19 +9,23 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kpstv.navigation.compose.Route
 import com.kpstv.navigation.compose.findComposeNavigator
 import com.kpstv.navigation.compose.findNavController
+import com.kpstv.navigation.compose.hilt.hiltViewModel
 import com.kpstv.navigation.compose.rememberNavController
 import com.kpstv.navigation.compose.sample.SlideWithFadeLeft
 import com.kpstv.navigation.compose.sample.SlideWithFadeRight
+import com.kpstv.navigation.compose.sample.ui.viewmodels.HiltTestViewModel
 import kotlinx.parcelize.Parcelize
 
 sealed interface MainFirstThirdRoute : Route {
@@ -65,6 +69,8 @@ fun MainFirstThirdScreen() {
 
 @Composable
 private fun MainFirstThirdPrimaryScreen(change: (MainFirstThirdRoute) -> Unit) {
+    val viewModel = hiltViewModel<HiltTestViewModel>()
+
     val controller = findNavController(MainFirstThirdRoute.key)
     Column(
         modifier = Modifier
@@ -73,11 +79,19 @@ private fun MainFirstThirdPrimaryScreen(change: (MainFirstThirdRoute) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text("Third Screen 1", fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(20.dp))
         Text(
-            "Third Screen 1\n\nBehold! These navigation uses a custom defined transition.",
-            modifier = Modifier.padding(20.dp),
+            "Random value from ViewModel: \"${viewModel.data}\", should survive configuration & process death.",
+            modifier = Modifier.padding(horizontal = 20.dp),
             textAlign = TextAlign.Center
         )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            "Behold! These navigation uses a custom defined transition.",
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(20.dp))
         Button(
             onClick = { change.invoke(MainFirstThirdRoute.MainFirstThirdSecondary()) },
             modifier = Modifier.padding(top = 10.dp)

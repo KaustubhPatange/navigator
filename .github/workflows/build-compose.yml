@@ -94,8 +94,8 @@ jobs:
         with:
           name: test-results
           path: |
-            navigator-compose/build/reports/androidTests/
-            navigator-compose-hilt/build/reports/androidTests/
+            navigator-compose/navigator-compose/build/reports/androidTests/
+            navigator-compose/navigator-compose-hilt/build/reports/androidTests/
 
       - name: Publishing snapshots to Sonatype
         if: github.ref == 'refs/heads/master' && github.event_name == 'push' # only on push & master

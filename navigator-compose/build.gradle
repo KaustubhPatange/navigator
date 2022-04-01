@@ -3,7 +3,7 @@ apply plugin: 'binary-compatibility-validator'
 
 buildscript {
     ext {
-        kotlin_version = '1.5.30'
+        kotlin_version = '1.5.31'
         lintVersion = '30.1.0-alpha03'
         compose_version = '1.0.4'
         versions = [
@@ -17,7 +17,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.2.0-alpha03'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0"
         classpath "com.google.dagger:hilt-android-gradle-plugin:2.38.1"
         classpath 'org.jetbrains.kotlinx:binary-compatibility-validator:0.6.0'

@@ -7,12 +7,12 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import com.kpstv.navigation.compose.ComposeNavigator
 import com.kpstv.navigation.compose.rememberNavController
-import com.kpstv.navigation.compose.sample.ui.screens.CloseDialog
-import com.kpstv.navigation.compose.sample.ui.screens.MainFirstRoute
 import com.kpstv.navigation.compose.sample.ui.screens.MainRoute
 import com.kpstv.navigation.compose.sample.ui.screens.MainScreen
 import com.kpstv.navigation.compose.sample.ui.theme.ComposeTestAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private lateinit var navigator: ComposeNavigator
     private lateinit var controller: ComposeNavigator.Controller<MainRoute>
