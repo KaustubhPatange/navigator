@@ -25,6 +25,8 @@ import kotlin.random.Random
 public sealed class ViewModelRoute : Route {
     @Parcelize
     public data class TestViewModelInstances(private val noArg: String = "") : ViewModelRoute()
+    @Parcelize
+    public data class ViewModelNested(private val noArg: String = "") : ViewModelRoute()
 
     public companion object : Route.Key<ViewModelRoute>
 }
@@ -39,13 +41,14 @@ public fun ViewModelScreen() {
     findComposeNavigator().Setup(key = ViewModelRoute.key, initial = ViewModelRoute.TestViewModelInstances(), controller = controller) { dest ->
         when(dest) {
             is ViewModelRoute.TestViewModelInstances -> TestViewModelInstancesScreen(testViewModel, owner)
+            is ViewModelRoute.ViewModelNested -> ViewModelNested()
         }
     }
 
 }
 
 @Composable
-public fun TestViewModelInstancesScreen(comparer: TestViewModel, parentOwner: SavedStateRegistryOwner) {
+private fun TestViewModelInstancesScreen(comparer: TestViewModel, parentOwner: SavedStateRegistryOwner) {
     val controller = findNavController(key = ViewModelRoute.key)
     val context = LocalContext.current
     val owner = LocalSavedStateRegistryOwner.current
@@ -68,8 +71,38 @@ public fun TestViewModelInstancesScreen(comparer: TestViewModel, parentOwner: Sa
     assert(owner !== parentOwner) // makes sure the SavedStateRegistryOwners are different.
 
     Column {
+        Button(onClick = { controller.navigateTo(ViewModelRoute.ViewModelNested()) }) {
+            Text(text = stringResource(R.string.test_nested_viewmodel))
+        }
         Button(onClick = { controller.goBack() }) {
             Text(text = stringResource(R.string.go_back))
+        }
+    }
+}
+
+public sealed class ViewModelRouteNested : Route {
+    public companion object Key : Route.Key<ViewModelRoute>
+}
+
+@Composable
+private fun ViewModelNested() {
+    val controller = rememberNavController<ViewModelRoute>()
+    // When reusing routes, make sure to setup key with different params, since SaveableStateHolder is tied to it.
+    // Here even if the Route is reused we get a complete different route & LifecycleController associated with it.
+    findComposeNavigator().Setup(key = ViewModelRouteNested.key, initial = ViewModelRoute.TestViewModelInstances("different"), controller = controller) { dest ->
+        when(dest) {
+            is ViewModelRoute.TestViewModelInstances -> {
+
+                val context = LocalContext.current
+                val owner = LocalSavedStateRegistryOwner.current
+
+                val viewModel = viewModel<TestViewModel>(factory = TestViewModel.factory(context, owner))
+                assert(viewModel.data == "NOT_SET")
+                Button(onClick = { controller.goBack() }) {
+                    Text(text = stringResource(R.string.go_back))
+                }
+            }
+            is ViewModelRoute.ViewModelNested -> { }
         }
     }
 }

@@ -4,6 +4,7 @@
     <string name="go_to_third">Go to third</string>
     <string name="go_to_forth">Go to forth</string>
     <string name="go_to_viewmodel_screen">Go to ViewModel Screen</string>
+    <string name="test_nested_viewmodel">Test nested navigation ViewModel</string>
     <string name="go_to_second_bottom">Go to second_bottom</string>
     <string name="second_screen">Second Screen</string>
     <string name="detail_screen">Item with name %s &amp; age %d is displayed</string>

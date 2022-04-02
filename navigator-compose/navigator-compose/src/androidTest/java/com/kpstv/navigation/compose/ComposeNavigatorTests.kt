@@ -727,4 +727,28 @@ public class ComposeNavigatorTests {
             verifyOrCaptureBundle(navigator)
         }
     }
+
+    /*
+     * If you are reusing Routes in navigation, then the LifecycleController instance will not
+     * be different. Ideally you should avoid reusing routes, but if you to have to then remember
+     * that the ViewModelStore & SaveStateRegistryOwner will not be different as they are tied to
+     * Route & not the Route's key.
+     *
+     * Also reusing means composing routes with different
+     */
+    @Test
+    public fun TestDifferentViewModelInstanceWhenReusingSameRoutes() {
+        val go_to_viewmodel = composeTestRule.activity.getString(R.string.go_to_viewmodel_screen)
+        val test_nested_viewmodel = composeTestRule.activity.getString(R.string.test_nested_viewmodel)
+
+        composeTestRule.activity.apply {
+            composeTestRule.onNodeWithText(go_to_viewmodel).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(test_nested_viewmodel).performClick()
+            composeTestRule.waitForIdle()
+
+            // automatically should test for same viewmodel store instance for Route.
+        }
+    }
 }
