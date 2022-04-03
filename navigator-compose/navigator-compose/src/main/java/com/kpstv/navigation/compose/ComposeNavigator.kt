@@ -1078,14 +1078,14 @@ public class ComposeNavigator private constructor(private val activity: Componen
         removeStateAndConfiguration(items.toList())
     }
     private fun removeStateAndConfiguration(items: List<Route>) {
-        if (::saveableStateHolder.isInitialized) {
-            items.forEach { route ->
+        items.forEach { route ->
+            if (::saveableStateHolder.isInitialized) {
                 saveableStateHolder.removeState(route)
-                if (!activity.isChangingConfigurations) {
-                    route.lifecycleController.clearViewModelStore()
-                }
-                LifecycleControllerStore.remove(route)
             }
+            if (!activity.isChangingConfigurations) {
+                route.lifecycleController.clearViewModelStore()
+            }
+            LifecycleControllerStore.remove(route)
         }
     }
 

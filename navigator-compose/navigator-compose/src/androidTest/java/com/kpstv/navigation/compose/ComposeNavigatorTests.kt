@@ -740,6 +740,7 @@ public class ComposeNavigatorTests {
     public fun TestDifferentViewModelInstanceWhenReusingSameRoutes() {
         val go_to_viewmodel = composeTestRule.activity.getString(R.string.go_to_viewmodel_screen)
         val test_nested_viewmodel = composeTestRule.activity.getString(R.string.test_nested_viewmodel)
+        val go_back = composeTestRule.activity.getString(R.string.go_back)
 
         composeTestRule.activity.apply {
             composeTestRule.onNodeWithText(go_to_viewmodel).performClick()
@@ -749,6 +750,8 @@ public class ComposeNavigatorTests {
             composeTestRule.waitForIdle()
 
             // automatically should test for same viewmodel store instance for Route.
+            composeTestRule.onNodeWithText(go_back).performClick()
+            composeTestRule.waitForIdle()
         }
     }
 }

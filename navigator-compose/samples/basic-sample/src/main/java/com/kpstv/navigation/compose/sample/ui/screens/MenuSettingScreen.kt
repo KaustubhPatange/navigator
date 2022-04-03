@@ -4,11 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kpstv.navigation.compose.*
 import kotlinx.parcelize.Parcelize
@@ -46,6 +50,17 @@ private fun MenuSettingFirstScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val text = rememberSaveable { mutableStateOf("") }
+
+        Text(
+            text = "Enter some text, this will be saved while the screen is in the backstack.",
+            modifier = Modifier.padding(horizontal = 20.dp),
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        TextField(value = text.value, onValueChange = { text.value = it })
+
+        Spacer(modifier = Modifier.height(20.dp))
         Button(onClick = { settingController.navigateTo(MenuSettingRoute.Second()) {
             withAnimation {
                 target = Fade
