@@ -3,6 +3,7 @@
 ## Version `0.1-alpha27` _(2022-04-01)_
 
 - **Added**: Support for scoped `ViewModel`s (#20).
+- **Updated**: Jetpack Compose to version v1.0.4 (requires Kotlin v1.5.31).
 - **Breaking Change**: The signature of `ComposeNavigator.Setup(...)` is changed as some parameters are reordered.
 
 ## Version `0.1-alpha26` _(2022-03-20)_
