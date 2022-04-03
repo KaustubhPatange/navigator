@@ -2,7 +2,7 @@ public final class com/kpstv/navigation/compose/ComposeNavigator {
 	public static final field $stable I
 	public static final field Companion Lcom/kpstv/navigation/compose/ComposeNavigator$Companion;
 	public synthetic fun <init> (Landroidx/activity/ComponentActivity;Landroid/os/Bundle;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun Setup (Landroidx/compose/ui/Modifier;Lkotlin/reflect/KClass;Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public final fun Setup (Landroidx/compose/ui/Modifier;Lkotlin/reflect/KClass;Lcom/kpstv/navigation/compose/Route;Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public final fun canGoBack ()Z
 	public final fun getAllHistory ()Ljava/util/List;
 	public final fun getAllKeys ()Ljava/util/List;
@@ -73,6 +73,17 @@ public final class com/kpstv/navigation/compose/DefaultTransitionsKt {
 public abstract interface class com/kpstv/navigation/compose/DialogRoute : com/kpstv/navigation/compose/Route {
 }
 
+public final class com/kpstv/navigation/compose/DialogRoute$DefaultImpls {
+	public static fun getLifecycleController (Lcom/kpstv/navigation/compose/DialogRoute;)Lcom/kpstv/navigation/compose/LifecycleController;
+}
+
+public final class com/kpstv/navigation/compose/LifecycleController : androidx/lifecycle/ViewModelStoreOwner, androidx/savedstate/SavedStateRegistryOwner {
+	public static final field $stable I
+	public fun getLifecycle ()Landroidx/lifecycle/Lifecycle;
+	public fun getSavedStateRegistry ()Landroidx/savedstate/SavedStateRegistry;
+	public fun getViewModelStore ()Landroidx/lifecycle/ViewModelStore;
+}
+
 public final class com/kpstv/navigation/compose/NavOptions {
 	public static final field $stable I
 	public fun <init> ()V
@@ -139,6 +150,11 @@ public abstract class com/kpstv/navigation/compose/NavigatorTransition {
 }
 
 public abstract interface class com/kpstv/navigation/compose/Route : android/os/Parcelable {
+	public abstract fun getLifecycleController ()Lcom/kpstv/navigation/compose/LifecycleController;
+}
+
+public final class com/kpstv/navigation/compose/Route$DefaultImpls {
+	public static fun getLifecycleController (Lcom/kpstv/navigation/compose/Route;)Lcom/kpstv/navigation/compose/LifecycleController;
 }
 
 public abstract interface class com/kpstv/navigation/compose/Route$Key {

@@ -1,4 +1,5 @@
 include ":navigator-compose"
 include ":samples:basic-sample"
 include ':navigator-compose-lint'
+include ':navigator-compose-hilt'
 rootProject.name = "Navigator Compose"

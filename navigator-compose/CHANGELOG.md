@@ -1,5 +1,10 @@
 # Changelog
 
+## Version `0.1-alpha27` _(2022-04-01)_
+
+- **Added**: Support for scoped `ViewModel`s (#20).
+- **Breaking Change**: The signature of `ComposeNavigator.Setup(...)` is changed as some parameters are reordered.
+
 ## Version `0.1-alpha26` _(2022-03-20)_
 
 - **Breaking Change**: Removed `suppressBackPress` as there is no real use-case for it.
