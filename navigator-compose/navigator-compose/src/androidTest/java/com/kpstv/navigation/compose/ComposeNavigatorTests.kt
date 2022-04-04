@@ -687,6 +687,7 @@ public class ComposeNavigatorTests {
     @Test
     public fun ScopedViewModelTest() {
         val go_to_viewmodel = composeTestRule.activity.getString(R.string.go_to_viewmodel_screen)
+        val go_to_different_viewmodel_screen = composeTestRule.activity.getString(R.string.go_to_different_viewmodel_screen)
 
         var global_testViewModelData: ArrayList<String>? = null
         var global_differentViewModelData: ArrayList<String>? = null
@@ -698,7 +699,8 @@ public class ComposeNavigatorTests {
             val firstKey = bundle.keySet().toList()[0]
             val navigatorBundle = bundle.getBundle(firstKey)!!
             val innerBundle = navigatorBundle.getBundle(navigatorBundle.keySet().toList()[0])!!
-            val savedStateBundle = innerBundle.getBundle("androidx.lifecycle.BundlableSavedStateRegistry.key")!!
+            val routeBundle = innerBundle.getBundle("compose_navigator:saved_state:${ViewModelRoute.TestViewModelInstances::class.qualifiedName}")!!
+            val savedStateBundle = routeBundle.getBundle("androidx.lifecycle.BundlableSavedStateRegistry.key")!!
             val testViewModelBundle = savedStateBundle.getBundle("androidx.lifecycle.ViewModelProvider.DefaultKey:${TestViewModel::class.qualifiedName}")!!
             val testViewModelData = testViewModelBundle.getStringArrayList("values")
 
@@ -717,6 +719,11 @@ public class ComposeNavigatorTests {
 
         composeTestRule.activity.apply {
             composeTestRule.onNodeWithText(go_to_viewmodel).performClick()
+            composeTestRule.waitForIdle()
+
+            // we will move to one screen ahead to capture the data of viewmodels
+            // from previous screens.
+            composeTestRule.onNodeWithText(go_to_different_viewmodel_screen).performClick()
             composeTestRule.waitForIdle()
 
             // automatically should tests viewmodels

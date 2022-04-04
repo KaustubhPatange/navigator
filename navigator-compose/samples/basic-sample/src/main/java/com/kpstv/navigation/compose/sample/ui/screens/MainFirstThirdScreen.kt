@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -79,10 +80,12 @@ private fun MainFirstThirdPrimaryScreen(change: (MainFirstThirdRoute) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val data = viewModel.data.observeAsState()
+
         Text("Third Screen 1", fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(20.dp))
         Text(
-            "Random value from ViewModel: \"${viewModel.data}\", should survive configuration & process death.",
+            "Random value from ViewModel: \"${data.value}\", should survive configuration & process death.",
             modifier = Modifier.padding(horizontal = 20.dp),
             textAlign = TextAlign.Center
         )

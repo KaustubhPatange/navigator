@@ -286,6 +286,7 @@ public fun interface ComposeTransition {
 public class ComposeNavigator private constructor(private val activity: ComponentActivity, savedInstanceState: Bundle?) {
 
     public companion object {
+        private const val NAVIGATOR_SAVED_STATE_BUNDLE_KEY = "compose_navigator:saved_state:"
         private const val HISTORY_SAVED_STATE = "compose_navigator:state:"
         private const val NAVIGATOR_SAVED_STATE_SUFFIX = "_compose_navigator"
 
@@ -552,7 +553,11 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     putParcelableArrayList(BACKSTACK_RECORDS, ArrayList(backStack))
                     putParcelable(BACKSTACK_LAST_ITEM, current)
 
-                    backStack.forEach { it.key.lifecycleController.performSave(this) }
+                    backStack.forEach { record ->
+                        val savedStateBundle = Bundle()
+                        record.key.lifecycleController.performSave(savedStateBundle)
+                        putBundle("$NAVIGATOR_SAVED_STATE_BUNDLE_KEY${record.key::class.qualifiedName}", savedStateBundle)
+                    }
                     dialogHistory.saveState(this)
                 }
                 val name = "$HISTORY_SAVED_STATE${key.qualifiedName}"
@@ -568,7 +573,11 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
                 inner.getParcelable<BackStackRecord<T>>(BACKSTACK_LAST_ITEM)?.let { current = it }
 
-                backStack.forEach { it.key.lifecycleController.performRestore(inner) }
+                backStack.forEach { record ->
+                    val savedStateBundle = inner.getBundle("$NAVIGATOR_SAVED_STATE_BUNDLE_KEY${record.key::class.qualifiedName}")
+                        ?: return@forEach
+                    record.key.lifecycleController.performRestore(savedStateBundle)
+                }
                 dialogHistory.restoreState(inner)
                 return name
             }
