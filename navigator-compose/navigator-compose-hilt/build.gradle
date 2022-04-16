@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
     id 'dagger.hilt.android.plugin'
+    id 'maven-publish'
 }
 
 android {
@@ -66,3 +67,10 @@ dependencies {
     androidTestImplementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     kaptAndroidTest "com.google.dagger:hilt-android-compiler:2.38.1"
 }
+
+ext {
+    PUBLISH_ARTIFACT_ID = 'navigator-compose-hilt'
+    PUBLISH_VERSION = versions.navigator_compose
+}
+
+apply from: "${rootProject.projectDir}/../gradle/publish.gradle"

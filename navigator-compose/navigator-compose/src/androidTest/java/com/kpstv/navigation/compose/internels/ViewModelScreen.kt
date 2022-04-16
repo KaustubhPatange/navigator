@@ -27,6 +27,8 @@ public sealed class ViewModelRoute : Route {
     public data class TestViewModelInstances(private val noArg: String = "") : ViewModelRoute()
     @Parcelize
     public data class ViewModelNested(private val noArg: String = "") : ViewModelRoute()
+    @Parcelize
+    public data class DifferentViewModelScreen(private val noArg: String = "") : ViewModelRoute()
 
     public companion object : Route.Key<ViewModelRoute>
 }
@@ -42,6 +44,7 @@ public fun ViewModelScreen() {
         when(dest) {
             is ViewModelRoute.TestViewModelInstances -> TestViewModelInstancesScreen(testViewModel, owner)
             is ViewModelRoute.ViewModelNested -> ViewModelNested()
+            is ViewModelRoute.DifferentViewModelScreen -> DifferentViewModelScreen()
         }
     }
 
@@ -74,9 +77,20 @@ private fun TestViewModelInstancesScreen(comparer: TestViewModel, parentOwner: S
         Button(onClick = { controller.navigateTo(ViewModelRoute.ViewModelNested()) }) {
             Text(text = stringResource(R.string.test_nested_viewmodel))
         }
+        Button(onClick = { controller.navigateTo(ViewModelRoute.DifferentViewModelScreen()) }) {
+            Text(text = stringResource(R.string.go_to_different_viewmodel_screen))
+        }
         Button(onClick = { controller.goBack() }) {
             Text(text = stringResource(R.string.go_back))
         }
+    }
+}
+
+@Composable
+private fun DifferentViewModelScreen() {
+    val controller = findNavController(key = ViewModelRoute.key)
+    Button(onClick = { controller.goBack() }) {
+        Text(text = stringResource(R.string.go_back))
     }
 }
 
