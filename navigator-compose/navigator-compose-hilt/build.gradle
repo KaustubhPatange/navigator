@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    compileSdk 30
+    compileSdk 31
 
     defaultConfig {
         minSdk 21
-        targetSdk 30
+        targetSdk 31
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -52,20 +52,20 @@ dependencies {
     api project(":navigator-compose")
 
     implementation "androidx.compose.ui:ui:$compose_version"
-    implementation 'androidx.activity:activity-compose:1.3.0-beta01'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07'
+    implementation 'androidx.activity:activity-compose:1.4.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
 
-    implementation("com.google.dagger:hilt-android:2.38.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.38.1")
+    implementation("com.google.dagger:hilt-android:2.39.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.39.1")
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     androidTestImplementation "androidx.compose.material:material:$compose_version"
     androidTestImplementation "androidx.compose.ui:ui-util:$compose_version"
     androidTestImplementation "androidx.compose.runtime:runtime-livedata:$compose_version"
-    kaptAndroidTest "com.google.dagger:hilt-android-compiler:2.38.1"
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:2.39.1"
 }
 
 ext {

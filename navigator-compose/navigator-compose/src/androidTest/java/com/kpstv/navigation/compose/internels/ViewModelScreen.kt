@@ -117,6 +117,7 @@ private fun ViewModelNested() {
                 }
             }
             is ViewModelRoute.ViewModelNested -> { }
+            is ViewModelRoute.DifferentViewModelScreen -> { }
         }
     }
 }

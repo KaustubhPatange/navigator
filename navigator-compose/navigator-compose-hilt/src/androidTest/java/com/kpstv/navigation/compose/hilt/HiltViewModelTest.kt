@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import com.kpstv.navigation.compose.LifecycleControllerStore
 import com.kpstv.navigation.compose.hilt.internals.MainActivity
 import com.kpstv.navigation.compose.hilt.test.R
@@ -16,6 +17,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 public class HiltViewModelTest {
     @get:Rule
