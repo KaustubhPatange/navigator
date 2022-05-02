@@ -1177,10 +1177,8 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     backPressHandler.isEnabled = canGoBack() // update if back press is enabled or not.
                     onDispose {
                         if (!backStackMap.containsKey(key)) {
-                            android.util.Log.e("ComposeNavigator", "Disposing Key: ${key}")
                             history.get().forEach { saveableStateHolder.removeState(it) }
                         } else if (!history.get().contains(record)) {
-                            android.util.Log.e("ComposeNavigator", "Disposing: ${history.peek().key::class.qualifiedName}")
                             saveableStateHolder.removeState(record.key)
                         }
                     }
