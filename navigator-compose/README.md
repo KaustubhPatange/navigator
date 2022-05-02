@@ -55,6 +55,9 @@ Snapshots of the current development version of `navigator-compose` are availabl
   - [Navigation in Dialogs](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigation-in-dialogs)
   - [Managing `onBackPressed` manually](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#managing-onbackpressed-manually)
   - [Reusing Routes in Navigation](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#reusing-routes-in-navigation)
+  - [Navigation Scoped ViewModels](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigation-scoped-viewmodels)
+    - [Support for Hilt](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#support-for-hilt)
+    - [Limitation with Reusable Routes](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#limitation-with-reusable-routes)
 
 ## Apps using `navigator-compose`
 

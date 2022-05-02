@@ -1144,7 +1144,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
         val history = remember { fetchOrUpdateHistory(key, associateKey, initial) }
         val controllerInternal = remember { controller.apply { setup(key, this@ComposeNavigator, history) } }
         val compositionLocalScope = rememberComposable { getLocalController(key) }
-        if (!::saveableStateHolder.isInitialized) saveableStateHolder = rememberSaveableStateHolder()
+        val saveableStateHolder = rememberSaveableStateHolder()
 
         @Composable
         fun Inner(body: @Composable () -> Unit) = Box(modifier) { body() }
@@ -1152,9 +1152,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
 //       TODO: Make sure there is no twice key in the backStack
         Inner {
             // recompose on history change
-            CompositionLocalProvider(compositionLocalScope provides controllerInternal, LocalNavigator provides this, ) {
+            CompositionLocalProvider(compositionLocalScope provides controllerInternal, LocalNavigator provides this) {
+                val record = history.peek()
                 if (backStackMap.containsKey(key)) {
-                    val record = history.peek()
                     val animation = if (history.lastTransactionStatus == History.NavType.Forward) record.animation else history.getCurrentRecord().animation
                     CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
                         val lifecycleController = remember(peek) {
@@ -1173,9 +1173,18 @@ public class ComposeNavigator private constructor(private val activity: Componen
                         }
                     }
                 }
-            }
-            LaunchedEffect(history.peek()) {
-                backPressHandler.isEnabled = canGoBack() // update if back press is enabled or not.
+                DisposableEffect(key, record.key) {
+                    backPressHandler.isEnabled = canGoBack() // update if back press is enabled or not.
+                    onDispose {
+                        if (!backStackMap.containsKey(key)) {
+                            android.util.Log.e("ComposeNavigator", "Disposing Key: ${key}")
+                            history.get().forEach { saveableStateHolder.removeState(it) }
+                        } else if (!history.get().contains(record)) {
+                            android.util.Log.e("ComposeNavigator", "Disposing: ${history.peek().key::class.qualifiedName}")
+                            saveableStateHolder.removeState(record.key)
+                        }
+                    }
+                }
             }
         }
         DisposableEffect(Unit) {

@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `0.1-alpha28` _(2022-04-16)_
+
+- **Fixed**: Scoped `ViewModel`s `savedStateBundle` does not save across multiple screens.
+
 ## Version `0.1-alpha27` _(2022-04-01)_
 
 - **Added**: Support for scoped `ViewModel`s (#20).

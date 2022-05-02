@@ -35,6 +35,11 @@ public class MainActivity : ComponentActivity() {
             StartScreen(navigator)
         }
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        println(outState)
+    }
 }
 
 public sealed class StartRoute : Route {
