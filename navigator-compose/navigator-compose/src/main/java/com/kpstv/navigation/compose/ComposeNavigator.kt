@@ -164,6 +164,10 @@ public class LifecycleController private constructor() : SavedStateRegistryOwner
         viewModelStore.clear()
     }
 
+    internal fun handleLifecycleEvent(event: Lifecycle.Event) {
+        lifecycleRegistry.handleLifecycleEvent(event)
+    }
+
     internal companion object {
         fun get(screen: Route) : LifecycleController {
             return LifecycleControllerStore.getOrPut(screen) { LifecycleController() }
@@ -1070,12 +1074,27 @@ public class ComposeNavigator private constructor(private val activity: Componen
     }
 
     private val activityLifecycleCallbacks = object : Application.ActivityLifecycleCallbacks {
+
+        private fun handleRoutesLifecycleEvent(event: Lifecycle.Event) {
+            getAllHistory().forEach { it.lifecycleController.handleLifecycleEvent(event) }
+        }
+
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
-        override fun onActivityStarted(activity: Activity) {}
-        override fun onActivityResumed(activity: Activity) {}
-        override fun onActivityPaused(activity: Activity) {}
-        override fun onActivityStopped(activity: Activity) {}
-        override fun onActivityDestroyed(activity: Activity) {}
+        override fun onActivityStarted(activity: Activity) {
+            handleRoutesLifecycleEvent(Lifecycle.Event.ON_START)
+        }
+        override fun onActivityResumed(activity: Activity) {
+            handleRoutesLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        }
+        override fun onActivityPaused(activity: Activity) {
+            handleRoutesLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        }
+        override fun onActivityStopped(activity: Activity) {
+            handleRoutesLifecycleEvent(Lifecycle.Event.ON_STOP)
+        }
+        override fun onActivityDestroyed(activity: Activity) {
+            handleRoutesLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        }
         override fun onActivitySaveInstanceState(act: Activity, outState: Bundle) {
             if (activity === act) {
                 onSaveInstanceState(outState)
@@ -1094,6 +1113,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             if (!activity.isChangingConfigurations) {
                 route.lifecycleController.clearViewModelStore()
             }
+            route.lifecycleController.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             LifecycleControllerStore.remove(route)
         }
     }
@@ -1163,6 +1183,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                             // in any case if it is null we must restore an empty state.
                             if (!lifecycleController.isRestored()) {
                                 lifecycleController.performRestore(null)
+                                lifecycleController.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
                             }
                             return@remember lifecycleController
                         }
