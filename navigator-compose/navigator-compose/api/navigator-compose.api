@@ -6,9 +6,7 @@ public final class com/kpstv/navigation/compose/ComposeNavigator {
 	public final fun canGoBack ()Z
 	public final fun getAllHistory ()Ljava/util/List;
 	public final fun getAllKeys ()Ljava/util/List;
-	public final fun getBackStackMap$navigator_compose_release ()Ljava/util/Map;
 	public final fun getHistory (Lkotlin/reflect/KClass;)Ljava/util/List;
-	public final fun getLocalController$navigator_compose_release (Lkotlin/reflect/KClass;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public final fun goBack ()Lcom/kpstv/navigation/compose/Route;
 	public final fun goBackToRoot ()Z
 	public final fun goBackUntil (Lkotlin/reflect/KClass;Z)Z
@@ -18,7 +16,6 @@ public final class com/kpstv/navigation/compose/ComposeNavigator {
 
 public final class com/kpstv/navigation/compose/ComposeNavigator$Builder {
 	public static final field $stable I
-	public fun <init> (Landroidx/activity/ComponentActivity;Landroid/os/Bundle;)V
 	public final fun disableDefaultBackPressLogic ()Lcom/kpstv/navigation/compose/ComposeNavigator$Builder;
 	public final fun disableOnSaveStateInstance ()Lcom/kpstv/navigation/compose/ComposeNavigator$Builder;
 	public final fun initialize ()Lcom/kpstv/navigation/compose/ComposeNavigator;
@@ -31,8 +28,6 @@ public final class com/kpstv/navigation/compose/ComposeNavigator$Companion {
 
 public final class com/kpstv/navigation/compose/ComposeNavigator$Controller {
 	public static final field $stable I
-	public field routeKey Lkotlin/reflect/KClass;
-	public fun <init> ()V
 	public final fun CreateDialog (Lkotlin/reflect/KClass;Landroidx/compose/ui/window/DialogProperties;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public final fun canGoBack ()Z
 	public final fun closeDialog (Lkotlin/reflect/KClass;)Lcom/kpstv/navigation/compose/DialogRoute;
@@ -40,7 +35,6 @@ public final class com/kpstv/navigation/compose/ComposeNavigator$Controller {
 	public final fun getAllHistory ()Ljava/util/List;
 	public final fun getCurrentRouteAsFlow ()Lkotlinx/coroutines/flow/Flow;
 	public final fun getEnableDialogOverlay ()Z
-	public final fun getRouteKey$navigator_compose_release ()Lkotlin/reflect/KClass;
 	public final fun goBack ()Lcom/kpstv/navigation/compose/Route;
 	public final fun goBackToRoot ()Ljava/util/List;
 	public final fun goBackUntil (Lkotlin/reflect/KClass;Z)Ljava/util/List;
@@ -48,89 +42,15 @@ public final class com/kpstv/navigation/compose/ComposeNavigator$Controller {
 	public final fun navigateTo (Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun navigateTo$default (Lcom/kpstv/navigation/compose/ComposeNavigator$Controller;Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun setEnableDialogOverlay (Z)V
-	public final fun setRouteKey$navigator_compose_release (Lkotlin/reflect/KClass;)V
-	public final fun setup$navigator_compose_release (Lkotlin/reflect/KClass;Lcom/kpstv/navigation/compose/ComposeNavigator;Lcom/kpstv/navigation/compose/ComposeNavigator$History;)V
 	public final fun showDialog (Lcom/kpstv/navigation/compose/DialogRoute;)V
 }
 
 public final class com/kpstv/navigation/compose/ComposeNavigator$DialogScope {
 	public static final field $stable I
-	public fun <init> (Lcom/kpstv/navigation/compose/DialogRoute;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
 	public final fun dismiss ()Lcom/kpstv/navigation/compose/DialogRoute;
 	public final fun getDialogNavigator (Landroidx/compose/runtime/Composer;I)Lcom/kpstv/navigation/compose/ComposeNavigator;
 	public final fun getDialogRoute ()Lcom/kpstv/navigation/compose/DialogRoute;
-	public final fun getNavigator$navigator_compose_release ()Lcom/kpstv/navigation/compose/ComposeNavigator;
 	public final fun goBack ()Lcom/kpstv/navigation/compose/Route;
-	public final fun restoreState$navigator_compose_release (Landroid/os/Bundle;)V
-	public final fun saveState$navigator_compose_release (Landroid/os/Bundle;)V
-	public final fun setNavigator$navigator_compose_release (Lcom/kpstv/navigation/compose/ComposeNavigator;)V
-}
-
-public final class com/kpstv/navigation/compose/ComposeNavigator$History {
-	public static final field Companion Lcom/kpstv/navigation/compose/ComposeNavigator$History$Companion;
-	public fun <init> (Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Lcom/kpstv/navigation/compose/Route;)V
-	public final fun canGoBack$navigator_compose_release ()Z
-	public final fun canGoBackDialog$navigator_compose_release ()Z
-	public final fun get$navigator_compose_release ()Ljava/util/List;
-	public final fun getAssociateKey$navigator_compose_release ()Lkotlin/reflect/KClass;
-	public final fun getCurrentRecord$navigator_compose_release ()Lcom/kpstv/navigation/compose/ComposeNavigator$History$BackStackRecord;
-	public final fun getDialogHistory$navigator_compose_release ()Lcom/kpstv/navigation/compose/ComposeNavigator$History$DialogHistory;
-	public final fun getInitial$navigator_compose_release ()Lcom/kpstv/navigation/compose/Route;
-	public final fun getKey$navigator_compose_release ()Lkotlin/reflect/KClass;
-	public final fun getLastTransactionStatus$navigator_compose_release ()Lcom/kpstv/navigation/compose/ComposeNavigator$History$NavType;
-	public final fun peek$navigator_compose_release ()Lcom/kpstv/navigation/compose/ComposeNavigator$History$BackStackRecord;
-	public final fun pop$navigator_compose_release ()Lcom/kpstv/navigation/compose/ComposeNavigator$History$BackStackRecord;
-	public final fun popUntil$navigator_compose_release (Lkotlin/reflect/KClass;Z)Ljava/util/List;
-	public final fun push$navigator_compose_release (Lcom/kpstv/navigation/compose/ComposeNavigator$History$BackStackRecord;)V
-	public final fun restoreState$navigator_compose_release (Landroid/os/Bundle;)Ljava/lang/String;
-	public final fun saveState$navigator_compose_release (Landroid/os/Bundle;)V
-	public final fun set$navigator_compose_release (Ljava/util/List;Lcom/kpstv/navigation/compose/ComposeNavigator$History$NavType;)V
-	public final fun setAssociateKey$navigator_compose_release (Lkotlin/reflect/KClass;)V
-	public final fun setLastTransactionStatus$navigator_compose_release (Lcom/kpstv/navigation/compose/ComposeNavigator$History$NavType;)V
-}
-
-public final class com/kpstv/navigation/compose/ComposeNavigator$History$BackStackRecord : android/os/Parcelable {
-	public static final field CREATOR Landroid/os/Parcelable$Creator;
-	public fun <init> (Lcom/kpstv/navigation/compose/Route;Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;)V
-	public synthetic fun <init> (Lcom/kpstv/navigation/compose/Route;Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lcom/kpstv/navigation/compose/Route;
-	public final fun component2 ()Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;
-	public final fun copy (Lcom/kpstv/navigation/compose/Route;Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;)Lcom/kpstv/navigation/compose/ComposeNavigator$History$BackStackRecord;
-	public static synthetic fun copy$default (Lcom/kpstv/navigation/compose/ComposeNavigator$History$BackStackRecord;Lcom/kpstv/navigation/compose/Route;Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;ILjava/lang/Object;)Lcom/kpstv/navigation/compose/ComposeNavigator$History$BackStackRecord;
-	public fun describeContents ()I
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAnimation ()Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;
-	public final fun getKey ()Lcom/kpstv/navigation/compose/Route;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-	public fun writeToParcel (Landroid/os/Parcel;I)V
-}
-
-public final class com/kpstv/navigation/compose/ComposeNavigator$History$Companion {
-}
-
-public final class com/kpstv/navigation/compose/ComposeNavigator$History$DialogHistory {
-	public fun <init> ()V
-	public final fun add$navigator_compose_release (Lcom/kpstv/navigation/compose/DialogRoute;)V
-	public final fun clear$navigator_compose_release ()V
-	public final fun count$navigator_compose_release ()I
-	public final fun createDialogScope$navigator_compose_release (Lcom/kpstv/navigation/compose/DialogRoute;Lkotlin/jvm/functions/Function0;)Lcom/kpstv/navigation/compose/ComposeNavigator$DialogScope;
-	public final fun get$navigator_compose_release ()Ljava/util/List;
-	public final fun get$navigator_compose_release (Lkotlin/reflect/KClass;)Lcom/kpstv/navigation/compose/DialogRoute;
-	public final fun getScopes$navigator_compose_release ()Ljava/util/List;
-	public final fun isEmpty$navigator_compose_release ()Z
-	public final fun peek$navigator_compose_release ()Lcom/kpstv/navigation/compose/DialogRoute;
-	public final fun pop$navigator_compose_release ()Lcom/kpstv/navigation/compose/Route;
-	public final fun remove$navigator_compose_release (Lkotlin/reflect/KClass;)Lcom/kpstv/navigation/compose/DialogRoute;
-	public final fun restoreState$navigator_compose_release (Landroid/os/Bundle;)V
-	public final fun saveState$navigator_compose_release (Landroid/os/Bundle;)V
-}
-
-public final class com/kpstv/navigation/compose/ComposeNavigator$History$NavType : java/lang/Enum {
-	public static final field Backward Lcom/kpstv/navigation/compose/ComposeNavigator$History$NavType;
-	public static final field Forward Lcom/kpstv/navigation/compose/ComposeNavigator$History$NavType;
-	public static fun valueOf (Ljava/lang/String;)Lcom/kpstv/navigation/compose/ComposeNavigator$History$NavType;
-	public static fun values ()[Lcom/kpstv/navigation/compose/ComposeNavigator$History$NavType;
 }
 
 public final class com/kpstv/navigation/compose/ComposeNavigatorKt {
@@ -145,13 +65,9 @@ public abstract interface class com/kpstv/navigation/compose/ComposeTransition {
 
 public final class com/kpstv/navigation/compose/DefaultTransitionsKt {
 	public static final fun getFade ()Ljava/lang/String;
-	public static final fun getFadeTransition ()Lcom/kpstv/navigation/compose/NavigatorTransition;
 	public static final fun getNone ()Ljava/lang/String;
-	public static final fun getNoneTransition ()Lcom/kpstv/navigation/compose/NavigatorTransition;
 	public static final fun getSlideLeft ()Ljava/lang/String;
-	public static final fun getSlideLeftTransition ()Lcom/kpstv/navigation/compose/NavigatorTransition;
 	public static final fun getSlideRight ()Ljava/lang/String;
-	public static final fun getSlideRightTransition ()Lcom/kpstv/navigation/compose/NavigatorTransition;
 }
 
 public abstract interface class com/kpstv/navigation/compose/DialogRoute : com/kpstv/navigation/compose/Route {
@@ -163,27 +79,9 @@ public final class com/kpstv/navigation/compose/DialogRoute$DefaultImpls {
 
 public final class com/kpstv/navigation/compose/LifecycleController : androidx/lifecycle/ViewModelStoreOwner, androidx/savedstate/SavedStateRegistryOwner {
 	public static final field $stable I
-	public static final field Companion Lcom/kpstv/navigation/compose/LifecycleController$Companion;
-	public final fun clearViewModelStore$navigator_compose_release ()V
 	public fun getLifecycle ()Landroidx/lifecycle/Lifecycle;
-	public final fun getProviders$navigator_compose_release ()Ljava/util/List;
 	public fun getSavedStateRegistry ()Landroidx/savedstate/SavedStateRegistry;
 	public fun getViewModelStore ()Landroidx/lifecycle/ViewModelStore;
-	public final fun isRestored$navigator_compose_release ()Z
-	public final fun performRestore$navigator_compose_release (Landroid/os/Bundle;)V
-	public final fun performSave$navigator_compose_release (Landroid/os/Bundle;)V
-}
-
-public final class com/kpstv/navigation/compose/LifecycleController$Companion {
-	public final fun get (Lcom/kpstv/navigation/compose/Route;)Lcom/kpstv/navigation/compose/LifecycleController;
-}
-
-public final class com/kpstv/navigation/compose/LifecycleControllerStore {
-	public static final field INSTANCE Lcom/kpstv/navigation/compose/LifecycleControllerStore;
-	public final fun clear ()V
-	public final fun getOrPut$navigator_compose_release (Lcom/kpstv/navigation/compose/Route;Lkotlin/jvm/functions/Function0;)Lcom/kpstv/navigation/compose/LifecycleController;
-	public final fun getSnapshot ()Ljava/util/Map;
-	public final fun remove$navigator_compose_release (Lcom/kpstv/navigation/compose/Route;)V
 }
 
 public final class com/kpstv/navigation/compose/NavOptions {
@@ -192,19 +90,13 @@ public final class com/kpstv/navigation/compose/NavOptions {
 	public fun <init> (ZLcom/kpstv/navigation/compose/NavOptions$PopUpOptions;Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;)V
 	public synthetic fun <init> (ZLcom/kpstv/navigation/compose/NavOptions$PopUpOptions;Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Z
-	public final fun component2$navigator_compose_release ()Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;
-	public final fun component3$navigator_compose_release ()Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;
 	public final fun copy (ZLcom/kpstv/navigation/compose/NavOptions$PopUpOptions;Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;)Lcom/kpstv/navigation/compose/NavOptions;
 	public static synthetic fun copy$default (Lcom/kpstv/navigation/compose/NavOptions;ZLcom/kpstv/navigation/compose/NavOptions$PopUpOptions;Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;ILjava/lang/Object;)Lcom/kpstv/navigation/compose/NavOptions;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAnimationOptions$navigator_compose_release ()Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;
-	public final fun getPopOptions$navigator_compose_release ()Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;
 	public final fun getSingleTop ()Z
 	public fun hashCode ()I
 	public final fun popUpTo (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun popUpTo$default (Lcom/kpstv/navigation/compose/NavOptions;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public final fun setAnimationOptions$navigator_compose_release (Lcom/kpstv/navigation/compose/NavOptions$NavAnimation;)V
-	public final fun setPopOptions$navigator_compose_release (Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;)V
 	public final fun setSingleTop (Z)V
 	public fun toString ()Ljava/lang/String;
 	public final fun withAnimation (Lkotlin/jvm/functions/Function1;)V
@@ -235,18 +127,15 @@ public final class com/kpstv/navigation/compose/NavOptions$PopUpOptions {
 	public static final field $stable I
 	public fun <init> (Lkotlin/reflect/KClass;ZZ)V
 	public synthetic fun <init> (Lkotlin/reflect/KClass;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1$navigator_compose_release ()Lkotlin/reflect/KClass;
 	public final fun component2 ()Z
 	public final fun component3 ()Z
 	public final fun copy (Lkotlin/reflect/KClass;ZZ)Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;
 	public static synthetic fun copy$default (Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;Lkotlin/reflect/KClass;ZZILjava/lang/Object;)Lcom/kpstv/navigation/compose/NavOptions$PopUpOptions;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAll ()Z
-	public final fun getDest$navigator_compose_release ()Lkotlin/reflect/KClass;
 	public final fun getInclusive ()Z
 	public fun hashCode ()I
 	public final fun setAll (Z)V
-	public final fun setDest$navigator_compose_release (Lkotlin/reflect/KClass;)V
 	public final fun setInclusive (Z)V
 	public fun toString ()Ljava/lang/String;
 }
