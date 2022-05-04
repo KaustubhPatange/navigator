@@ -3,18 +3,22 @@
 package com.kpstv.navigation.compose
 
 import android.os.Bundle
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.kpstv.navigation.compose.internels.*
 import com.kpstv.navigation.compose.test.R
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.reflect.KClass
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -50,7 +54,7 @@ public class ComposeNavigatorTests {
         composeTestRule.activity.apply {
             composeTestRule.onNodeWithText(second_screen).assertIsDisplayed()
 
-            onBackPressed()
+            backpress()
 
             composeTestRule.onNodeWithText(second_screen).assertDoesNotExist()
             composeTestRule.onNodeWithText(app_name).assertIsDisplayed()
@@ -92,7 +96,7 @@ public class ComposeNavigatorTests {
 
             composeTestRule.onNodeWithText(getString(R.string.detail_screen, item.name, item.age))
 
-            onBackPressed()
+            backpress()
 
             val lazyColumn = composeTestRule.onNodeWithTag("lazy_column")
             lazyColumn.assertIsDisplayed()
@@ -102,7 +106,7 @@ public class ComposeNavigatorTests {
 
             assert(navigator.backStackMap.size == 2)
 
-            onBackPressed()
+            backpress()
 
             assert(navigator.backStackMap.size == 1)
         }
@@ -163,17 +167,17 @@ public class ComposeNavigatorTests {
 
             assert(navigator.backStackMap.keys.last() == MultipleStack.key)
 
-            onBackPressed()
+            backpress()
 
             composeTestRule.onNodeWithText(nextSecond).assertIsDisplayed()
             assert(navigator.backStackMap.keys.last() == NextRoute.key)
 
-            onBackPressed()
+            backpress()
             composeTestRule.waitForIdle()
 
             composeTestRule.onNodeWithText(nextFirst).assertIsDisplayed()
 
-            onBackPressed()
+            backpress()
 
             assert(navigator.backStackMap.size == 2)
             composeTestRule.onNodeWithText(bottomScreen1).assertIsDisplayed()
@@ -192,25 +196,25 @@ public class ComposeNavigatorTests {
         composeTestRule.activity.apply {
             assert(navigator.backStackMap.keys.last() == MultipleStack.key)
 
-            onBackPressed()
+            backpress()
             composeTestRule.waitForIdle()
 
             assert(navigator.backStackMap.keys.last() == NextRoute.key)
             composeTestRule.onNodeWithText(nextSecond).assertIsDisplayed()
 
-            onBackPressed()
+            backpress()
             composeTestRule.onNodeWithText(nextFirst).assertIsDisplayed()
 
-            onBackPressed()
+            backpress()
             composeTestRule.onNodeWithText(bottomButton2).assertIsDisplayed()
 
-            onBackPressed()
+            backpress()
             composeTestRule.onNodeWithText(nextFirst).assertIsDisplayed()
 
-            onBackPressed()
+            backpress()
             composeTestRule.onNodeWithText(bottomScreen1).assertIsDisplayed()
 
-            onBackPressed()
+            backpress()
             composeTestRule.waitForIdle()
 
             composeTestRule.onNodeWithText(go_to_forth).assertIsDisplayed()
@@ -257,7 +261,7 @@ public class ComposeNavigatorTests {
             composeTestRule.onNodeWithText(choose_item).assertIsDisplayed()
             composeTestRule.onNodeWithText(galleryItems[12].name).assertIsDisplayed()
 
-            composeTestRule.activity.onBackPressed()
+            backpress()
             composeTestRule.waitForIdle()
 
             composeTestRule.onNodeWithText(choose_item).assertDoesNotExist()
@@ -294,12 +298,12 @@ public class ComposeNavigatorTests {
 
             composeTestRule.onNodeWithText(second_dialog_route, substring = true).assertIsDisplayed()
 
-            onBackPressed()
+            backpress()
             composeTestRule.waitForIdle()
 
             composeTestRule.onNodeWithText(first_dialog_route).assertIsDisplayed()
 
-            onBackPressed()
+            backpress()
             composeTestRule.waitForIdle()
 
             composeTestRule.onNodeWithText(first_dialog_route).assertDoesNotExist()
@@ -333,9 +337,9 @@ public class ComposeNavigatorTests {
         composeTestRule.activity.apply {
             composeTestRule.onNodeWithText(second_dialog_route, substring = true).assertIsDisplayed()
 
-            onBackPressed()
+            backpress()
             composeTestRule.waitForIdle()
-            onBackPressed()
+            backpress()
             composeTestRule.waitForIdle()
 
             composeTestRule.onNodeWithText(second_dialog_route, substring = true).assertDoesNotExist()
@@ -363,12 +367,12 @@ public class ComposeNavigatorTests {
             composeTestRule.onNodeWithText(dismiss_dialog_button).performClick()
             composeTestRule.waitForIdle()
 
-            onBackPressed()
+            backpress()
             composeTestRule.waitForIdle()
 
             composeTestRule.onNodeWithText(dialog_text).assertIsDisplayed()
 
-            onBackPressed()
+            backpress()
             composeTestRule.waitForIdle()
 
             composeTestRule.onNodeWithText(dialog_text).assertDoesNotExist()
@@ -450,65 +454,73 @@ public class ComposeNavigatorTests {
             return backStackMap.lastValue()!!.peek().key
         }
 
+        fun ComposeNavigator.goBackUntilMainThread(key: KClass<out Route>, inclusive: Boolean = false) {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync { goBackUntil(key, inclusive = inclusive) }
+        }
+
+        fun ComposeNavigator.goBackToRootMainThread() {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync { goBackToRoot() }
+        }
+
         var navigator = createDefaultNavigator()
 
         assert(navigator.peekLastFromBackStack() is ThirdRoute.Secondary)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "s:1" (inclusive)
         navigator = createDefaultNavigator()
-        navigator.goBackUntil(StartRoute.First::class, inclusive = true)
+        navigator.goBackUntilMainThread(StartRoute.First::class, inclusive = true)
         assert(navigator.peekLastFromBackStack() is StartRoute.First)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "s:1" (not inclusive) = (also equals jump to root)
         navigator = createDefaultNavigator()
-        navigator.goBackUntil(StartRoute.First::class, inclusive = false)
+        navigator.goBackUntilMainThread(StartRoute.First::class, inclusive = false)
         assert(navigator.peekLastFromBackStack() is StartRoute.First)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "t:2" (inclusive)
         navigator = createDefaultNavigator()
-        navigator.goBackUntil(ThirdRoute.Secondary::class, inclusive = true)
+        navigator.goBackUntilMainThread(ThirdRoute.Secondary::class, inclusive = true)
         assert(navigator.peekLastFromBackStack() is ThirdRoute.Primary)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "t:2" (not inclusive)
         navigator = createDefaultNavigator()
-        navigator.goBackUntil(ThirdRoute.Secondary::class, inclusive = false)
+        navigator.goBackUntilMainThread(ThirdRoute.Secondary::class, inclusive = false)
         assert(navigator.peekLastFromBackStack() is ThirdRoute.Secondary)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "t:1" (inclusive)
         navigator = createDefaultNavigator()
-        navigator.goBackUntil(ThirdRoute.Primary::class, inclusive = true)
+        navigator.goBackUntilMainThread(ThirdRoute.Primary::class, inclusive = true)
         // why NextRoute.First? because n:2 is associated to t:1 so it only serves as nested navigation.
         // Having set inclusive means to to exclude it & go back previous i.e n:1
         assert(navigator.peekLastFromBackStack() is NextRoute.First)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "t:1" (not inclusive)
         navigator = createDefaultNavigator()
-        navigator.goBackUntil(ThirdRoute.Primary::class, inclusive = false)
+        navigator.goBackUntilMainThread(ThirdRoute.Primary::class, inclusive = false)
         assert(navigator.peekLastFromBackStack() is ThirdRoute.Primary)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:1" (not inclusive)
         navigator = createDefaultNavigator()
-        navigator.goBackUntil(NextRoute.First::class, inclusive = false)
+        navigator.goBackUntilMainThread(NextRoute.First::class, inclusive = false)
         assert(navigator.peekLastFromBackStack() is NextRoute.First)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:1" (inclusive)
         navigator = createDefaultNavigator()
-        navigator.goBackUntil(NextRoute.First::class, inclusive = true)
+        navigator.goBackUntilMainThread(NextRoute.First::class, inclusive = true)
         assert(navigator.peekLastFromBackStack() is StartRoute.Second)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:1" (not inclusive)
         navigator = createDefaultNavigator()
-        navigator.goBackUntil(NextRoute.First::class, inclusive = false)
+        navigator.goBackUntilMainThread(NextRoute.First::class, inclusive = false)
         assert(navigator.peekLastFromBackStack() is NextRoute.First)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:2" (not inclusive)
         navigator = createDefaultNavigator()
-        navigator.goBackUntil(NextRoute.Second::class, inclusive = false)
+        navigator.goBackUntilMainThread(NextRoute.Second::class, inclusive = false)
         assert(navigator.peekLastFromBackStack() is ThirdRoute.Primary)
 
         // [s = {1,2,3} , n = {1,2} , t = {1,2}] target is "n:2" (inclusive)
         navigator = createDefaultNavigator()
-        navigator.goBackUntil(NextRoute.Second::class, inclusive = true)
+        navigator.goBackUntilMainThread(NextRoute.Second::class, inclusive = true)
         assert(navigator.peekLastFromBackStack() is NextRoute.First)
 
         // ******
@@ -536,22 +548,22 @@ public class ComposeNavigatorTests {
 
         // [s = {1} , n = {1,2} , t = {1,2}] target is s:1 (not inclusive) i.e jump to root.
         navigator = createDefaultNavigator2()
-        navigator.goBackToRoot()
+        navigator.goBackToRootMainThread()
         assert(navigator.peekLastFromBackStack() is NextRoute.First)
 
         // [s = {1} , n = {1,2} , t = {1,2}] target is n:1 (not inclusive)
         navigator = createDefaultNavigator2()
-        navigator.goBackUntil(NextRoute.First::class, inclusive = false)
+        navigator.goBackUntilMainThread(NextRoute.First::class, inclusive = false)
         assert(navigator.peekLastFromBackStack() is NextRoute.First)
 
         // [s = {1} , n = {1,2} , t = {1,2}] target is n:1 (inclusive)
         navigator = createDefaultNavigator2()
-        navigator.goBackUntil(NextRoute.First::class, inclusive = true)
+        navigator.goBackUntilMainThread(NextRoute.First::class, inclusive = true)
         assert(navigator.peekLastFromBackStack() is NextRoute.First)
 
         // [s = {1} , n = {1,2} , t = {1,2}] target is n:1 (inclusive)
         navigator = createDefaultNavigator2()
-        navigator.goBackUntil(NextRoute.First::class, inclusive = false)
+        navigator.goBackUntilMainThread(NextRoute.First::class, inclusive = false)
         assert(navigator.peekLastFromBackStack() is NextRoute.First)
 
         // ******
@@ -578,22 +590,22 @@ public class ComposeNavigatorTests {
 
         // [s = {1} , n = {1} , t = {1,2}] target is s:1 (not inclusive) i.e jump to route
         navigator = createDefaultNavigator3()
-        navigator.goBackToRoot()
+        navigator.goBackToRootMainThread()
         assert(navigator.peekLastFromBackStack() is ThirdRoute.Primary)
 
         // [s = {1} , n = {1} , t = {1,2}] target is s:1 (inclusive)
         navigator = createDefaultNavigator3()
-        navigator.goBackUntil(StartRoute.First::class, inclusive = true)
+        navigator.goBackUntilMainThread(StartRoute.First::class, inclusive = true)
         assert(navigator.peekLastFromBackStack() is ThirdRoute.Primary)
 
         // [s = {1} , n = {1} , t = {1,2}] target is n:1 (inclusive)
         navigator = createDefaultNavigator3()
-        navigator.goBackUntil(NextRoute.First::class, inclusive = true)
+        navigator.goBackUntilMainThread(NextRoute.First::class, inclusive = true)
         assert(navigator.peekLastFromBackStack() is ThirdRoute.Primary)
 
         // [s = {1} , n = {1} , t = {1,2}] target is t:1 (inclusive)
         navigator = createDefaultNavigator3()
-        navigator.goBackUntil(ThirdRoute.Primary::class, inclusive = true)
+        navigator.goBackUntilMainThread(ThirdRoute.Primary::class, inclusive = true)
         assert(navigator.peekLastFromBackStack() is ThirdRoute.Primary)
 
         // ******
@@ -634,12 +646,12 @@ public class ComposeNavigatorTests {
 
         // [m1 = {1} , m = {1,2} , m21 = {1} , m2 = {1,2,3} , m23 = {1,2}] target is m1:1 (not inclusive) i.e jump to root
         navigator = createDefaultNavigator4()
-        navigator.goBackToRoot()
+        navigator.goBackToRootMainThread()
         assert(navigator.peekLastFromBackStack() is Routes.MainFirstRoute.First)
 
         // [m1 = {1} , m = {1,2} , m21 = {1} , m2 = {1,2,3} , m23 = {1,2}] target is m2:1 (inclusive)
         navigator = createDefaultNavigator4()
-        navigator.goBackUntil(Routes.MainSecondRoute.First::class, inclusive = true)
+        navigator.goBackUntilMainThread(Routes.MainSecondRoute.First::class, inclusive = true)
         assert(navigator.peekLastFromBackStack() is Routes.MainFirstRoute.First)
     }
 
@@ -661,6 +673,7 @@ public class ComposeNavigatorTests {
         }
         composeTestRule.activityRule.scenario.recreate()
         composeTestRule.activity.apply {
+            composeTestRule.waitForIdle()
             var snapshot = LifecycleControllerStore.getSnapshot()
             assert(snapshot.isNotEmpty() && snapshot.size == 3)
 
@@ -673,7 +686,7 @@ public class ComposeNavigatorTests {
             )
             assert(routes == orderedRoutes)
 
-            onBackPressed()
+            backpress()
             composeTestRule.waitForIdle()
 
             snapshot = LifecycleControllerStore.getSnapshot()
@@ -763,4 +776,97 @@ public class ComposeNavigatorTests {
             composeTestRule.waitForIdle()
         }
     }
+
+    @Test
+    public fun TestLifecycleEvents() {
+        val go_to_second = composeTestRule.activity.getString(R.string.go_to_second)
+        val second_screen = composeTestRule.activity.getString(R.string.second_screen)
+        val go_to_forth = composeTestRule.activity.getString(R.string.go_to_forth)
+        val show_dialog = composeTestRule.activity.getString(R.string.show_dialog)
+
+        composeTestRule.activity.apply {
+            val startRouteHistory = navigator.getHistory(StartRoute.key)
+            val startFirstRoute = startRouteHistory.last()
+            val startFirstLifecycle = startFirstRoute.lifecycleController.lifecycle
+            assert(startFirstRoute is StartRoute.First)
+
+            assert(startFirstLifecycle.currentState == Lifecycle.State.RESUMED)
+
+            composeTestRule.onNodeWithText(go_to_second).performClick()
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText(second_screen).assertIsDisplayed()
+
+            // onStop()
+            assert(startFirstLifecycle.currentState == Lifecycle.State.CREATED)
+
+            val startSecondRoute = navigator.getHistory(StartRoute.key).last()
+            val startSecondLifecycle = startSecondRoute.lifecycleController.lifecycle
+            // onResume()
+            assert(startSecondLifecycle.currentState == Lifecycle.State.RESUMED)
+
+            backpress()
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText(go_to_second).assertIsDisplayed()
+
+            // onDestroy()
+            assert(startSecondLifecycle.currentState == Lifecycle.State.DESTROYED)
+            // onResume()
+            assert(startFirstLifecycle.currentState == Lifecycle.State.RESUMED)
+
+            composeTestRule.onNodeWithText(go_to_forth).performClick()
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText(MultipleStack.First::class.qualifiedName!!).assertIsDisplayed()
+
+            val multiStackFirstLifecycle = navigator.getHistory(MultipleStack.key).last().lifecycleController.lifecycle
+
+            // onStop()
+            assert(startFirstLifecycle.currentState == Lifecycle.State.CREATED)
+            // onResume()
+            assert(multiStackFirstLifecycle.currentState == Lifecycle.State.RESUMED)
+
+            composeTestRule.onNodeWithText(MultipleStack.Third::class.simpleName!!).performClick()
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText(NextRoute.First::class.qualifiedName!!).assertIsDisplayed()
+
+            val nextFirstLifecycle = navigator.getHistory(NextRoute.key).last().lifecycleController.lifecycle
+
+            // onStop()
+            assert(multiStackFirstLifecycle.currentState == Lifecycle.State.CREATED)
+            // onResume()
+            assert(nextFirstLifecycle.currentState == Lifecycle.State.RESUMED)
+
+            // show a dialog & track lifecycle
+
+            composeTestRule.onNodeWithText(show_dialog).performClick()
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText(getString(R.string.choose_item)).assertIsDisplayed()
+
+            val galleryDialogRoute = navigator.getAllHistory().last().lifecycleController.lifecycle
+            // onResume()
+            assert(galleryDialogRoute.currentState == Lifecycle.State.RESUMED)
+
+            backpress()
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText(getString(R.string.choose_item)).assertDoesNotExist()
+
+            // onStop() - Dialog route's lifecycle will never call onDestroy()
+            assert(galleryDialogRoute.currentState == Lifecycle.State.CREATED)
+
+            backpress()
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText(MultipleStack.First::class.qualifiedName!!).assertIsDisplayed()
+
+            // onDestroy()
+            assert(nextFirstLifecycle.currentState == Lifecycle.State.DESTROYED)
+
+            backpress()
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText(go_to_second).assertIsDisplayed()
+
+            // onDestroy()
+            assert(multiStackFirstLifecycle.currentState == Lifecycle.State.DESTROYED)
+        }
+    }
+
 }

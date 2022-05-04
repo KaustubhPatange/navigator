@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.test.platform.app.InstrumentationRegistry
 import com.kpstv.navigation.compose.*
 import com.kpstv.navigation.compose.test.R
 import kotlinx.parcelize.Parcelize
@@ -34,6 +35,12 @@ public class MainActivity : ComponentActivity() {
         setContent {
             StartScreen(navigator)
         }
+    }
+
+    public fun backpress() {
+        // calling raw onBackPressed() inside test method does not run on
+        // main thread.
+        InstrumentationRegistry.getInstrumentation().runOnMainSync { onBackPressed() }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
