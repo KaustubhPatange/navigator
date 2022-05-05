@@ -2,9 +2,9 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="1.8">
-      <module name="Navigator_Compose.navigator-compose" target="11" />
-      <module name="Navigator_Compose.navigator-compose-hilt" target="11" />
-      <module name="Navigator_Compose.samples.basic-sample" target="11" />
+      <module name="Navigator_Compose.navigator-compose" target="12" />
+      <module name="Navigator_Compose.navigator-compose-hilt" target="12" />
+      <module name="Navigator_Compose.samples.basic-sample" target="12" />
     </bytecodeTargetLevel>
   </component>
 </project>

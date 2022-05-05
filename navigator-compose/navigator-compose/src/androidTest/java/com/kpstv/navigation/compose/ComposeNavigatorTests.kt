@@ -850,8 +850,8 @@ public class ComposeNavigatorTests {
             composeTestRule.waitForIdle()
             composeTestRule.onNodeWithText(getString(R.string.choose_item)).assertDoesNotExist()
 
-            // onStop() - Dialog route's lifecycle will never call onDestroy()
-            assert(galleryDialogRoute.currentState == Lifecycle.State.CREATED)
+            // onDestroy()
+            assert(galleryDialogRoute.currentState == Lifecycle.State.DESTROYED)
 
             backpress()
             composeTestRule.waitForIdle()

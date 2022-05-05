@@ -14,7 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var navigator: ComposeNavigator
+    lateinit var navigator: ComposeNavigator
     private lateinit var controller: ComposeNavigator.Controller<MainRoute>
 
     override fun onCreate(savedInstanceState: Bundle?) {

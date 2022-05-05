@@ -143,35 +143,6 @@ public class LifecycleController private constructor() : SavedStateRegistryOwner
     override fun getSavedStateRegistry(): SavedStateRegistry = savedStateRegistryController.savedStateRegistry
     override fun getViewModelStore(): ViewModelStore = viewModelStore
 
-    init {
-        // TODO: remove this
-//        lifecycle.addObserver(object : DefaultLifecycleObserver {
-//            override fun onCreate(owner: LifecycleOwner) {
-//                android.util.Log.e(route::class.qualifiedName, "onCreate")
-//            }
-//
-//            override fun onDestroy(owner: LifecycleOwner) {
-//                android.util.Log.e(route::class.qualifiedName, "onDestroy")
-//            }
-//
-//            override fun onStart(owner: LifecycleOwner) {
-//                android.util.Log.e(route::class.qualifiedName, "onStart")
-//            }
-//
-//            override fun onStop(owner: LifecycleOwner) {
-//                android.util.Log.e(route::class.qualifiedName, "onStop")
-//            }
-//
-//            override fun onPause(owner: LifecycleOwner) {
-//                android.util.Log.e(route::class.qualifiedName, "onPause")
-//            }
-//
-//            override fun onResume(owner: LifecycleOwner) {
-//                android.util.Log.e(route::class.qualifiedName, "onResume")
-//            }
-//        })
-    }
-
     internal val providers: List<ProvidedValue<*>> get() = listOf(
         LocalViewModelStoreOwner provides this,
         LocalSavedStateRegistryOwner provides this,
@@ -565,7 +536,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 val clamp = if (inclusive) index else minOf(index + 1, backStack.size)
 
                 val final = backStack.subList(0, clamp).ifEmpty { listOf(root) }
-                val exclusive = backStack.intersect(final).toList()
+                val exclusive = backStack.subtract(final).toList()
 
                 lastTransactionStatus = NavType.Backward
                 current = backStack.last()
@@ -768,7 +739,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
             if (LocalInspectionMode.current) return
 
             val history = history
-            checkNotNull(history) { "Cannot create dialog when navigator is not set." }
+            val navigator = navigator
+            checkNotNull(navigator) { "Cannot create dialog when navigator is not set." }
+            checkNotNull(history) { "Cannot create dialog when history is not set." }
 
             @Composable
             fun Inner(peek: DialogRoute) {
@@ -788,6 +761,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     DisposableEffect(Unit) {
                         onDispose {
                             peek.lifecycleController.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+                            navigator.removeStateAndConfiguration(peek)
                         }
                     }
                 }
@@ -904,7 +878,10 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         if (backStackMap.size > 1 && !last!!.canGoBack()) {
-            backStackMap.removeLastOrNull()?.let { removeStateAndConfiguration(it.initial) }
+            val backstack = backStackMap.removeLastOrNull()?.get()
+            if (backstack != null) {
+                removeStateAndConfiguration(backstack.map { it.key })
+            }
             return goBack()
         }
 
@@ -1059,7 +1036,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     } else if (final.isEmpty()&& i == 0) {
                         final = listOf(snapshot.first())
                     }
-                    snapshot.intersect(final).toList().also { stack -> removeStateAndConfiguration(stack.map { it.key }) }
+                    snapshot.subtract(final).toList().also { stack -> removeStateAndConfiguration(stack.map { it.key }) }
                     history.set(final as List<Nothing>, History.NavType.Forward)
 
                     firstIterationSet = true
