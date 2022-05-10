@@ -43,15 +43,6 @@ android {
     }
 }
 
-dokkaHtml.configure {
-    outputDirectory.set(file("../../reference/navigator-compose"))
-    dokkaSourceSets {
-        named("main") {
-            noAndroidSdkLink.set(false)
-        }
-    }
-}
-
 dependencies {
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation "androidx.compose.ui:ui:$compose_version"

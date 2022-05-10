@@ -49,15 +49,6 @@ kapt {
     correctErrorTypes = true
 }
 
-dokkaHtml.configure {
-    outputDirectory.set(file("../../reference/navigator-compose-hilt"))
-    dokkaSourceSets {
-        named("main") {
-            noAndroidSdkLink.set(false)
-        }
-    }
-}
-
 dependencies {
     api project(":navigator-compose")
 

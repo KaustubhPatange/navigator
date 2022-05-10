@@ -1,5 +1,8 @@
+import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
+
 apply plugin: 'io.codearte.nexus-staging'
 apply plugin: 'binary-compatibility-validator'
+apply plugin: 'org.jetbrains.dokka'
 
 buildscript {
     ext {
@@ -22,6 +25,7 @@ buildscript {
         classpath "com.google.dagger:hilt-android-gradle-plugin:2.39.1"
         classpath 'org.jetbrains.kotlinx:binary-compatibility-validator:0.9.0'
         classpath("org.jetbrains.dokka:dokka-gradle-plugin:1.6.10")
+        classpath("org.jetbrains.dokka:all-modules-page-plugin:1.6.10")
     }
 }
 
@@ -31,6 +35,10 @@ allprojects {
         mavenLocal()
         mavenCentral()
     }
+}
+
+tasks.dokkaHtmlMultiModule.configure {
+    outputDirectory.set(file("../reference/navigator-compose"))
 }
 
 task clean(type: Delete) {
