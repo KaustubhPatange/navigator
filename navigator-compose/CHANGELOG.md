@@ -1,6 +1,6 @@
 # Changelog
 
-## Version `unknown`
+## Version `0.1-alpha31` _(2022-05-10)_
 
 - **Fixed**: Proper lifecycle events on `Route`.
 

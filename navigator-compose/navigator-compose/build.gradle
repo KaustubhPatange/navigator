@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-parcelize'
     id 'maven-publish'
+    id 'org.jetbrains.dokka'
 }
 
 android {
@@ -39,6 +40,15 @@ android {
     packagingOptions {
         exclude 'META-INF/AL2.0'
         exclude 'META-INF/LGPL2.1'
+    }
+}
+
+dokkaHtml.configure {
+    outputDirectory.set(file("../../reference/navigator-compose"))
+    dokkaSourceSets {
+        named("main") {
+            noAndroidSdkLink.set(false)
+        }
     }
 }
 

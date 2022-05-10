@@ -1,0 +1,8 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:com.kpstv.navigation.compose.hilt////PointingToDeclaration/navigator-compose-hilt/com.kpstv.navigation.compose.hilt/index.html
+$dokka.location:com.kpstv.navigation.compose.hilt//hiltViewModel/#androidx.lifecycle.ViewModelProvider.Factory?/PointingToDeclaration/navigator-compose-hilt/com.kpstv.navigation.compose.hilt/hilt-view-model.html
+$dokka.location:com.kpstv.navigation.compose.hilt/NavigatorHiltViewModelFactories///PointingToDeclaration/navigator-compose-hilt/com.kpstv.navigation.compose.hilt/-navigator-hilt-view-model-factories/index.html
+$dokka.location:com.kpstv.navigation.compose.hilt/NavigatorHiltViewModelFactories/getFactory/#androidx.activity.ComponentActivity#androidx.savedstate.SavedStateRegistryOwner#androidx.lifecycle.ViewModelProvider.Factory?/PointingToDeclaration/navigator-compose-hilt/com.kpstv.navigation.compose.hilt/-navigator-hilt-view-model-factories/get-factory.html
+com.kpstv.navigation.compose.hilt
+

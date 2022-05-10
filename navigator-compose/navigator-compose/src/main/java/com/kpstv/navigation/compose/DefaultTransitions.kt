@@ -3,6 +3,9 @@ package com.kpstv.navigation.compose
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 
+/**
+ * No transition
+ */
 public val None: TransitionKey get() = NoneTransition.key
 
 internal val NoneTransition: NavigatorTransition = object : NavigatorTransition() {
@@ -29,8 +32,8 @@ internal val FadeTransition: NavigatorTransition = object : NavigatorTransition(
 /**
  * Slide right transition.
  *
- * Slide in right transition will run when composable is the "target" destination (forwardTransition).
- * Slide out right will run when composable is the "current" destination (backwardTransition).
+ * Slide in (from) right transition will run when composable is the "target" destination (forwardTransition).
+ * Slide out (to) right will run when composable is the "current" destination (backwardTransition).
  */
 public val SlideRight: TransitionKey get() = SlideRightTransition.key
 
@@ -47,8 +50,8 @@ internal val SlideRightTransition: NavigatorTransition = object : NavigatorTrans
 /**
  * Slide left transition.
  *
- * Slide in left transition will run when composable is the "target" destination (forwardTransition).
- * Slide out left will run when composable is the "current" destination (backwardTransition).
+ * Slide in (from) left transition will run when composable is the "target" destination (forwardTransition).
+ * Slide out (to) left will run when composable is the "current" destination (backwardTransition).
  */
 public val SlideLeft: TransitionKey get() = SlideLeftTransition.key
 

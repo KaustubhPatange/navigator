@@ -5,6 +5,7 @@ plugins {
     id 'kotlin-parcelize'
     id 'dagger.hilt.android.plugin'
     id 'maven-publish'
+    id 'org.jetbrains.dokka'
 }
 
 android {
@@ -46,6 +47,15 @@ android {
 
 kapt {
     correctErrorTypes = true
+}
+
+dokkaHtml.configure {
+    outputDirectory.set(file("../../reference/navigator-compose-hilt"))
+    dokkaSourceSets {
+        named("main") {
+            noAndroidSdkLink.set(false)
+        }
+    }
 }
 
 dependencies {

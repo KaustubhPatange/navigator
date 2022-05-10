@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.SaveableStateHolder
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.Dialog
@@ -35,24 +37,38 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 /**
- * Navigation route key to be provided during `ComposeNavigator.Setup(...)` to make current navigation
+ * Navigation root key to be provided during `ComposeNavigator.Setup(...)` to make current navigation
  * unique in the backstack & to enforce correct typesafe navigation.
  *
+ * This key then can be used to retrieve an instance of [ComposeNavigator.Controller<T>] to manage
+ * navigation within this [Route].
+ *
+ * @see Route
  * @see Route.Key
+ * @see ComposeNavigator.Controller
  */
 public typealias RouteKey<T> = KClass<out Route.Key<T>>
 
+/**
+ * If marked on a function or a property then it means that the function or property is unstable &amp;
+ * should be carefully use in production code as it's behavior might not be stable.
+ *
+ * In most cases, these behaviors are tested in the test suite to fulfill some common use-case.
+ */
 @RequiresOptIn("The method might be unstable and may not work correct in some edge cases.", RequiresOptIn.Level.WARNING)
 public annotation class UnstableNavigatorApi
 
 /**
- * Find the [ComposeNavigator] provided by the nearest CompositionLocalProvider.
+ * Find the [ComposeNavigator] provided by the nearest [CompositionLocalProvider].
  */
 @Composable
 public fun findComposeNavigator() : ComposeNavigator = LocalNavigator.current
 
 /**
- * Find & remember the [ComposeNavigator.Controller] provided by the nearest CompositionLocalProvider for [key].
+ * Find & remember an instance of [ComposeNavigator.Controller] provided by the nearest [CompositionLocalProvider] for a Navigation root key.
+ *
+ * @see RouteKey
+ * @see ComposeNavigator.Controller
  */
 @Composable
 public fun <T : Route> findNavController(key: RouteKey<T>): ComposeNavigator.Controller<T> {
@@ -64,7 +80,7 @@ public fun <T : Route> findNavController(key: RouteKey<T>): ComposeNavigator.Con
 
 /**
  * Create & remember the instance of the [ComposeNavigator.Controller] that will be used for
- * navigation for Route [T].
+ * navigation within the [Route] of type [T].
  *
  * ```
  * val controller = rememberNavController()
@@ -72,6 +88,8 @@ public fun <T : Route> findNavController(key: RouteKey<T>): ComposeNavigator.Con
  *  ...
  * }
  * ```
+ *
+ * @see ComposeNavigator.Controller
  */
 @Composable
 public fun <T : Route> rememberNavController(): ComposeNavigator.Controller<T> {
@@ -79,20 +97,32 @@ public fun <T : Route> rememberNavController(): ComposeNavigator.Controller<T> {
 }
 
 /**
- * Destination must implement this interface to identify as navigation route. Each navigation
- * route should have [Key] to identify this route as a unique route in the backstack.
+ * Class must implement this interface to identify as navigation root. Each navigation
+ * root should specify a [Key] to identify this route as a unique route in the backstack.
+ *
+ * A route can then declare destinations as data classes with parameters which will become
+ * destination arguments as shown below.
  *
  * ```
  * sealed class MyRoute : Route {  // <-- Navigation root
  *    @Parcelize @Immutable
- *    data class First(val arg: String) : MyRoute()   // <-- Destination of MyRoute
+ *    data class First(val arg: String) : MyRoute()   // <-- Destination of MyRoute (Navigation root)
+ *
+ *    companion object Key : Route.Key<MyRoute> // <-- Navigation root key
  * }
  * ```
+ *
+ * @see Route.Key
  */
 public interface Route : Parcelable {
 
     /**
      * A [LifecycleController] associated with this [Route].
+     *
+     * Each destination will inherit this controller that'll help to manage lifecycle related
+     * things scoped to this [Route].
+     *
+     * @see LifecycleController
      */
     public val lifecycleController: LifecycleController get() = LifecycleController.get(this)
 
@@ -109,6 +139,8 @@ public interface Route : Parcelable {
      * ```
      * class MyRouteKey { companion object : Route.Key<MyRoute> }
      * ```
+     *
+     * @see Route
      */
     public interface Key<T : Route> {
         public val key: KClass<out Key<T>> get() = this::class
@@ -122,17 +154,35 @@ public interface Route : Parcelable {
  * This helps to incorporate scoped [ViewModel]s within a particular destination. Since it also implements
  * methods to handle [SavedStateRegistry], we can save state in a Bundle which will be tied to the Lifecycle
  * of the associated destination for eg: [SavedStateHandle]'s data will be properly restored on process death.
- * Saving state happens when the activity's `onSaveInstanceState()` is called & restoring happens when the
- * destination is recreated from the restored backstack.
+ * The same also carries for any [rememberSaveable]s used within the scope of the destination. Saving state
+ * happens when the activity's `onSaveInstanceState()` is called & restoring happens when the destination is
+ * recreated from the restored backstack.
  *
  * ViewModel instances on configuration change are same which is why we keep static references to this class
  * in [LifecycleControllerStore]. The mechanism is very similar to how fragment retains ViewModel instances
  * when it is recreated due to configuration change.
  *
- * The class does not implement a [LifecycleOwner] which we might need to clear [ViewModelStore] on `onDestroy()`.
- * Since there is no correct callback to know when the composition is removed/abandoned not due to configuration
- * change or current destination is changed but when the destination is removed. Hence, we remove all states
- * & configuration when the given destination is removed from the backstack.
+ * The class does implement a [LifecycleOwner] which we might need to clear [ViewModelStore] on `onDestroy()`
+ * or to correctly trigger saving states through [SavedStateRegistry]. One can listen to the lifecycle changes
+ * to the destination [Route] by adding a [LifecycleObserver], but to still give you a clarity how lifecycle
+ * event affects during navigation here is an example.
+ *
+ * ```
+ * navigator.navigateTo(A)
+ * // A -> onCreate -> onStart -> onResume
+ * // backstack = [A]
+ *
+ * navigator.navigateTo(B)
+ * // A -> onPause -> onStop
+ * // B -> onCreate -> onStart -> onResume
+ * // backstack = [A, B]
+ *
+ * navigator.goBack()
+ * // B -> onPause -> onStop -> onDestroy
+ * // A -> onStart -> onResume
+ * // backstack = [A]
+ * ```
+ *
  */
 public class LifecycleController private constructor() : SavedStateRegistryOwner, ViewModelStoreOwner {
     private val lifecycleRegistry = LifecycleRegistry(this)
@@ -200,10 +250,18 @@ internal object LifecycleControllerStore {
 }
 
 /**
- * Destination must implement this interface to identify as Route for Dialog.
+ * Destination must implement this interface to identify a Route as Dialog.
+ *
+ * @see ComposeNavigator.Controller.CreateDialog
  */
 public interface DialogRoute : Route
 
+/**
+ * Set of options that can be optionally specified when navigating to new destination through
+ * [ComposeNavigator.Controller.navigateTo].
+ *
+ * These includes [singleTop], [popUpTo] & [withAnimation].
+ */
 public data class NavOptions<T : Route>(
     /**
      * Ensures that there will be only once instance of this destination in the backstack.
@@ -235,7 +293,9 @@ public data class NavOptions<T : Route>(
     public data class PopUpOptions<T: Route>(internal var dest: KClass<out T>, var inclusive: Boolean = false, var all: Boolean = false)
 
     /**
-     * Pop up to the destination. Additional parameters can be set through [options] DSL.
+     * Pop up to a destination. Additional parameters can be set through [options] DSL.
+     *
+     * @see PopUpOptions
      */
     public fun popUpTo(destKey: KClass<out T>, options: PopUpOptions<T>.() -> Unit = {}) {
         popOptions = PopUpOptions(destKey).apply(options)
@@ -248,6 +308,8 @@ public data class NavOptions<T : Route>(
      * Suppose "A" is the target destination & "B" is the current destination. So when
      * navigating from A -> B, forward transition will be played on "A" and backward
      * transition will be played on "B" & vice-versa.
+     *
+     * @see NavAnimation
      */
     public fun withAnimation(options: NavAnimation.() -> Unit = {}) {
         animationOptions = NavAnimation().apply(options)
@@ -255,7 +317,11 @@ public data class NavOptions<T : Route>(
 }
 
 /**
- * A key to uniquely identify transition.
+ * A key to uniquely identify this transition that can be used in conjunction with [NavOptions.withAnimation]
+ * to specify animations for navigating to a new destination.
+ *
+ * @see SlideLeft
+ * @see SlideRight
  */
 @Parcelize
 @JvmInline
@@ -278,14 +344,19 @@ public abstract class NavigatorTransition {
 }
 
 /**
- * Transition are implemented by customizing the [Modifier].
+ * Transition are usually implemented by customizing the [Modifier.graphicsLayer].
+ *
+ * You will receive a "progress" (float) argument that goes from 0f -> 1f i.e the lifetime of the animation
+ * which you can use to modify alpha, translation on the modifier.
+ *
+ * You will also receive "width" & "height" of the container in which this navigation is hosted.
  */
 public fun interface ComposeTransition {
     public fun invoke(modifier: Modifier, width: Int, height: Int, progress: Float): Modifier
 }
 
 /**
- * A navigator for managing navigation in Jetpack Compose.
+ * A navigator for managing pure composable navigation in Jetpack Compose.
  */
 public class ComposeNavigator private constructor(private val activity: ComponentActivity, savedInstanceState: Bundle?) {
 
@@ -371,7 +442,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             }
 
         /**
-         * Go back in [dialogNavigator] & returns the route.
+         * Go back in [dialogNavigator] & return the route.
          */
         public fun goBack(): Route? {
             return navigator?.goBack()
@@ -592,7 +663,11 @@ public class ComposeNavigator private constructor(private val activity: Componen
     /**
      * A controller to manage navigation for Route [T].
      *
-     * This should be used to handle forward as well as backward navigation.
+     * One can create an instance using [rememberNavController] for setting up navigation through `navigator.Setup(...)`.
+     *
+     * One can retrieve an instance of controller using [findNavController] & passing the required Navigation root key.
+     *
+     * @see RouteKey
      */
     public class Controller<T : Route> internal constructor() {
         internal lateinit var routeKey: RouteKey<out Route>
@@ -614,7 +689,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
         public var enableDialogOverlay: Boolean = false
 
         /**
-         * Navigate to other destination composable. Additional parameters can be set through [options] DSL.
+         * Navigate to a new destination of type [T]. Additional parameters can be set through [options] DSL.
+         *
+         * @see NavOptions
          */
         public fun navigateTo(destination: T, options: NavOptions<T>.() -> Unit = {}) {
             val navigator = navigator
@@ -1181,15 +1258,17 @@ public class ComposeNavigator private constructor(private val activity: Componen
     }
 
     /**
-     * An entry to the navigation composable.
+     * An entry to setup navigation.
      *
-     * Destinations should be managed within [content]. [content] is composable lambda that receives two parameters,
-     * [Controller] which is used to manage navigation & [T] which is the current destination.
+     * Destinations should be managed within [content]. [content] is composable lambda that receives a parameter
+     * of type [T] which is the current active destination in the backstack.
      *
      * @param key Will be used for uniquely identifying this Route in the composition tree.
      * @param initial The start destination for the navigation.
      * @param controller Controller that will be used for managing navigation for [key]
      *
+     * @see Route
+     * @see RouteKey
      * @see Controller
      */
     @Composable

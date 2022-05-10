@@ -1,0 +1,1 @@
+sourceset_dependencies='{":navigator-compose:dokkaHtml/androidTestRelease":[],":navigator-compose:dokkaHtml/debug":[],":navigator-compose:dokkaHtml/main":[],":navigator-compose:dokkaHtml/release":[],":navigator-compose:dokkaHtml/testFixtures":[],":navigator-compose:dokkaHtml/testFixturesDebug":[],":navigator-compose:dokkaHtml/testFixturesRelease":[]}'

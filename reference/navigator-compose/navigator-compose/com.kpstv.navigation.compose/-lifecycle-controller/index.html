@@ -1,0 +1,89 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>LifecycleController</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
+const savedDarkMode = storage ? JSON.parse(storage) : false
+if(savedDarkMode === true){
+    document.getElementsByTagName("html")[0].classList.add("theme-dark")
+}</script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../../styles/style.css" rel="Stylesheet"><link href="../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../styles/main.css" rel="Stylesheet"><link href="../../../styles/prism.css" rel="Stylesheet"><link href="../../../styles/logo-styles.css" rel="Stylesheet"><script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script><script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>  </head>
+  <body>
+    <div class="navigation-wrapper" id="navigation-wrapper">
+      <div id="leftToggler"><span class="icon-toggler"></span></div>
+      <div class="library-name"><a href="../../../index.html">navigator-compose</a></div>
+      <div></div>
+      <div class="pull-right d-flex"><button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+      </div>
+    </div>
+    <div id="container">
+      <div id="leftColumn">
+        <div id="sideMenu"></div>
+      </div>
+      <div id="main">
+        <div class="main-content" id="content" pageIds="navigator-compose::com.kpstv.navigation.compose/LifecycleController///PointingToDeclaration//-978278084">
+          <div class="breadcrumbs"><a href="../../../index.html">navigator-compose</a>/<a href="../index.html">com.kpstv.navigation.compose</a>/<a href="index.html">LifecycleController</a></div>
+          <div class="cover ">
+            <h1 class="cover"><span>Lifecycle</span><wbr></wbr><span><span>Controller</span></span></h1>
+            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":navigator-compose:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">LifecycleController</a> : <a href="https://developer.android.com/reference/kotlin/androidx/savedstate/SavedStateRegistryOwner.html">SavedStateRegistryOwner</a>, <a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/ViewModelStoreOwner.html">ViewModelStoreOwner</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">A class which is tied to every <a href="../-route/index.html">Route</a>'s destination that itself is <a href="https://developer.android.com/reference/kotlin/androidx/savedstate/SavedStateRegistryOwner.html">SavedStateRegistryOwner</a>&<a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/ViewModelStoreOwner.html">ViewModelStoreOwner</a>.</p><p class="paragraph">This helps to incorporate scoped <a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/ViewModel.html">ViewModel</a>s within a particular destination. Since it also implements methods to handle <a href="https://developer.android.com/reference/kotlin/androidx/savedstate/SavedStateRegistry.html">SavedStateRegistry</a>, we can save state in a Bundle which will be tied to the Lifecycle of the associated destination for eg: <a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/SavedStateHandle.html">SavedStateHandle</a>'s data will be properly restored on process death. The same also carries for any <span data-unresolved-link="androidx.compose.runtime.saveable//rememberSaveable/#kotlin.Array[kotlin.Any?]#androidx.compose.runtime.saveable.Saver[TypeParam(bounds=[kotlin.Any]),kotlin.Any]#kotlin.String?#kotlin.Function0[TypeParam(bounds=[kotlin.Any])]/PointingToDeclaration/">rememberSaveable</span>s used within the scope of the destination. Saving state happens when the activity's <code class="lang-kotlin">onSaveInstanceState()</code> is called & restoring happens when the destination is recreated from the restored backstack.</p><p class="paragraph">ViewModel instances on configuration change are same which is why we keep static references to this class in <span data-unresolved-link="com.kpstv.navigation.compose/LifecycleControllerStore///PointingToDeclaration/">LifecycleControllerStore</span>. The mechanism is very similar to how fragment retains ViewModel instances when it is recreated due to configuration change.</p><p class="paragraph">The class does implement a <a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/LifecycleOwner.html">LifecycleOwner</a> which we might need to clear <a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/ViewModelStore.html">ViewModelStore</a> on <code class="lang-kotlin">onDestroy()</code> or to correctly trigger saving states through <a href="https://developer.android.com/reference/kotlin/androidx/savedstate/SavedStateRegistry.html">SavedStateRegistry</a>. One can listen to the lifecycle changes to the destination <a href="../-route/index.html">Route</a> by adding a <a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/LifecycleObserver.html">LifecycleObserver</a>, but to still give you a clarity how lifecycle event affects during navigation here is an example.</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">navigator.navigateTo(A)<br>// A -&gt; onCreate -&gt; onStart -&gt; onResume<br>// backstack = [A]<br><br>navigator.navigateTo(B)<br>// A -&gt; onPause -&gt; onStop<br>// B -&gt; onCreate -&gt; onStart -&gt; onResume<br>// backstack = [A, B]<br><br>navigator.goBack()<br>// B -&gt; onPause -&gt; onStop -&gt; onDestroy<br>// A -&gt; onStart -&gt; onResume<br>// backstack = [A]</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+          </div>
+          <div class="tabbedcontent">
+            <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Functions">Functions</button></div>
+            <div class="tabs-section-body">
+              <h2 class="">Functions</h2>
+              <div class="table" data-togglable="Functions"><a data-name="1156753716%2FFunctions%2F-978278084" anchor-label="getLifecycle" id="1156753716%2FFunctions%2F-978278084" data-filterable-set=":navigator-compose:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":navigator-compose:dokkaHtml/release" data-filterable-set=":navigator-compose:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="get-lifecycle.html"><span>get</span><wbr></wbr><span><span>Lifecycle</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1156753716%2FFunctions%2F-978278084"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":navigator-compose:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-lifecycle.html"><span class="token function">getLifecycle</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/Lifecycle.html">Lifecycle</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="915076213%2FFunctions%2F-978278084" anchor-label="getSavedStateRegistry" id="915076213%2FFunctions%2F-978278084" data-filterable-set=":navigator-compose:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":navigator-compose:dokkaHtml/release" data-filterable-set=":navigator-compose:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="get-saved-state-registry.html"><span>get</span><wbr></wbr><span>Saved</span><wbr></wbr><span>State</span><wbr></wbr><span><span>Registry</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="915076213%2FFunctions%2F-978278084"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":navigator-compose:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-saved-state-registry.html"><span class="token function">getSavedStateRegistry</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/savedstate/SavedStateRegistry.html">SavedStateRegistry</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="912929183%2FFunctions%2F-978278084" anchor-label="getViewModelStore" id="912929183%2FFunctions%2F-978278084" data-filterable-set=":navigator-compose:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":navigator-compose:dokkaHtml/release" data-filterable-set=":navigator-compose:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="get-view-model-store.html"><span>get</span><wbr></wbr><span>View</span><wbr></wbr><span>Model</span><wbr></wbr><span><span>Store</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="912929183%2FFunctions%2F-978278084"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":navigator-compose:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-view-model-store.html"><span class="token function">getViewModelStore</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/lifecycle/ViewModelStore.html">ViewModelStore</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
+      </div>
+    </div>
+  </body>
+</html>
+
