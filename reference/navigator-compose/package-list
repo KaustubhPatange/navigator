@@ -1,0 +1,7 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:navigator-compose
+com.kpstv.navigation.compose
+module:navigator-compose-hilt
+com.kpstv.navigation.compose.hilt
