@@ -58,6 +58,7 @@ Snapshots of the current development version of `navigator-compose` are availabl
   - [Navigation Scoped ViewModels](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigation-scoped-viewmodels)
     - [Support for Hilt](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#support-for-hilt)
     - [Limitation with Reusable Routes](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#limitation-with-reusable-routes)
+- [Lifecycle events in Navigation `Route`s](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#lifecycle-events-in-navigation-routes)
 
 ## Apps using `navigator-compose`
 
