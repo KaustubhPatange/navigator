@@ -12,6 +12,7 @@ on:
       - "navigator-compose/settings.gradle"
       - "navigator-compose/gradle.properties"
   pull_request:
+    paths:
       - ".github/workflows/build-compose.yml"
       - "navigator-compose/navigator-compose/**"
       - "navigator-compose/navigator-compose-hilt/**"

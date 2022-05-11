@@ -26,6 +26,8 @@ If you have any implementation details to cover let me know.
 - Generic Typed Arguments when passing data between destinations (see [here](https://github.com/KaustubhPatange/navigator/wiki/Quick-Tutorials#navigation-with-typed-arguments)).
 - Quick Bottom & Tab navigation setup (see [tutorials](#tutorials)).
 
+API Reference docs, check [here](https://kaustubhpatange.github.io/navigator/reference/navigator).
+
 ## Implementation
 
 ![Maven Central](https://img.shields.io/maven-central/v/io.github.kaustubhpatange/navigator)
