@@ -1,17 +1,26 @@
 name: CI
 on:
   push:
-    paths-ignore:
-      - "navigator-compose/README.md"
     paths:
       - ".github/workflows/build-compose.yml"
-      - "navigator-compose/**"
+      - "navigator-compose/navigator-compose/**"
+      - "navigator-compose/navigator-compose-hilt/**"
+      - "navigator-compose/navigator-compose-lint/**"
+      - "navigator-compose/samples/**"
+      - "navigator-compose/gradle/**"
+      - "navigator-compose/build.gradle"
+      - "navigator-compose/settings.gradle"
+      - "navigator-compose/gradle.properties"
   pull_request:
-    paths-ignore:
-      - "navigator-compose/README.md"
-    paths:
       - ".github/workflows/build-compose.yml"
-      - "navigator-compose/**"
+      - "navigator-compose/navigator-compose/**"
+      - "navigator-compose/navigator-compose-hilt/**"
+      - "navigator-compose/navigator-compose-lint/**"
+      - "navigator-compose/samples/**"
+      - "navigator-compose/gradle/**"
+      - "navigator-compose/build.gradle"
+      - "navigator-compose/settings.gradle"
+      - "navigator-compose/gradle.properties"
 
 env:
   GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=false -Dkotlin.incremental=false"

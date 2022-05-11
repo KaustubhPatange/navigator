@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-parcelize'
     id 'maven-publish'
+    id 'org.jetbrains.dokka'
 }
 
 android {
@@ -30,6 +31,16 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+}
+
+dokkaHtmlPartial {
+    suppressInheritedMembers.set(true)
+}
+
+tasks.withType(dokkaHtmlPartial.getClass()).configureEach {
+    pluginsMapConfiguration.set(
+            ["org.jetbrains.dokka.base.DokkaBase": """{ "separateInheritedMembers": true}"""]
+    )
 }
 
 dependencies {

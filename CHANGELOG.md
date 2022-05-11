@@ -1,6 +1,6 @@
 # Changelog
 
-## Version `unknown`
+## Version `0.1-alpha38`
 
 - **Breaking Change**: `NavOptions.remember` will be `true` by default.
 - **Fixed**: Some leaks found in `navigator` & `navigator-base-navigation` libraries.

@@ -1,0 +1,14 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:navigator
+com.kpstv.navigation
+com.kpstv.navigation.internals
+module:navigator-bottom-navigation
+com.kpstv.navigation
+module:navigator-extensions
+com.kpstv.navigation
+module:navigator-rail-navigation
+com.kpstv.navigation
+module:navigator-tab-navigation
+com.kpstv.navigation

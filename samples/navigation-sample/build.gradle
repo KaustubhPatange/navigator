@@ -50,4 +50,6 @@ dependencies {
     implementation project(":navigator-extensions")
     implementation project(":navigator-tab-navigation")
     implementation project(":navigator-bottom-navigation")
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
 }

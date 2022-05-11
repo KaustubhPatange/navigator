@@ -1,5 +1,6 @@
 apply plugin: 'io.codearte.nexus-staging'
 apply plugin: 'binary-compatibility-validator'
+apply plugin: 'org.jetbrains.dokka'
 
 buildscript {
     ext.kotlin_version = "1.6.10"
@@ -7,7 +8,7 @@ buildscript {
     ext.lintVersion = '30.0.0-alpha10'
     ext.versions = [
             // A unified version for all the dependencies
-            "navigator": '0.1-alpha37',
+            "navigator": '0.1-alpha38',
     ]
 
     repositories {
@@ -20,6 +21,8 @@ buildscript {
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0"
         classpath "org.jetbrains.kotlinx:binary-compatibility-validator:0.9.0"
         classpath "com.google.dagger:hilt-android-gradle-plugin:2.39.1"
+        classpath("org.jetbrains.dokka:dokka-gradle-plugin:1.6.10")
+        classpath("org.jetbrains.dokka:all-modules-page-plugin:1.6.10")
     }
 }
 
@@ -43,6 +46,10 @@ task runAllInstrumentedTest {
 
     dependsOn(t1)
     dependsOn(t2)
+}
+
+tasks.dokkaHtmlMultiModule.configure {
+    outputDirectory.set(file("reference/navigator"))
 }
 
 apply from: "${rootProject.projectDir}/gradle/root.gradle"

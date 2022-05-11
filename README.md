@@ -28,7 +28,7 @@ If you have any implementation details to cover let me know.
 
 ## Implementation
 
-- The individual library versions can be found [here](https://github.com/KaustubhPatange/navigator/wiki/Setup).
+![Maven Central](https://img.shields.io/maven-central/v/io.github.kaustubhpatange/navigator)
 
 ```groovy
 // root's build.gradle
@@ -42,7 +42,6 @@ allprojects {
 ```groovy
 // modules's build.gradle
 dependencies {
-    // Check the above link for the individual library versions.
     implementation "io.github.kaustubhpatange:navigator:<version>" // Core library (Required)
     implementation "io.github.kaustubhpatange:navigator-extensions:<version>" // Optional but recommended
     implementation "io.github.kaustubhpatange:navigator-bottom-navigation:<version>" // For setting up Bottom Navigation.
