@@ -61,13 +61,6 @@ Snapshots of the current development version of `navigator` are available, which
 - [Backpress sample](/samples/backpress-sample) - A sample focused on handling back press events effectively.
 - [Navigation sample](/samples/navigation-sample) - A sample which demonstrate the use of Bottom & Tab navigation supporting multiple backstack through `navigator`.
 - [Multi-Module Navigation sample](/samples/multi-module-sample) - Multi-module navigation through `navigator` using Dagger-Hilt.
-- #### **Running the samples**
-
-```
-// Run the following command before building the project.
-
-./gradlew navigator:publishReleasePublicationToMavenLocal
-```
 
 ## Tutorials
 

@@ -38,7 +38,7 @@ import kotlin.reflect.KClass
 
 /**
  * Navigation root key to be provided during `ComposeNavigator.Setup(...)` to make current navigation
- * unique in the backstack & to enforce correct typesafe navigation.
+ * unique in the backstack &amp; to enforce correct typesafe navigation.
  *
  * This key then can be used to retrieve an instance of [ComposeNavigator.Controller<T>] to manage
  * navigation within this [Route].

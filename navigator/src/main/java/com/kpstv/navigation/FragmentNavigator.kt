@@ -36,7 +36,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
         val args: BaseArgs? = null,
         val transaction: TransactionType = TransactionType.REPLACE,
         val animation: NavAnimation = AnimationDefinition.None,
-        val remember: Boolean = false,
+        val remember: Boolean = true,
         val historyOptions: HistoryOptions = HistoryOptions.None,
     )
 
@@ -440,7 +440,6 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
                     if (fragment === frag && ::navigator.isInitialized) {
                         navigator.onSaveInstance(outState)
                     }
-                    super.onFragmentSaveInstanceState(fm, frag, outState)
                 }
                 override fun onFragmentStopped(fm: FragmentManager, frag: Fragment) {
                     if (fragment === frag && ::navigator.isInitialized) {
@@ -448,13 +447,12 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
                         navigator.onSaveInstance(bundle)
                         navigator.stateViewModel.putHistory(stateViewModelKey, bundle)
                     }
-                    super.onFragmentStopped(fm, frag)
                 }
-                override fun onFragmentDestroyed(fm: FragmentManager, frag: Fragment) {
-                    if (frag === owner) {
+                override fun onFragmentViewDestroyed(fm: FragmentManager, frag: Fragment) {
+                    if (fragment === frag && ::navigator.isInitialized) {
+                        navigator.navigatorTransitionManager.dispose()
                         fm.unregisterFragmentLifecycleCallbacks(this)
                     }
-                    super.onFragmentDestroyed(fm, frag)
                 }
             }, false)
         }

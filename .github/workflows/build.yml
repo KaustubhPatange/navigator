@@ -6,6 +6,7 @@ on:
       - "CHANGELOG.md"
       - "navigator-compose/**"
       - ".github/workflows/build-compose.yml"
+      - "reference/**"
       - "docs"
   pull_request:
     paths-ignore:
@@ -13,6 +14,7 @@ on:
       - "CHANGELOG.md"
       - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"
+      - "reference/**"
       - "docs"
 
 env:
@@ -64,21 +66,13 @@ jobs:
           ./gradlew navigator-tab-navigation:apiCheck
           ./gradlew navigator-rail-navigation:apiCheck
 
-      # Publish libraries to local maven
-      - name: Publishing libraries to local maven
-        run: |
-          ./gradlew navigator-extensions:publishReleasePublicationToMavenLocal
-          ./gradlew navigator:publishReleasePublicationToMavenLocal
-          ./gradlew navigator-base-navigation:publishReleasePublicationToMavenLocal
-          ./gradlew navigator-tab-navigation:publishReleasePublicationToMavenLocal
-          ./gradlew navigator-bottom-navigation:publishReleasePublicationToMavenLocal
-          ./gradlew navigator-rail-navigation:publishReleasePublicationToMavenLocal
       # Build all sample apps
       - name: Build samples
         run: |
           ./gradlew samples:basic-sample:assembleDebug
           ./gradlew samples:backpress-sample:assembleDebug
           ./gradlew samples:navigation-sample:assembleDebug
+          ./gradlew samples:multi-module-sample:assembleDebug
       - name: Run Unit tests
         run: |
           ./gradlew navigator-lint:test

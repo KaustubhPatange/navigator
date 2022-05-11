@@ -48,9 +48,9 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation 'com.google.android.material:material:1.3.0'
     androidTestImplementation project(":navigator-test-common")
-    androidTestImplementation "io.github.kaustubhpatange:navigator-extensions:${versions.navigator_extensions}"
+    androidTestImplementation "io.github.kaustubhpatange:navigator-extensions:${versions.navigator}"
 
-    debugImplementation "androidx.fragment:fragment-testing:$fragment_version"
+    androidTestImplementation "androidx.fragment:fragment-testing:$fragment_version"
 }
 
 ext {

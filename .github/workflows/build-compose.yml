@@ -1,10 +1,14 @@
 name: CI
 on:
   push:
+    paths-ignore:
+      - "navigator-compose/README.md"
     paths:
       - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"
   pull_request:
+    paths-ignore:
+      - "navigator-compose/README.md"
     paths:
       - ".github/workflows/build-compose.yml"
       - "navigator-compose/**"

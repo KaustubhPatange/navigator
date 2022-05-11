@@ -1,5 +1,14 @@
 # Changelog
 
+## Version `unknown`
+
+- **Breaking Change**: `NavOptions.remember` will be `true` by default.
+- **Fixed**: Some leaks found in `navigator` & `navigator-base-navigation` libraries.
+
+## Version `0.1-alpha37`
+
+- **Change**: Unified version for all the add-on libraries.
+
 ## Version `0.1-alpha36`
 
 - **Fixed**: `StateViewModel`'s history will also be considered during initial destination(s) creation.

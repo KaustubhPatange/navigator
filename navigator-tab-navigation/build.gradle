@@ -46,7 +46,7 @@ dependencies {
 
 ext {
     PUBLISH_ARTIFACT_ID = 'navigator-tab-navigation'
-    PUBLISH_VERSION = versions.navigator_tab_navigation
+    PUBLISH_VERSION = versions.navigator
 }
 
 apply from: "${rootProject.projectDir}/gradle/publish.gradle"

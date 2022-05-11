@@ -7,7 +7,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.kpstv.navigation.BaseArgs
 import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.ValueFragment
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 abstract class BaseFragment : ValueFragment(R.layout.fragment_abstract) {
     var viewState: ViewState = ViewState.UNDEFINED

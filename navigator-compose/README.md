@@ -1,7 +1,6 @@
 # navigator-compose
 
 [![CI](https://github.com/KaustubhPatange/navigator/actions/workflows/build-compose.yml/badge.svg)](https://github.com/KaustubhPatange/navigator/actions/workflows/build-compose.yml)
-![Maven Central](https://img.shields.io/maven-central/v/io.github.kaustubhpatange/navigator-compose)
 
 A type-safe navigation library for Jetpack Compose.
 
@@ -13,7 +12,11 @@ A type-safe navigation library for Jetpack Compose.
 - The library also provides some built-in animations when navigating to other screens (check the sample app).
 - All the navigation states are preserved across configuration change & process death.
 
+API Reference docs, check [here](https://kaustubhpatange.github.io/navigator/reference/navigator-compose).
+
 ## Implementation
+
+![Maven Central](https://img.shields.io/maven-central/v/io.github.kaustubhpatange/navigator-compose)
 
 ```groovy
 // root's build.gradle

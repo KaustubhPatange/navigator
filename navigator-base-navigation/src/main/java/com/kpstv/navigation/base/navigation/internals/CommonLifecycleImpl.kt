@@ -17,14 +17,14 @@ class FragmentNavigationLifecycle(
 ) : FragmentManager.FragmentLifecycleCallbacks() {
 
     override fun onFragmentSaveInstanceState(fm: FragmentManager, f: Fragment, outState: Bundle) {
-        if (fragment::class == f::class) {
+        if (fragment === f) {
             impl.onSaveInstanceState(outState)
         }
         super.onFragmentSaveInstanceState(fm, f, outState)
     }
 
     override fun onFragmentViewDestroyed(fm: FragmentManager, f: Fragment) {
-        if (fragment::class == f::class) {
+        if (fragment === f) {
             // If the view is destroyed but fragment did not then it's likely that we do not get
             // callback on SaveInstanceState in such case we will save it in the fragment bundle.
             if (f is ValueFragment) {
@@ -32,13 +32,9 @@ class FragmentNavigationLifecycle(
                 impl.onSaveInstanceState(bundle)
                 onSaveInstance(f, bundle) // let each implementation manage the save state.
             }
+            fm.unregisterFragmentLifecycleCallbacks(this)
         }
         super.onFragmentViewDestroyed(fm, f)
-    }
-
-    override fun onFragmentDestroyed(fm: FragmentManager, f: Fragment) {
-        if (fragment::class == f::class) fm.unregisterFragmentLifecycleCallbacks(this)
-        super.onFragmentDestroyed(fm, f)
     }
 }
 

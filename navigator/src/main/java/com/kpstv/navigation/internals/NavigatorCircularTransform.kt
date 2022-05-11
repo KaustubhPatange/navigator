@@ -23,13 +23,14 @@ internal class NavigatorCircularTransform(
     private val circularTransformStack = mutableMapOf<String, AnimationDefinition.CircularReveal>()
     private val containerView = fragmentContainer.rootView as FrameLayout
 
+    private val backStackListener = FragmentManager.OnBackStackChangedListener {
+        // update
+        val keys = circularTransformStack.keys.toList()
+        val current = getCurrentHistory.invoke().map { it.name }
+        keys.subtract(current).forEach { circularTransformStack.remove(it) }
+    }
     init {
-        fm.addOnBackStackChangedListener {
-            // update
-            val keys = circularTransformStack.keys.toList()
-            val current = getCurrentHistory.invoke().map { it.name }
-            keys.subtract(current).forEach { circularTransformStack.remove(it) }
-        }
+        fm.addOnBackStackChangedListener(backStackListener)
     }
 
     fun executeReverseTransform() : Boolean {
@@ -123,6 +124,10 @@ internal class NavigatorCircularTransform(
             val entries = list.zip(values).associate { it.first to it.second }
             circularTransformStack.putAll(entries)
         }
+    }
+
+    fun dispose() {
+        fm.removeOnBackStackChangedListener(backStackListener)
     }
 
     private fun performRestCircularTransform(overlayView: ImageView, target: Rect) {

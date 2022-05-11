@@ -41,7 +41,8 @@ dependencies {
     implementation "androidx.activity:activity-ktx:1.2.2"
 
     implementation "androidx.fragment:fragment-ktx:$fragment_version"
-    implementation "io.github.kaustubhpatange:navigator:${versions.navigator}"
-    implementation "io.github.kaustubhpatange:navigator-extensions:${versions.navigator_extensions}"
-    implementation "io.github.kaustubhpatange:navigator-bottom-navigation:${versions.navigator_bottom_navigation}"
+
+    implementation project(":navigator")
+    implementation project(":navigator-extensions")
+    implementation project(":navigator-bottom-navigation")
 }

@@ -46,8 +46,8 @@ dependencies {
 
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
 
-    implementation "io.github.kaustubhpatange:navigator:${versions.navigator}"
-    implementation "io.github.kaustubhpatange:navigator-extensions:${versions.navigator_extensions}"
-    implementation "io.github.kaustubhpatange:navigator-bottom-navigation:${versions.navigator_bottom_navigation}"
-    implementation "io.github.kaustubhpatange:navigator-tab-navigation:${versions.navigator_tab_navigation}"
+    implementation project(":navigator")
+    implementation project(":navigator-extensions")
+    implementation project(":navigator-tab-navigation")
+    implementation project(":navigator-bottom-navigation")
 }

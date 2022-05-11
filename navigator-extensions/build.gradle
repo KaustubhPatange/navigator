@@ -32,7 +32,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'androidx.fragment:fragment-ktx:1.3.2'
+    implementation "androidx.fragment:fragment-ktx:$fragment_version"
 
     compileOnly project(':navigator')
 
@@ -43,7 +43,7 @@ dependencies {
 
 ext {
     PUBLISH_ARTIFACT_ID = 'navigator-extensions'
-    PUBLISH_VERSION = versions.navigator_extensions
+    PUBLISH_VERSION = versions.navigator
 }
 
 apply from: "${rootProject.projectDir}/gradle/publish.gradle"
