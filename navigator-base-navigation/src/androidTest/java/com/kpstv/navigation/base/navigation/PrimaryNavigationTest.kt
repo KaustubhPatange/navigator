@@ -20,10 +20,12 @@ class PrimaryNavigationTest {
     @get:Rule
     val activityRule = ActivityScenarioRule(TestMainActivity::class.java)
 
+    private val doNotAddToBackstackOptions = FragmentNavigator.NavOptions(remember = false)
+
     @Before
     fun init() {
         activityRule.with {
-            getNavigator().navigateTo(TestNavigationFragment::class)
+            getNavigator().navigateTo(TestNavigationFragment::class, doNotAddToBackstackOptions)
             getNavigator().getFragmentManager().executePendingTransactions()
         }
         activityRule.scenario.moveToState(Lifecycle.State.STARTED)
@@ -36,7 +38,7 @@ class PrimaryNavigationTest {
                 assert(baseNavigation.firstId == R.id.navigator_fragment_1)
 
                 (getNavigator().get<NavigatorFragment>()).apply {
-                    getNavigator().navigateTo(ThirdFragment::class)
+                    getNavigator().navigateTo(ThirdFragment::class, doNotAddToBackstackOptions)
                     getNavigator().navigateTo(ForthFragment::class, FragmentNavigator.NavOptions(remember = true))
                     getNavigator().getFragmentManager().executePendingTransactions()
 
@@ -48,7 +50,7 @@ class PrimaryNavigationTest {
                 getNavigator().getFragmentManager().executePendingTransactions()
 
                 (getNavigator().get<NavigatorFragment>()).apply {
-                    getNavigator().navigateTo(FirstFragment::class)
+                    getNavigator().navigateTo(FirstFragment::class, doNotAddToBackstackOptions)
                     getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
                     getNavigator().getFragmentManager().executePendingTransactions()
 

@@ -1,5 +1,6 @@
 package com.kpstv.navigation.internals
 
+import android.content.Context
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
@@ -18,10 +19,11 @@ import kotlin.math.hypot
 internal class NavigatorCircularTransform(
     private val getCurrentHistory: () -> List<BackStackRecord>,
     private val fm: FragmentManager,
-    private val fragmentContainer: FrameLayout
+    private val context: Context,
+    private val containerId: Int,
+    private val getFragmentContainer: () -> FrameLayout
 ) {
     private val circularTransformStack = mutableMapOf<String, AnimationDefinition.CircularReveal>()
-    private val containerView = fragmentContainer.rootView as FrameLayout
 
     private val backStackListener = FragmentManager.OnBackStackChangedListener {
         // update
@@ -35,7 +37,7 @@ internal class NavigatorCircularTransform(
 
     fun executeReverseTransform() : Boolean {
         if (circularTransformStack.isNotEmpty()) {
-            val current = fm.findFragmentById(fragmentContainer.id)?.tag
+            val current = fm.findFragmentById(getFragmentContainer().id)?.tag
             val lastKey = circularTransformStack.keys.last()
             if (lastKey == current) {
                 val payload = circularTransformStack[lastKey] ?: return false
@@ -50,7 +52,9 @@ internal class NavigatorCircularTransform(
     }
 
     private fun circularTransform(payload: AnimationDefinition.CircularReveal, popUpTo: Boolean, currentTag: String?, reverse: Boolean) {
-        if (fragmentContainer.childCount <= 0) return
+        val containerView = getFragmentContainer().rootView as FrameLayout
+
+        if (getFragmentContainer().childCount <= 0) return
         if (!containerView.isLaidOut) return
 
         val viewBitmap = containerView.drawToBitmap()
@@ -131,6 +135,8 @@ internal class NavigatorCircularTransform(
     }
 
     private fun performRestCircularTransform(overlayView: ImageView, target: Rect) {
+        val containerView = getFragmentContainer().rootView as FrameLayout
+
         val overlayView2 = createEmptyImageView().apply {
             setTag(R.id.fragment_container_view_tag, Fragment()) // For fragment container
             containerView.addView(this)
@@ -162,6 +168,8 @@ internal class NavigatorCircularTransform(
     }
 
     private fun performReverseCircularTransform(overlayView: ImageView, target: Rect) {
+        val containerView = getFragmentContainer().rootView as FrameLayout
+
         val anim = ViewAnimationUtils.createCircularReveal(
             overlayView,
             target.centerX(),
@@ -179,13 +187,13 @@ internal class NavigatorCircularTransform(
     }
 
     private fun createEmptyImageView() : ImageView {
-        return ImageView(containerView.context).apply {
+        return ImageView(context).apply {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
         }
     }
 
-    private fun getSaveableMapKey(): String = "$SAVED_STATE_KEY${containerView.id}_key"
-    private fun getSaveableMapValue(): String = "$SAVED_STATE_KEY${containerView.id}_value"
+    private fun getSaveableMapKey(): String = "$SAVED_STATE_KEY${containerId}_key"
+    private fun getSaveableMapValue(): String = "$SAVED_STATE_KEY${containerId}_value"
 
     companion object {
         private const val SAVED_STATE_KEY = "com.kpstv.navigator:circularTransform:"

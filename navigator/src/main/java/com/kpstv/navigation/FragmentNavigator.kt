@@ -2,6 +2,7 @@ package com.kpstv.navigation
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.widget.FrameLayout
 import androidx.annotation.AnimRes
@@ -12,18 +13,20 @@ import androidx.fragment.app.*
 import androidx.lifecycle.*
 import com.google.android.material.tabs.TabItem
 import com.google.android.material.tabs.TabLayout
+import com.kpstv.navigation.FragmentNavigator.Navigation.ViewRetention.RECREATE
+import com.kpstv.navigation.FragmentNavigator.Navigation.ViewRetention.RETAIN
 import com.kpstv.navigation.internals.*
-import com.kpstv.navigation.internals.CustomAnimation
-import com.kpstv.navigation.internals.HistoryImpl
-import com.kpstv.navigation.internals.NavigatorCircularTransform
-import com.kpstv.navigation.internals.prepareForSharedTransition
 import kotlin.reflect.KClass
 
 internal typealias FragClazz = KClass<out Fragment>
 internal typealias DialogFragClazz = KClass<out Fragment>
 
 @Suppress("unused")
-class FragmentNavigator internal constructor(private val fm: FragmentManager, private val containerView: FrameLayout) {
+class FragmentNavigator internal constructor(
+    private val fm: FragmentManager,
+    private val containerId: Int,
+    private val context: Context
+) {
 
     /**
      * @param args Pass arguments extended from [BaseArgs].
@@ -50,9 +53,9 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
     }
 
     private val history = HistoryImpl(fm)
-    private val navigatorTransitionManager = NavigatorCircularTransform(history::getContents, fm, containerView)
+    private val navigatorTransitionManager = NavigatorCircularTransform(history::getContents, fm, context, containerId, ::getContainerView)
 
-    private val simpleNavigator = SimpleNavigator(containerView.context, fm)
+    private val simpleNavigator = SimpleNavigator(context, fm)
 
     /**
      * Navigate to a [Fragment].
@@ -62,7 +65,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
      *
      */
     fun navigateTo(clazz: FragClazz, navOptions: NavOptions = NavOptions()) {
-        val fragment = fm.newFragment(containerView.context, clazz)
+        val fragment = fm.newFragment(context, clazz)
         navigateTo(fragment, navOptions)
     }
 
@@ -109,9 +112,9 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
 
         fm.commit {
             if (animation is AnimationDefinition.Custom)
-                CustomAnimation(fm, containerView).set(this, animation, clazz)
+                CustomAnimation(fm, getContainerView()).set(this, animation, clazz)
             if (animation is AnimationDefinition.Shared)
-                prepareForSharedTransition(fm, containerView, clazz, animation)
+                prepareForSharedTransition(fm, getContainerView(), clazz, animation)
 
             val sameFragment = fm.findFragmentByTag(tagName)
             if (sameFragment != null && sameFragment::class != clazz) {
@@ -120,8 +123,8 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
             } else {
                 fragment.arguments = bundle
                 when (transaction) {
-                    TransactionType.REPLACE -> replace(containerView.id, fragment, tagName)
-                    TransactionType.ADD -> add(containerView.id, fragment, tagName)
+                    TransactionType.REPLACE -> replace(containerId, fragment, tagName)
+                    TransactionType.ADD -> add(containerId, fragment, tagName)
                 }
             }
             setPrimaryNavigationFragment(fragment)
@@ -233,14 +236,20 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
      * It could be a [DialogFragment] if currently being shown or a [Fragment] from [containerView]
      */
     fun getCurrentFragment(): Fragment? {
-        return simpleNavigator.getCurrentDialogFragment() ?: getCurrentVisibleFragment(fm, containerView)
+        return simpleNavigator.getCurrentDialogFragment() ?: getCurrentVisibleFragment(fm, getContainerView())
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun getFragmentManager(): FragmentManager = fm
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun getContainerView(): FrameLayout = containerView
+    fun getContainerView(): FrameLayout {
+        return when (val owner = owner) {
+            is Activity -> owner.findViewById(containerId)
+            is Fragment -> owner.requireView().findViewById(containerId)
+            else -> throw IllegalStateException("Could not find fragment's container view")
+        }
+    }
 
     private fun getBackStackCount(): Int = fm.backStackEntryCount
 
@@ -391,7 +400,7 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
          */
         fun initialize(containerView: FrameLayout, initials: Destination? = null) : FragmentNavigator {
             this.stateViewModelKey = "navigator_${containerView.id}"
-            navigator = FragmentNavigator(fragmentManager, containerView)
+            navigator = FragmentNavigator(fragmentManager, containerView.id, containerView.context)
             navigator.owner = owner
             navigator.stateViewModel = ViewModelProvider(owner as ViewModelStoreOwner, StateViewModel.Factory()).get(SAVE_STATE_MODEL, StateViewModel::class.java)
             navigator.savedInstanceState = savedInstanceState ?: navigator.stateViewModel.getHistory(stateViewModelKey)
@@ -451,6 +460,11 @@ class FragmentNavigator internal constructor(private val fm: FragmentManager, pr
                 override fun onFragmentViewDestroyed(fm: FragmentManager, frag: Fragment) {
                     if (fragment === frag && ::navigator.isInitialized) {
                         navigator.navigatorTransitionManager.dispose()
+                    }
+                }
+
+                override fun onFragmentDestroyed(fm: FragmentManager, frag: Fragment) {
+                    if (fragment === frag && ::navigator.isInitialized) {
                         fm.unregisterFragmentLifecycleCallbacks(this)
                     }
                 }

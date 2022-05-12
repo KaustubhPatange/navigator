@@ -10,16 +10,16 @@ import kotlin.reflect.KFunction1
 
 internal class RailNavigationImpl(
     navigator: FragmentNavigator,
-    internal val navView: NavigationRailView,
+    private val getNavView: () -> NavigationRailView,
     private val onNavSelectionChange: KFunction1<Int, Unit>,
     fragments: Map<Int, KClass<out Fragment>>,
     navigation: FragmentNavigator.Navigation
 ) : CommonNavigationImpl(
-    navigator = navigator, navFragments = fragments, navigation = navigation, stateKeys = SaveStateKeys("$KEY_SELECTION_INDEX${navView.id}")
+    navigator = navigator, navFragments = fragments, navigation = navigation, stateKeys = SaveStateKeys("$KEY_SELECTION_INDEX${getNavView().id}")
 ) {
     override fun setUpNavigationViewCallbacks(selectionId: Int) {
-        navView.selectedItemId = selectionId
-        navView.setOnItemSelectedListener(navigationListener)
+        getNavView().selectedItemId = selectionId
+        getNavView().setOnItemSelectedListener(navigationListener)
     }
 
     private val navigationListener = NavigationBarView.OnItemSelectedListener call@{ item ->
@@ -30,10 +30,14 @@ internal class RailNavigationImpl(
         onNavSelectionChange.invoke(id)
     }
 
+    internal fun selectPosition(id: Int) {
+        getNavView().selectedItemId = id
+    }
+
     internal fun ignoreNavigationListeners(block: () -> Unit) {
-        navView.setOnItemSelectedListener(null)
+        getNavView().setOnItemSelectedListener(null)
         block.invoke()
-        navView.setOnItemSelectedListener(navigationListener)
+        getNavView().setOnItemSelectedListener(navigationListener)
     }
 
     companion object {

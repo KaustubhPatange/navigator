@@ -49,4 +49,6 @@ dependencies {
 
     implementation project(":navigator")
     implementation project(":navigator-extensions")
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
 }

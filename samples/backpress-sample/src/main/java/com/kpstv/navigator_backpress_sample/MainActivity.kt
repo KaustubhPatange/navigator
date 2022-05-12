@@ -31,6 +31,6 @@ class MainActivity : AppCompatActivity(), FragmentNavigator.Transmitter {
     
     override fun onBackPressed() {
         if (navigator.canFinish())
-            super.onBackPressed()
+            super.onBackPressed() // <-- Leak canary detecting it as leak, call super.finishAfterTransition()
     }
 }

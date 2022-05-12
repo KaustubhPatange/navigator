@@ -4,7 +4,10 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.kpstv.navigation.base.navigation.internals.*
+import com.kpstv.navigation.base.navigation.internals.ActivityNavigationLifecycle
+import com.kpstv.navigation.base.navigation.internals.FragmentNavigationLifecycle
+import com.kpstv.navigation.base.navigation.internals.getOwner
+import com.kpstv.navigation.base.navigation.internals.getSaveInstanceState
 import com.kpstv.navigation.tab.TabNavigationImpl
 import com.kpstv.navigation.tab.getTabNavigationState
 import com.kpstv.navigation.tab.setTabNavigationState
@@ -39,12 +42,10 @@ internal fun install(
     val fragmentSavedState = savedStateInstance
         ?: if (fragment is ValueFragment) fragment.getTabNavigationState() else null
 
-    val view = fragment.requireView()
-
     val impl = TabNavigationImpl(
         navigator = navigator,
         fragments = listToMapOfFragments(obj.tabNavigationFragments),
-        navView = view.findViewById(obj.tabLayoutId),
+        getNavView = { fragment.requireView().findViewById(obj.tabLayoutId) },
         onNavSelectionChange = obj::onTabNavigationSelectionChanged,
         navigation = obj
     )
@@ -69,7 +70,7 @@ internal fun install(
     val impl = TabNavigationImpl(
         navigator = navigator,
         fragments = listToMapOfFragments(obj.tabNavigationFragments),
-        navView = activity.findViewById(obj.tabLayoutId),
+        getNavView = { activity.findViewById(obj.tabLayoutId) },
         onNavSelectionChange = obj::onTabNavigationSelectionChanged,
         navigation = obj
     )

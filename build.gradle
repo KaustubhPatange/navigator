@@ -8,7 +8,7 @@ buildscript {
     ext.lintVersion = '30.0.0-alpha10'
     ext.versions = [
             // A unified version for all the dependencies
-            "navigator": '0.1-alpha38',
+            "navigator": '0.1-alpha39',
     ]
 
     repositories {

@@ -18,6 +18,8 @@ class MultipleBackStackTests {
     @get:Rule
     val activityRule = ActivityScenarioRule(TestMainActivity::class.java)
 
+    private val doNotAddToBackstackOptions = FragmentNavigator.NavOptions(remember = false)
+
     private lateinit var baseNavigation: CustomCommonNavigationImpl
     private lateinit var tabNavigation: CustomCommonNavigationImpl
 
@@ -39,7 +41,7 @@ class MultipleBackStackTests {
     @Before
     fun init() {
         activityRule.with {
-            getNavigator().navigateTo(NavigatorFragment::class)
+            getNavigator().navigateTo(NavigatorFragment::class, doNotAddToBackstackOptions)
             getNavigator().getFragmentManager().executePendingTransactions()
 
             val navFragment = (getNavigator().getCurrentFragment() as NavigatorFragment)
@@ -68,7 +70,7 @@ class MultipleBackStackTests {
 
                     assert(tabNavigation.firstId == 1)
                     (getNavigator().getCurrentFragment() as NavigatorFragment).apply {
-                        getNavigator().navigateTo(ForthFragment::class)
+                        getNavigator().navigateTo(ForthFragment::class, doNotAddToBackstackOptions)
                         getNavigator().navigateTo(ThirdFragment::class, FragmentNavigator.NavOptions(remember = true))
                         childFragmentManager.executePendingTransactions()
 
@@ -82,7 +84,7 @@ class MultipleBackStackTests {
                 assert(baseNavigation.selectedId == 2)
 
                 (getNavigator().getCurrentFragment() as NavigatorFragment).apply {
-                    getNavigator().navigateTo(ThirdFragment::class)
+                    getNavigator().navigateTo(ThirdFragment::class, doNotAddToBackstackOptions)
                     getNavigator().getFragmentManager().executePendingTransactions()
                 }
             }

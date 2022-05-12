@@ -1,3 +1,5 @@
+@file:Suppress("invisible_reference", "invisible_member")
+
 package com.kpstv.navigation
 
 import android.os.Bundle
@@ -22,10 +24,12 @@ class FragmentNavigatorTests {
     @get:Rule
     val activity = ActivityScenarioRule(TestMainActivity::class.java)
 
+    private val doNotAddToBackstackOptions = FragmentNavigator.NavOptions(remember = false)
+
     @Test
     fun NavigateToFirstFragmentAndVerify() {
         activity.with {
-            getNavigator().navigateTo(FirstFragment::class)
+            getNavigator().navigateTo(FirstFragment::class, doNotAddToBackstackOptions)
             getNavigator().getFragmentManager().executePendingTransactions()
             val fragment = getNavigator().getCurrentFragment()
             assert(fragment!!::class == FirstFragment::class)
@@ -35,7 +39,7 @@ class FragmentNavigatorTests {
     @Test
     fun SomeTestsForBackstack() {
         activity.with {
-            getNavigator().navigateTo(FirstFragment::class)
+            getNavigator().navigateTo(FirstFragment::class, doNotAddToBackstackOptions)
             getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
             getNavigator().getFragmentManager().executePendingTransactions()
 
@@ -64,7 +68,7 @@ class FragmentNavigatorTests {
     }
 
     private fun preSetupForHistoryTest(activity: TestMainActivity) = with(activity) {
-        getNavigator().navigateTo(FirstFragment::class)
+        getNavigator().navigateTo(FirstFragment::class, doNotAddToBackstackOptions)
         getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
         getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
         getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
@@ -142,7 +146,7 @@ class FragmentNavigatorTests {
     @Test
     fun TypedArgumentTests() {
         activity.with {
-            getNavigator().navigateTo(FirstFragment::class)
+            getNavigator().navigateTo(FirstFragment::class, doNotAddToBackstackOptions)
 
             val args = TestArgs.create()
             getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(args = args))
@@ -254,7 +258,7 @@ class FragmentNavigatorTests {
             preSetupForHistoryTest(this)
 
             // Check for single instance
-            getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(historyOptions = HistoryOptions.SingleTopInstance))
+            getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(historyOptions = HistoryOptions.SingleTopInstance, remember = false))
             getNavigator().getFragmentManager().executePendingTransactions()
             assert(getNavigator().getHistory().getAllBackStackName(SecondFragment::class).count() == 1)
 
@@ -277,7 +281,7 @@ class FragmentNavigatorTests {
     @Test
     fun AddTransactionTest() {
         activity.with {
-            getNavigator().navigateTo(FirstFragment::class)
+            getNavigator().navigateTo(FirstFragment::class, doNotAddToBackstackOptions)
             getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true, transaction = FragmentNavigator.TransactionType.ADD))
             getNavigator().navigateTo(ThirdFragment::class, FragmentNavigator.NavOptions(remember = true, transaction = FragmentNavigator.TransactionType.ADD))
             getNavigator().getFragmentManager().executePendingTransactions()
@@ -313,7 +317,7 @@ class FragmentNavigatorTests {
                 animation = AnimationDefinition.CircularReveal(),
                 remember = true // without remember reverse will not work.
             )
-            getNavigator().navigateTo(FirstFragment::class)
+            getNavigator().navigateTo(FirstFragment::class, doNotAddToBackstackOptions)
             getNavigator().getFragmentManager().executePendingTransactions()
 
             getNavigator().navigateTo(SecondFragment::class, options)

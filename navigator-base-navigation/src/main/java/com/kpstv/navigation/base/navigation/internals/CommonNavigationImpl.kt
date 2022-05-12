@@ -25,7 +25,6 @@ abstract class CommonNavigationImpl(
     abstract fun onNavigationSelectionChange(id: Int)
 
     private val fm = navigator.getFragmentManager()
-    private val containerView = navigator.getContainerView()
 
     private var fragments = arrayListOf<Fragment>()
     private var selectedIndex = if (navigation.selectedFragmentId != -1)
@@ -44,7 +43,7 @@ abstract class CommonNavigationImpl(
                     val tagFragment = fm.findFragmentByTag(getFragmentTagFromId(id))?.also { fragments.add(it) }
                     if (tagFragment == null) {
                         val fragment = frag.java.getConstructor().newInstance().also { fragments.add(it) }
-                        add(containerView.id, fragment, getFragmentTagFromId(id))
+                        add(navigator.getContainerView().id, fragment, getFragmentTagFromId(id))
                     }
                 }
             }

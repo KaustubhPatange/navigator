@@ -9,20 +9,24 @@ import kotlin.reflect.KFunction1
 
 internal class BottomNavigationImpl(
     navigator: FragmentNavigator,
-    internal val navView: BottomNavigationView,
+    private val getNavView: () -> BottomNavigationView,
     private val onNavSelectionChange: KFunction1<Int, Unit>,
     fragments: Map<Int, KClass<out Fragment>>,
     navigation: FragmentNavigator.Navigation
 ) : CommonNavigationImpl(
-    navigator = navigator, navFragments = fragments, navigation = navigation, stateKeys = SaveStateKeys("$KEY_SELECTION_INDEX${navView.id}")
+    navigator = navigator, navFragments = fragments, navigation = navigation, stateKeys = SaveStateKeys("$KEY_SELECTION_INDEX${getNavView().id}")
 ) {
     override fun setUpNavigationViewCallbacks(selectionId: Int) {
-        navView.selectedItemId = selectionId
-        navView.setOnNavigationItemSelectedListener(navigationListener)
+        getNavView().selectedItemId = selectionId
+        getNavView().setOnNavigationItemSelectedListener(navigationListener)
     }
 
     override fun onNavigationSelectionChange(id: Int) {
         onNavSelectionChange.invoke(id)
+    }
+
+    internal fun selectPosition(id: Int) {
+        getNavView().selectedItemId = id
     }
 
     private val navigationListener = BottomNavigationView.OnNavigationItemSelectedListener call@{ item ->
@@ -30,9 +34,9 @@ internal class BottomNavigationImpl(
     }
 
     internal fun ignoreNavigationListeners(block: () -> Unit) {
-        navView.setOnNavigationItemSelectedListener(null)
+        getNavView().setOnNavigationItemSelectedListener(null)
         block.invoke()
-        navView.setOnNavigationItemSelectedListener(navigationListener)
+        getNavView().setOnNavigationItemSelectedListener(navigationListener)
     }
 
     companion object {

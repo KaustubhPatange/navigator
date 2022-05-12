@@ -40,12 +40,10 @@ internal fun install(
     val fragmentSavedState = savedStateInstance
         ?: if (fragment is ValueFragment) fragment.getRailNavigationState() else null
 
-    val view = fragment.requireView()
-
     val impl = RailNavigationImpl(
         navigator = navigator,
         fragments = obj.railNavigationFragments,
-        navView = view.findViewById(obj.railNavigationViewId),
+        getNavView = { fragment.requireView().findViewById(obj.railNavigationViewId) },
         onNavSelectionChange = obj::onRailNavigationSelectionChanged,
         navigation = obj
     )
@@ -69,7 +67,7 @@ internal fun install(
 ): RailNavigationController {
     val impl = RailNavigationImpl(
         navigator = navigator,
-        navView = activity.findViewById(obj.railNavigationViewId),
+        getNavView = activity.findViewById(obj.railNavigationViewId),
         fragments = obj.railNavigationFragments,
         onNavSelectionChange = obj::onRailNavigationSelectionChanged,
         navigation = obj

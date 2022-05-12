@@ -35,12 +35,10 @@ internal fun install(
     val fragmentSavedState = savedStateInstance
         ?: if (fragment is ValueFragment) fragment.getBottomNavigationState() else null
 
-    val view = fragment.requireView()
-
     val impl = BottomNavigationImpl(
         navigator = navigator,
         fragments = obj.bottomNavigationFragments,
-        navView = view.findViewById(obj.bottomNavigationViewId),
+        getNavView = { fragment.requireView().findViewById(obj.bottomNavigationViewId) },
         onNavSelectionChange = obj::onBottomNavigationSelectionChanged,
         navigation = obj
     )
@@ -64,7 +62,7 @@ internal fun install(
 ): BottomNavigationController {
     val impl = BottomNavigationImpl(
         navigator = navigator,
-        navView = activity.findViewById(obj.bottomNavigationViewId),
+        getNavView = activity.findViewById(obj.bottomNavigationViewId),
         fragments = obj.bottomNavigationFragments,
         onNavSelectionChange = obj::onBottomNavigationSelectionChanged,
         navigation = obj

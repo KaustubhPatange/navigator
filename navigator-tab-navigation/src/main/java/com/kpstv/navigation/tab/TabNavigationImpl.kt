@@ -9,16 +9,16 @@ import kotlin.reflect.KFunction1
 
 internal class TabNavigationImpl(
     navigator: FragmentNavigator,
-    internal val navView: TabLayout,
+    private val getNavView: () -> TabLayout,
     private val onNavSelectionChange: KFunction1<Int, Unit>,
     fragments: Map<Int, KClass<out Fragment>>,
     navigation: FragmentNavigator.Navigation
 ) : CommonNavigationImpl(
-    navigator = navigator, navFragments = fragments, navigation = navigation, stateKeys = SaveStateKeys("$KEY_SELECTION_INDEX${navView.id}")
+    navigator = navigator, navFragments = fragments, navigation = navigation, stateKeys = SaveStateKeys("$KEY_SELECTION_INDEX${getNavView().id}")
 ) {
     override fun setUpNavigationViewCallbacks(selectionId: Int) /* "selectedId" is "position" */ {
         selectPosition(selectionId)
-        navView.addOnTabSelectedListener(tabListener)
+        getNavView().addOnTabSelectedListener(tabListener)
     }
 
     private val tabListener = object: TabLayout.OnTabSelectedListener {
@@ -36,13 +36,13 @@ internal class TabNavigationImpl(
     }
 
     internal fun selectPosition(position: Int) {
-        navView.getTabAt(position)?.select()
+        getNavView().getTabAt(position)?.select()
     }
 
     internal fun ignoreTabListeners(block: () -> Unit) {
-        navView.removeOnTabSelectedListener(tabListener)
+        getNavView().removeOnTabSelectedListener(tabListener)
         block.invoke()
-        navView.addOnTabSelectedListener(tabListener)
+        getNavView().addOnTabSelectedListener(tabListener)
     }
 
     companion object {

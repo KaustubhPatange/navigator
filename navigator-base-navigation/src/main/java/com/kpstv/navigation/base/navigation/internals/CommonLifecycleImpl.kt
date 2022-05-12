@@ -20,7 +20,6 @@ class FragmentNavigationLifecycle(
         if (fragment === f) {
             impl.onSaveInstanceState(outState)
         }
-        super.onFragmentSaveInstanceState(fm, f, outState)
     }
 
     override fun onFragmentViewDestroyed(fm: FragmentManager, f: Fragment) {
@@ -32,9 +31,13 @@ class FragmentNavigationLifecycle(
                 impl.onSaveInstanceState(bundle)
                 onSaveInstance(f, bundle) // let each implementation manage the save state.
             }
+        }
+    }
+
+    override fun onFragmentDestroyed(fm: FragmentManager, f: Fragment) {
+        if (fragment === f) {
             fm.unregisterFragmentLifecycleCallbacks(this)
         }
-        super.onFragmentViewDestroyed(fm, f)
     }
 }
 

@@ -16,22 +16,24 @@ class BasicMultiStackTests {
     @get:Rule
     val activityRule = ActivityScenarioRule(TestMainActivity::class.java)
 
+    private val doNotAddToBackstackOptions = FragmentNavigator.NavOptions(remember = false)
+
     @Test
     fun SimpleCompleteMultiStackTest() {
         activityRule.with main@{
-            getNavigator().navigateTo(FirstFragment::class)
+            getNavigator().navigateTo(FirstFragment::class, doNotAddToBackstackOptions)
             getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
             getNavigator().navigateTo(NavigatorFragment::class, FragmentNavigator.NavOptions(remember = true))
             getNavigator().getFragmentManager().executePendingTransactions()
 
             (getNavigator().getCurrentFragment() as NavigatorFragment).apply first@{
-                getNavigator().navigateTo(FirstFragment::class)
+                getNavigator().navigateTo(FirstFragment::class, doNotAddToBackstackOptions)
                 getNavigator().navigateTo(ThirdFragment::class, FragmentNavigator.NavOptions(remember = true))
                 getNavigator().navigateTo(NavigatorFragment::class, FragmentNavigator.NavOptions(remember = true))
                 getNavigator().getFragmentManager().executePendingTransactions()
 
                 (getNavigator().getCurrentFragment() as NavigatorFragment).apply second@{
-                    getNavigator().navigateTo(ThirdFragment::class)
+                    getNavigator().navigateTo(ThirdFragment::class, doNotAddToBackstackOptions)
                     getNavigator().navigateTo(SecondFragment::class, FragmentNavigator.NavOptions(remember = true))
                     getNavigator().getFragmentManager().executePendingTransactions()
 

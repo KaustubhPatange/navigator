@@ -41,6 +41,7 @@ public final class com/kpstv/navigation/base/navigation/internals/CustomsKt {
 
 public final class com/kpstv/navigation/base/navigation/internals/FragmentNavigationLifecycle : androidx/fragment/app/FragmentManager$FragmentLifecycleCallbacks {
 	public fun <init> (Landroidx/fragment/app/Fragment;Lcom/kpstv/navigation/base/navigation/internals/CommonNavigationImpl;Lkotlin/jvm/functions/Function2;)V
+	public fun onFragmentDestroyed (Landroidx/fragment/app/FragmentManager;Landroidx/fragment/app/Fragment;)V
 	public fun onFragmentSaveInstanceState (Landroidx/fragment/app/FragmentManager;Landroidx/fragment/app/Fragment;Landroid/os/Bundle;)V
 	public fun onFragmentViewDestroyed (Landroidx/fragment/app/FragmentManager;Landroidx/fragment/app/Fragment;)V
 }

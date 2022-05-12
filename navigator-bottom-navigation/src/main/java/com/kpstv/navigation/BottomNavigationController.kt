@@ -15,7 +15,7 @@ class BottomNavigationController internal constructor(
    fun select(@IdRes id: Int, args: BaseArgs? = null) {
       bn.ignoreNavigationListeners {
          bn.onSelectNavItem(id, args)
-         bn.navView.selectedItemId = id
+         bn.selectPosition(id)
       }
    }
 }

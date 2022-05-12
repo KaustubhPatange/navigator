@@ -15,7 +15,7 @@ class RailNavigationController internal constructor(
     fun select(@IdRes id: Int, args: BaseArgs? = null) {
         rn.ignoreNavigationListeners {
             rn.onSelectNavItem(id, args)
-            rn.navView.selectedItemId = id
+            rn.selectPosition(id)
         }
     }
 }
