@@ -5,6 +5,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.ValueFragment
 import com.kpstv.navigation.base.navigation.internals.*
@@ -143,6 +144,55 @@ class BaseNavigationTests {
             // Test if state is saved
             assert(commonNavigationImpl.firstId == 1)
             assert(getNavigator().getCurrentFragment()!!::class == SecondFragment::class)
+        }
+    }
+
+    // In ViewRetention.RETAIN, fragment's lifecycle will now be onPause() for those who are in active,
+    // and onResume() for the one which is active.
+    @Test
+    fun ViewRetaintionModeRetainLifecycleChangeTest() {
+        lateinit var commonNavigationImpl: CommonNavigationImpl
+        activityRule.scenario.with {
+            commonNavigationImpl = preSetup(this, Custom3Navigation(option = FragmentNavigator.Navigation.ViewRetention.RETAIN, topSelectedId = 0))
+
+            commonNavigationImpl.onCreate(null)
+            supportFragmentManager.executePendingTransactions()
+
+        }
+
+        activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+
+        activityRule.scenario.with {
+            supportFragmentManager.fragments.forEach { frag ->
+                if (frag is FirstFragment) {
+                    assert(frag.lifecycle.currentState == Lifecycle.State.RESUMED)
+                } else {
+                    assert(frag.lifecycle.currentState == Lifecycle.State.STARTED)
+                }
+            }
+
+            commonNavigationImpl.onSelectNavItem(1)
+
+            supportFragmentManager.fragments.forEach { frag ->
+                if (frag is SecondFragment) {
+                    assert(frag.lifecycle.currentState == Lifecycle.State.RESUMED)
+                } else {
+                    assert(frag.lifecycle.currentState == Lifecycle.State.STARTED)
+                }
+            }
+        }
+
+        activityRule.scenario.recreate()
+        activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+
+        activityRule.scenario.with {
+            supportFragmentManager.fragments.forEach { frag ->
+                if (frag is SecondFragment) {
+                    assert(frag.lifecycle.currentState == Lifecycle.State.RESUMED)
+                } else {
+                    assert(frag.lifecycle.currentState == Lifecycle.State.STARTED)
+                }
+            }
         }
     }
 }

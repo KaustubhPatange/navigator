@@ -6,6 +6,7 @@ import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commitNow
+import androidx.lifecycle.Lifecycle
 import com.kpstv.navigation.BaseArgs
 import com.kpstv.navigation.FragmentNavigator
 import com.kpstv.navigation.ValueFragment
@@ -94,6 +95,12 @@ abstract class CommonNavigationImpl(
         if (navigation.fragmentViewRetentionType == FragmentNavigator.Navigation.ViewRetention.RETAIN) {
             if (whichFragment is ViewStateFragment) whichFragment.onViewStateChanged(ViewStateFragment.ViewState.FOREGROUND)
             if (current is ViewStateFragment) current.onViewStateChanged(ViewStateFragment.ViewState.BACKGROUND)
+            fm.commitNow {
+                fragments.filterNot { it === whichFragment }.forEach { frag ->
+                    setMaxLifecycle(frag, Lifecycle.State.STARTED)
+                }
+                setMaxLifecycle(whichFragment, Lifecycle.State.RESUMED)
+            }
         }
 
         internalSetFragment(current, whichFragment, runIfHasAnimations)

@@ -323,10 +323,9 @@ class FragmentNavigator internal constructor(
              * done by properly invoking [FragmentTransaction.show] & [FragmentTransaction.hide] call at appropriate
              * time i.e hiding the fragment in the container
              *
-             * Since it does not replace the underlying fragment the old fragment will not go through the lifecycle
-             * changes. Hence no [onPause], [onStop], [onDestroyView] & so on will be called.
-             *
-             * The only way to rely on view state changes is to listen [ViewStateFragment.onViewStateChanged].
+             * During this change, fragments which are not active will be moved to [PAUSED] state & the one which is
+             * active will be moved to [RESUME] state. Apart from this you can listen to view state changes using a
+             * new callback [ViewStateFragment.onViewStateChanged].
              *
              * Note: It is always ideal to use RECREATE (default) mode, use this mode only when you know what you
              * are doing.

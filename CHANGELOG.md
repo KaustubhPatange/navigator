@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `0.1-alpha41`
+
+- **Change**: In `ViewRetaintion.RETAIN` mode, fragments are set to `RESUMED` state when they are active & `PAUSED` state when they are in active.
+
 ## Version `0.1-alpha39`
 
 - **Breaking Change**: `NavOptions.remember` will be `true` by default.
