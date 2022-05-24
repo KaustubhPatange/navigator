@@ -475,8 +475,8 @@ public class ComposeNavigator private constructor(private val activity: Componen
     /**
      * [associateKey] A parent key for this [key]. This means [associateKey] has setup navigation for this [key].
      */
-    internal class History<T : Route> internal constructor(internal val key: RouteKey<T>, internal var associateKey: KClass<out Route>?, internal val initial: T) {
-        companion object {
+    internal class History<T : Route> internal constructor(internal val key: RouteKey<T>, internal val associateRoute: Route?, internal val initial: T) {
+        private companion object {
             private const val LAST_REMOVED_ITEM_KEY = "history:last_item:key"
             private const val LAST_REMOVED_ITEM_ANIMATION = "history:last_item:animation"
 
@@ -572,6 +572,8 @@ public class ComposeNavigator private constructor(private val activity: Componen
         private var backStack by mutableStateOf(listOf(current))
 
         internal val dialogHistory = DialogHistory()
+
+        internal val associateKey: KClass<out Route>? = if (associateRoute != null) { associateRoute::class } else { null }
 
         internal var lastTransactionStatus: NavType = NavType.Forward
 
@@ -687,6 +689,16 @@ public class ComposeNavigator private constructor(private val activity: Componen
          * This behavior is disabled by default but can be enabled when set to true.
          */
         public var enableDialogOverlay: Boolean = false
+
+        /**
+         * The current active [Route] in the navigation history.
+         */
+        public val currentRoute: T? get() = history?.get()?.lastOrNull()?.key
+
+        /**
+         * The parent [Route] associated with this nested navigation if it already is otherwise null.
+         */
+        public val parentRoute: Route? get() = history?.associateRoute
 
         /**
          * Navigate to a new destination of type [T]. Additional parameters can be set through [options] DSL.
@@ -1245,11 +1257,15 @@ public class ComposeNavigator private constructor(private val activity: Componen
         savedState = savedInstanceState?.getBundle("${activity::class.qualifiedName}$NAVIGATOR_SAVED_STATE_SUFFIX")
     }
 
-    private fun<T : Route> fetchOrUpdateHistory(key: RouteKey<T>, associateKey: KClass<out Route>?, initial: T): History<T> {
+    private fun<T : Route> fetchOrUpdateHistory(key: RouteKey<T>, associateKey: Route?, initial: T): History<T> {
         val present = backStackMap.containsKey(key)
         if (!present) {
             // restore from saved state
-            val history = History(key, associateKey, initial)
+            val history = if (associateKey != null) {
+                History(key, associateKey, initial)
+            } else {
+                History(key, null, initial)
+            }
             savedState?.remove(history.restoreState(savedState))
             backStackMap[key] = history
             return history
@@ -1273,9 +1289,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
      */
     @Composable
     public fun<T : Route> Setup(modifier: Modifier = Modifier, key: RouteKey<T>, initial: T, controller: Controller<T>, content: @Composable (currentRoute: T) -> Unit) {
-        val associateKey : KClass<out Route>? = remember {
+        val associateKey : Route? = remember {
             if (backStackMap.isNotEmpty()) {
-                backStackMap.lastValue()!!.getCurrentRecord().key::class
+                backStackMap.lastValue()!!.getCurrentRecord().key
             } else null
         }
         val history = remember { fetchOrUpdateHistory(key, associateKey, initial) }

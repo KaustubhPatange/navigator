@@ -436,12 +436,14 @@ public class ComposeNavigatorTests {
 
             val startRouteHistory = ComposeNavigator.History(StartRoute.key, null, StartRoute.First(""))
             startRouteHistory.push(StartRoute.Second(""))
-            startRouteHistory.push(StartRoute.Third(""))
+            val thirdRoute = StartRoute.Third("")
+            startRouteHistory.push(thirdRoute)
 
-            val nextRouteHistory = ComposeNavigator.History(NextRoute.key, StartRoute.Third::class, NextRoute.First())
-            nextRouteHistory.push(NextRoute.Second())
+            val nextRouteSecond = NextRoute.Second()
+            val nextRouteHistory = ComposeNavigator.History(NextRoute.key, thirdRoute, NextRoute.First())
+            nextRouteHistory.push(nextRouteSecond)
 
-            val thirdRouteHistory = ComposeNavigator.History(ThirdRoute.key, NextRoute.Second::class, ThirdRoute.Primary())
+            val thirdRouteHistory = ComposeNavigator.History(ThirdRoute.key, nextRouteSecond, ThirdRoute.Primary())
             thirdRouteHistory.push(ThirdRoute.Secondary(GalleryItem("test", 0)))
 
             navigator.backStackMap[StartRoute.key] = startRouteHistory
@@ -532,12 +534,15 @@ public class ComposeNavigatorTests {
                 .disableOnSaveStateInstance()
                 .initialize()
 
-            val startRouteHistory = ComposeNavigator.History(StartRoute.key, null, StartRoute.First(""))
+            val startFirstRoute = StartRoute.First("")
+            val startRouteHistory = ComposeNavigator.History(StartRoute.key, null, startFirstRoute)
 
-            val nextRouteHistory = ComposeNavigator.History(NextRoute.key, StartRoute.First::class, NextRoute.First())
-            nextRouteHistory.push(NextRoute.Second())
+            val nextRouteHistory = ComposeNavigator.History(NextRoute.key, startFirstRoute, NextRoute.First())
 
-            val thirdRouteHistory = ComposeNavigator.History(ThirdRoute.key, NextRoute.Second::class, ThirdRoute.Primary())
+            val nextSecondRoute = NextRoute.Second()
+            nextRouteHistory.push(nextSecondRoute)
+
+            val thirdRouteHistory = ComposeNavigator.History(ThirdRoute.key, nextSecondRoute, ThirdRoute.Primary())
             thirdRouteHistory.push(ThirdRoute.Secondary(GalleryItem("test", 0)))
 
             navigator.backStackMap[StartRoute.key] = startRouteHistory
@@ -575,11 +580,12 @@ public class ComposeNavigatorTests {
                 .disableOnSaveStateInstance()
                 .initialize()
 
-            val startRouteHistory = ComposeNavigator.History(StartRoute.key, null, StartRoute.First(""))
+            val startFirstRoute = StartRoute.First("")
+            val startRouteHistory = ComposeNavigator.History(StartRoute.key, null, startFirstRoute)
 
-            val nextRouteHistory = ComposeNavigator.History(NextRoute.key, StartRoute.First::class, NextRoute.First())
-
-            val thirdRouteHistory = ComposeNavigator.History(ThirdRoute.key, NextRoute.First::class, ThirdRoute.Primary())
+            val nextRouteFirst = NextRoute.First()
+            val nextRouteHistory = ComposeNavigator.History(NextRoute.key, startFirstRoute, nextRouteFirst)
+            val thirdRouteHistory = ComposeNavigator.History(ThirdRoute.key, nextRouteFirst, ThirdRoute.Primary())
             thirdRouteHistory.push(ThirdRoute.Secondary(GalleryItem("test", 0)))
 
             navigator.backStackMap[StartRoute.key] = startRouteHistory
@@ -622,18 +628,23 @@ public class ComposeNavigatorTests {
                 .disableOnSaveStateInstance()
                 .initialize()
 
-            val m1Route = ComposeNavigator.History(Routes.MainFirstRoute.key, Routes.MainRoute.First::class, Routes.MainFirstRoute.First())
+            val mainRouteFirst = Routes.MainRoute.First()
+            val mainRouteSecond = Routes.MainRoute.Second()
+            val mainSecondRouteFirst = Routes.MainSecondRoute.First()
+            val mainSecondRouteThird = Routes.MainSecondRoute.Third()
 
-            val mRoute = ComposeNavigator.History(Routes.MainRoute.key, null, Routes.MainRoute.First())
-            mRoute.push(Routes.MainRoute.Second())
+            val m1Route = ComposeNavigator.History(Routes.MainFirstRoute.key, mainRouteFirst, Routes.MainFirstRoute.First())
 
-            val m21Route = ComposeNavigator.History(Routes.MainSecondFirstRoute.key, Routes.MainSecondRoute.First::class, Routes.MainSecondFirstRoute.First())
+            val mRoute = ComposeNavigator.History(Routes.MainRoute.key, null, mainRouteFirst)
+            mRoute.push(mainRouteSecond)
 
-            val m2Route = ComposeNavigator.History(Routes.MainSecondRoute.key, Routes.MainRoute.Second::class, Routes.MainSecondRoute.First())
+            val m21Route = ComposeNavigator.History(Routes.MainSecondFirstRoute.key, mainSecondRouteFirst, Routes.MainSecondFirstRoute.First())
+
+            val m2Route = ComposeNavigator.History(Routes.MainSecondRoute.key, mainRouteSecond, mainSecondRouteFirst)
             m2Route.push(Routes.MainSecondRoute.Second())
-            m2Route.push(Routes.MainSecondRoute.Third())
+            m2Route.push(mainSecondRouteThird)
 
-            val m23Route = ComposeNavigator.History(Routes.MainSecondThirdRoute.key, Routes.MainSecondRoute.Third::class, Routes.MainSecondThirdRoute.First())
+            val m23Route = ComposeNavigator.History(Routes.MainSecondThirdRoute.key, mainSecondRouteThird, Routes.MainSecondThirdRoute.First())
             m23Route.push(Routes.MainSecondThirdRoute.Second())
 
             navigator.backStackMap[m1Route.key] = m1Route
