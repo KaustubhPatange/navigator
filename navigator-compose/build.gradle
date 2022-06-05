@@ -1,5 +1,3 @@
-import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
-
 apply plugin: 'io.codearte.nexus-staging'
 apply plugin: 'binary-compatibility-validator'
 apply plugin: 'org.jetbrains.dokka'
