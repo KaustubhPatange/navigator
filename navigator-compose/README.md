@@ -11,7 +11,7 @@ A type-safe navigation library for Jetpack Compose.
 - No Fragments needed, pure `@Composable` navigation.
 - The library also provides some built-in animations when navigating to other screens (check the sample app).
 - All the navigation states are preserved across configuration change & process death.
-- Provide built-in support for `ViewModel`s scoped to a destination.
+- Support for navigation scoped `ViewModel` (read [here](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigation-scoped-viewmodels)).
 
 API Reference docs, check [here](https://kaustubhpatange.github.io/navigator/reference/navigator-compose).
 
@@ -62,7 +62,7 @@ Snapshots of the current development version of `navigator-compose` are availabl
   - [Navigation Scoped ViewModels](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#navigation-scoped-viewmodels)
     - [Support for Hilt](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#support-for-hilt)
     - [Limitation with Reusable Routes](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#limitation-with-reusable-routes)
-- [Lifecycle events in Navigation `Route`s](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#lifecycle-events-in-navigation-routes)
+  - [Lifecycle events in Navigation `Route`s](https://github.com/KaustubhPatange/navigator/wiki/Compose-Navigator-Tutorials#lifecycle-events-in-navigation-routes)
 
 ## Apps using `navigator-compose`
 
