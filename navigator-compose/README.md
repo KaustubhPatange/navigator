@@ -11,6 +11,7 @@ A type-safe navigation library for Jetpack Compose.
 - No Fragments needed, pure `@Composable` navigation.
 - The library also provides some built-in animations when navigating to other screens (check the sample app).
 - All the navigation states are preserved across configuration change & process death.
+- Provide built-in support for `ViewModel`s scoped to a destination.
 
 API Reference docs, check [here](https://kaustubhpatange.github.io/navigator/reference/navigator-compose).
 

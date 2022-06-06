@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `0.1-alpha32` _(2022-06-06)_
+
+- **Added**: `currentRoute` & `parentRoute` properties on `Controller<T>`.
+
 ## Version `0.1-alpha31` _(2022-05-10)_
 
 - **Fixed**: Proper lifecycle events on `Route`.
