@@ -882,7 +882,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
             if (!dialogCreateStack.contains(key::class)) {
                 throw IllegalStateException("Dialog with the key \"${key::class.qualifiedName}\" is not present in the backStack. Did you forgot to create Dialog using \"controller.CreateDialog(...)\".")
             }
-            if (history.dialogHistory.get().any { it::class == key::class }) throw IllegalStateException("Cannot show dialog \"${key::class.qualifiedName}\" twice.")
+            if (history.dialogHistory.get().contains(key)) throw IllegalStateException("Cannot show dialog \"${key::class.qualifiedName}\" twice.")
 
             history.dialogHistory.add(key)
         }

@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `0.1-alpha33` _(2022-07-03)_
+
+- **Improved**: Checking multiple dialog instance will now account for `equals()`.
+
 ## Version `0.1-alpha32` _(2022-06-06)_
 
 - **Added**: `currentRoute` & `parentRoute` properties on `Controller<T>`.
