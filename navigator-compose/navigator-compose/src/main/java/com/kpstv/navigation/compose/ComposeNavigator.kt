@@ -650,9 +650,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
                 inner.getParcelable<BackStackRecord<T>>(BACKSTACK_LAST_ITEM)?.let { current = it }
 
-                backStack.forEach { record ->
+                backStack.fastForEach { record ->
                     val savedStateBundle = inner.getBundle("$NAVIGATOR_SAVED_STATE_BUNDLE_KEY${record.key::class.qualifiedName}")
-                        ?: return@forEach
+                        ?: return@fastForEach
                     record.key.lifecycleController.performRestore(savedStateBundle)
                 }
                 dialogHistory.restoreState(inner)
@@ -1189,33 +1189,32 @@ public class ComposeNavigator private constructor(private val activity: Componen
 
     private val activityLifecycleCallbacks = object : Application.ActivityLifecycleCallbacks {
 
-        private fun handleRoutesLifecycleEvent(event: Lifecycle.Event) {
-            getAllHistory().fastForEach { route ->
-                if (route.lifecycleController.isRestored()) {
-                    route.lifecycleController.handleLifecycleEvent(event)
-                }
+        private fun handleLastRouteLifecycleEvent(event: Lifecycle.Event) {
+            val route = getAllHistory().lastOrNull() ?: return
+            if (route.lifecycleController.isRestored()) {
+                route.lifecycleController.handleLifecycleEvent(event)
             }
         }
 
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
         override fun onActivityStarted(act: Activity) {
             if (activity === act) {
-                handleRoutesLifecycleEvent(Lifecycle.Event.ON_START)
+                handleLastRouteLifecycleEvent(Lifecycle.Event.ON_START)
             }
         }
         override fun onActivityResumed(act: Activity) {
             if (activity === act) {
-                handleRoutesLifecycleEvent(Lifecycle.Event.ON_RESUME)
+                handleLastRouteLifecycleEvent(Lifecycle.Event.ON_RESUME)
             }
         }
         override fun onActivityPaused(act: Activity) {
             if (activity === act) {
-                handleRoutesLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+                handleLastRouteLifecycleEvent(Lifecycle.Event.ON_PAUSE)
             }
         }
         override fun onActivityStopped(act: Activity) {
             if (activity === act) {
-                handleRoutesLifecycleEvent(Lifecycle.Event.ON_STOP)
+                handleLastRouteLifecycleEvent(Lifecycle.Event.ON_STOP)
             }
         }
         override fun onActivityDestroyed(activity: Activity) {}
@@ -1230,7 +1229,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
         removeStateAndConfiguration(items.toList())
     }
     private fun removeStateAndConfiguration(items: List<Route>) {
-        items.forEach { route ->
+        items.fastForEach { route ->
             val lifecycleController = route.lifecycleController
             if (::saveableStateHolder.isInitialized) {
                 saveableStateHolder.removeState(route)

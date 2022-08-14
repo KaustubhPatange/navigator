@@ -3,7 +3,6 @@
 package com.kpstv.navigation.compose
 
 import android.os.Bundle
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -877,6 +876,39 @@ public class ComposeNavigatorTests {
 
             // onDestroy()
             assert(multiStackFirstLifecycle.currentState == Lifecycle.State.DESTROYED)
+        }
+    }
+
+    @Test
+    public fun TestLifecycleBasedOnActivityStateChange() {
+        val go_to_third = composeTestRule.activity.getString(R.string.go_to_third)
+
+        composeTestRule.activity.apply {
+            val startRouteHistory = navigator.getHistory(StartRoute.key)
+            val startFirstLifecycle = startRouteHistory.last().lifecycleController.lifecycle
+
+            composeTestRule.onNodeWithText(go_to_third).performClick()
+            composeTestRule.waitForIdle()
+
+            val thirdRoutePrimaryLifecycle = navigator.getHistory(ThirdRoute.key).last().lifecycleController.lifecycle
+
+            composeTestRule.onNodeWithText(galleryItems[0].name).performClick()
+            composeTestRule.waitForIdle()
+
+            val thirdRouteSecondaryLifecycle = navigator.getHistory(ThirdRoute.key).last().lifecycleController.lifecycle
+
+            // onPause()
+            composeTestRule.activityRule.scenario.moveToState(Lifecycle.State.STARTED)
+
+            assert(startFirstLifecycle.currentState == Lifecycle.State.CREATED) // onStop
+            assert(thirdRoutePrimaryLifecycle.currentState == Lifecycle.State.CREATED) // onStop
+            assert(thirdRouteSecondaryLifecycle.currentState == Lifecycle.State.STARTED) // onPause
+
+            composeTestRule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED) // onResume
+
+            assert(startFirstLifecycle.currentState == Lifecycle.State.CREATED) // onStop
+            assert(thirdRoutePrimaryLifecycle.currentState == Lifecycle.State.CREATED) // onStop
+            assert(thirdRouteSecondaryLifecycle.currentState == Lifecycle.State.RESUMED) // onPause
         }
     }
 
