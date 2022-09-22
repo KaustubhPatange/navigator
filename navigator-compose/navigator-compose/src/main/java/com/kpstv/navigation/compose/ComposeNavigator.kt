@@ -16,13 +16,14 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.*
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.*
@@ -34,6 +35,8 @@ import com.kpstv.navigation.compose.Route.Key
 import kotlinx.coroutines.flow.*
 import kotlinx.parcelize.Parcelize
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
 /**
@@ -743,9 +746,11 @@ public class ComposeNavigator private constructor(private val activity: Componen
             }
             navigator.backStackMap.bringToTop(routeKey)
 
-            // move previous key from history to onStop()
-            val previousKey = snapshot[maxOf(0, snapshot.lastIndex - 1)].key
-            previousKey.lifecycleController.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+            // recursively onStop previous key & it's associated children
+            if (snapshot.size > 1) {
+                val previousKey = snapshot[maxOf(0, snapshot.lastIndex - 1)].key
+                navigator.recursiveHandleLifecycleEvent(previousKey, Lifecycle.Event.ON_STOP)
+            }
 
             history.set(snapshot, History.NavType.Forward)
         }
@@ -967,15 +972,11 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
 
         if (backStackMap.size > 1 && !last!!.canGoBack()) {
-            val backstack = backStackMap.removeLastOrNull()?.get()
-            if (backstack != null) {
-                removeStateAndConfiguration(backstack.map { it.key })
-            }
+            backStackMap.removeLastOrNull()
             return goBack()
         }
 
         val popped = last?.pop()
-        popped?.let { removeStateAndConfiguration(it.key) }
         last?.let { _ ->
             val currentLastKey = last.get().last().key::class
             var associateKey: RouteKey<out Route>? = null
@@ -1192,7 +1193,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
         private fun handleLastRouteLifecycleEvent(event: Lifecycle.Event) {
             val route = getAllHistory().lastOrNull() ?: return
             if (route.lifecycleController.isRestored()) {
-                route.lifecycleController.handleLifecycleEvent(event)
+                recursiveHandleLifecycleEvent(route, event)
             }
         }
 
@@ -1204,11 +1205,13 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
         override fun onActivityResumed(act: Activity) {
             if (activity === act) {
+                android.util.Log.e("Activity", "=> Resume()")
                 handleLastRouteLifecycleEvent(Lifecycle.Event.ON_RESUME)
             }
         }
         override fun onActivityPaused(act: Activity) {
             if (activity === act) {
+                android.util.Log.e("Activity", "=> Paused()")
                 handleLastRouteLifecycleEvent(Lifecycle.Event.ON_PAUSE)
             }
         }
@@ -1225,15 +1228,30 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
     }
 
-    private fun removeStateAndConfiguration(vararg items: Route) {
-        removeStateAndConfiguration(items.toList())
-    }
-    private fun removeStateAndConfiguration(items: List<Route>) {
-        items.fastForEach { route ->
-            val lifecycleController = route.lifecycleController
-            if (::saveableStateHolder.isInitialized) {
-                saveableStateHolder.removeState(route)
+    private fun recursiveHandleLifecycleEvent(key: Route, event: Lifecycle.Event) {
+        key.lifecycleController.handleLifecycleEvent(event)
+        // 1. manage lifecycles of descendants
+        // 2. manage lifecycles of ascendants, for eg: if "key" is first key of nested navigation
+        //    then also change lifecycle of its parent.
+        for (history in backStackMap.values) {
+            if (history.associateRoute === key) {
+                history.get().fastForEach { child ->
+                    recursiveHandleLifecycleEvent(child.key, event)
+                }
             }
+            if (history.get().firstOrNull()?.key === key && history.associateRoute != null) {
+                history.associateRoute.lifecycleController.handleLifecycleEvent(event)
+            }
+        }
+    }
+
+    private fun removeStateAndConfiguration(vararg items: Route, filterByCurrent: Boolean = true) {
+        removeStateAndConfiguration(items.toList(), filterByCurrent)
+    }
+    private fun removeStateAndConfiguration(items: List<Route>, filterByCurrent: Boolean = true) {
+        items.fastForEach { route ->
+            if (filterByCurrent && route === currentNavRoute) return@fastForEach
+            val lifecycleController = route.lifecycleController
             if (!activity.isChangingConfigurations) {
                 lifecycleController.clearViewModelStore()
             }
@@ -1245,9 +1263,9 @@ public class ComposeNavigator private constructor(private val activity: Componen
     }
 
     internal val backStackMap = mutableMapOf<RouteKey<out Route>, History<*>>()
-    private lateinit var saveableStateHolder: SaveableStateHolder
     private val navigatorTransitions: ArrayList<NavigatorTransition> = arrayListOf()
     private var savedState: Bundle? = null
+    private var currentNavRoute: Route? = null
 
     init {
         activity.onBackPressedDispatcher.addCallback(backPressHandler)
@@ -1309,19 +1327,49 @@ public class ComposeNavigator private constructor(private val activity: Componen
                 if (backStackMap.containsKey(key)) {
                     val animation = if (history.lastTransactionStatus == History.NavType.Forward) record.animation else history.getCurrentRecord().animation
                     CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
+                        val stateHolderObserver = remember(peek) { object : LifecycleEventObserver {
+                            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                                android.util.Log.e("LifecycleEvent", "${record.key::class.qualifiedName} -> $event")
+                                if (event == Lifecycle.Event.ON_DESTROY) {
+                                    android.util.Log.e("Disposing", "${record.key::class.qualifiedName} : ${record.key}")
+                                    saveableStateHolder.removeState(record.key)
+                                    source.lifecycle.removeObserver(this)
+                                }
+                            }
+                        } }
+
                         val lifecycleController = remember(peek) {
                             val lifecycleController = peek.lifecycleController
                             // since restoring of savedStateRegistry happens when history is created when savedState is not null.
                             // in any case if it is null we must restore an empty state.
                             if (!lifecycleController.isRestored()) {
                                 lifecycleController.performRestore(null)
+                                android.util.Log.e("Log", "Adding Observer")
+                                lifecycleController.lifecycle.addObserver(stateHolderObserver)
+
+                                // onCreate()
+                                lifecycleController.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
                             }
-                            lifecycleController.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-                            return@remember lifecycleController
+                            lifecycleController
                         }
+
                         CompositionLocalProvider(*lifecycleController.providers.toTypedArray()) {
                             saveableStateHolder.SaveableStateProvider(key = peek) {
                                 content(peek)
+                            }
+                        }
+
+                        DisposableEffect(peek) {
+                            currentNavRoute = peek
+                            if (peek.lifecycleController.lifecycle.currentState != Lifecycle.State.RESUMED) {
+                                android.util.Log.e("Moving", "State => RESUME")
+                                peek.lifecycleController.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+                            }
+
+                            onDispose {
+                                if (!history.get().fastAny { it.key == record.key }) {
+                                    removeStateAndConfiguration(record.key, filterByCurrent = false)
+                                }
                             }
                         }
                     }
@@ -1330,15 +1378,15 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     backPressHandler.isEnabled = canGoBack() // update if back press is enabled or not.
                     onDispose {
                         if (!backStackMap.containsKey(key)) {
-                            history.get().forEach { saveableStateHolder.removeState(it) }
-                        } else if (!history.get().contains(record)) {
-                            saveableStateHolder.removeState(record.key)
+                            history.get().forEach { record ->
+                                removeStateAndConfiguration(record.key, filterByCurrent = false)
+                            }
                         }
                     }
                 }
             }
         }
-        DisposableEffect(Unit) {
+        DisposableEffect(key) {
             onDispose { compositionLocalScopeList.remove(compositionLocalScope) }
         }
     }
