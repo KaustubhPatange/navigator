@@ -1205,13 +1205,11 @@ public class ComposeNavigator private constructor(private val activity: Componen
         }
         override fun onActivityResumed(act: Activity) {
             if (activity === act) {
-                android.util.Log.e("Activity", "=> Resume()")
                 handleLastRouteLifecycleEvent(Lifecycle.Event.ON_RESUME)
             }
         }
         override fun onActivityPaused(act: Activity) {
             if (activity === act) {
-                android.util.Log.e("Activity", "=> Paused()")
                 handleLastRouteLifecycleEvent(Lifecycle.Event.ON_PAUSE)
             }
         }
@@ -1329,9 +1327,7 @@ public class ComposeNavigator private constructor(private val activity: Componen
                     CommonEffect(targetState = record.key, animation = animation, isBackward = history.lastTransactionStatus == History.NavType.Backward) { peek ->
                         val stateHolderObserver = remember(peek) { object : LifecycleEventObserver {
                             override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                                android.util.Log.e("LifecycleEvent", "${record.key::class.qualifiedName} -> $event")
                                 if (event == Lifecycle.Event.ON_DESTROY) {
-                                    android.util.Log.e("Disposing", "${record.key::class.qualifiedName} : ${record.key}")
                                     saveableStateHolder.removeState(record.key)
                                     source.lifecycle.removeObserver(this)
                                 }
@@ -1344,7 +1340,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
                             // in any case if it is null we must restore an empty state.
                             if (!lifecycleController.isRestored()) {
                                 lifecycleController.performRestore(null)
-                                android.util.Log.e("Log", "Adding Observer")
                                 lifecycleController.lifecycle.addObserver(stateHolderObserver)
 
                                 // onCreate()
@@ -1362,7 +1357,6 @@ public class ComposeNavigator private constructor(private val activity: Componen
                         DisposableEffect(peek) {
                             currentNavRoute = peek
                             if (peek.lifecycleController.lifecycle.currentState != Lifecycle.State.RESUMED) {
-                                android.util.Log.e("Moving", "State => RESUME")
                                 peek.lifecycleController.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
                             }
 
