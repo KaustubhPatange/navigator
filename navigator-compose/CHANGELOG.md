@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `0.1-alpha36` _(2022-09-29)_
+
+- **Fixed**: Proper lifecycle handling/creation on destination change.
+
 ## Version `0.1-alpha35` _(2022-08-14)_
 
 - **Fixed**: Lifecycle state changes with activity state changes.
