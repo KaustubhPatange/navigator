@@ -14,14 +14,14 @@ include ':samples:navigation-sample'
 include ':samples:backpress-sample'
 include ':samples:basic-sample'
 include ':samples:multi-module-sample'
-include ':home-internal'
-include ':core'
-include ':home'
-include ':welcome'
-include ':home-internal2'
+include ':samples:multi-module-sample:home-internal'
+include ':samples:multi-module-sample:core'
+include ':samples:multi-module-sample:home'
+include ':samples:multi-module-sample:welcome'
+include ':samples:multi-module-sample:home-internal2'
 
-project(':home-internal').projectDir = new File(rootDir, 'samples/multi-module-sample/home-internal/')
-project(':core').projectDir = new File(rootDir, 'samples/multi-module-sample/core/')
-project(':home').projectDir = new File(rootDir, 'samples/multi-module-sample/home/')
-project(':welcome').projectDir = new File(rootDir, 'samples/multi-module-sample/welcome/')
-project(':home-internal2').projectDir = new File(rootDir, 'samples/multi-module-sample/home-internal2/')
+project(':samples:multi-module-sample:home-internal').projectDir = new File(rootDir, 'samples/multi-module-sample/home-internal/')
+project(':samples:multi-module-sample:core').projectDir = new File(rootDir, 'samples/multi-module-sample/core/')
+project(':samples:multi-module-sample:home').projectDir = new File(rootDir, 'samples/multi-module-sample/home/')
+project(':samples:multi-module-sample:welcome').projectDir = new File(rootDir, 'samples/multi-module-sample/welcome/')
+project(':samples:multi-module-sample:home-internal2').projectDir = new File(rootDir, 'samples/multi-module-sample/home-internal2/')

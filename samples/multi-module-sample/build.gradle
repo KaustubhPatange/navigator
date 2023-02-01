@@ -37,11 +37,11 @@ android {
 }
 
 dependencies {
-    implementation project(":core")
-    implementation project(":home")
-    implementation project(":home-internal")
-    implementation project(":home-internal2")
-    implementation project(":welcome")
+    implementation project(":samples:multi-module-sample:core")
+    implementation project(":samples:multi-module-sample:home")
+    implementation project(":samples:multi-module-sample:home-internal")
+    implementation project(":samples:multi-module-sample:home-internal2")
+    implementation project(":samples:multi-module-sample:welcome")
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
